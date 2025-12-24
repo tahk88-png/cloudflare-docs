@@ -51,11 +51,8 @@ export async function initMermaid() {
 			io.observe(diagram);
 		}
 	} else {
-		for (const diagram of getUnprocessedDiagrams()) {
-			// Fallback: render all.
-			// eslint-disable-next-line no-await-in-loop
-			await renderIfNeeded(diagram);
-		}
+		// Fallback: render all.
+		await Promise.all(getUnprocessedDiagrams().map((diagram) => renderIfNeeded(diagram)));
 	}
 
 	// Re-render processed diagrams on theme changes.

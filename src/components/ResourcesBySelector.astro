@@ -83,7 +83,7 @@ const facets = matchingEntries.reduce(
 
 function getDocsTitle(entry: CollectionEntry<"docs">): string {
 	const titleItem = entry.data.head.find((item) => item.tag === "title");
-	return titleItem ? titleItem.content : entry.data.title;
+	return titleItem?.content ?? entry.data.title ?? entry.id;
 }
 
 function getHref(entry: CollectionEntry<"docs"> | CollectionEntry<"stream">): string {
