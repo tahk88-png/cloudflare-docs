@@ -4,6 +4,11 @@ function getMermaidTheme() {
 		: "dark";
 }
 
+let mermaidSingleton: (typeof import("mermaid"))["default"] | undefined;
+let observersInitialized = false;
+let intersectionObserver: IntersectionObserver | undefined;
+let themeObserver: MutationObserver | undefined;
+
 async function renderDiagram(
 	mermaid: (typeof import("mermaid"))["default"],
 	diagram: HTMLPreElement,
@@ -29,7 +34,11 @@ function getUnprocessedDiagrams() {
 }
 
 export async function initMermaid() {
-	const { default: mermaid } = await import("mermaid");
+	if (!mermaidSingleton) {
+		const { default: mermaid } = await import("mermaid");
+		mermaidSingleton = mermaid;
+	}
+	const mermaid = mermaidSingleton;
 
 	// Render diagrams lazily as they enter the viewport.
 	const renderIfNeeded = async (diagram: HTMLPreElement) => {
@@ -37,39 +46,48 @@ export async function initMermaid() {
 		await renderDiagram(mermaid, diagram);
 	};
 
-	if ("IntersectionObserver" in window) {
-		const io = new IntersectionObserver((entries) => {
-			for (const entry of entries) {
-				if (!entry.isIntersecting) continue;
-				const diagram = entry.target as HTMLPreElement;
+	if (!observersInitialized) {
+		observersInitialized = true;
+
+		if ("IntersectionObserver" in window) {
+			intersectionObserver = new IntersectionObserver((entries) => {
+				for (const entry of entries) {
+					if (!entry.isIntersecting) continue;
+					const diagram = entry.target as HTMLPreElement;
+					void renderIfNeeded(diagram);
+					intersectionObserver?.unobserve(diagram);
+				}
+			});
+		}
+
+		// Re-render processed diagrams on theme changes.
+		themeObserver = new MutationObserver(() => {
+			const processed = Array.from(
+				document.querySelectorAll<HTMLPreElement>(
+					'pre.mermaid[data-processed="true"]',
+				),
+			);
+			for (const diagram of processed) {
+				diagram.removeAttribute("data-processed");
+			}
+			for (const diagram of getUnprocessedDiagrams()) {
 				void renderIfNeeded(diagram);
-				io.unobserve(diagram);
 			}
 		});
 
+		themeObserver.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ["data-theme"],
+		});
+	}
+
+	// Always (re-)scan in case client-side navigation introduced new diagrams.
+	if (intersectionObserver) {
 		for (const diagram of getUnprocessedDiagrams()) {
-			io.observe(diagram);
+			intersectionObserver.observe(diagram);
 		}
 	} else {
 		// Fallback: render all.
 		await Promise.all(getUnprocessedDiagrams().map((diagram) => renderIfNeeded(diagram)));
 	}
-
-	// Re-render processed diagrams on theme changes.
-	const obs = new MutationObserver(() => {
-		const processed = Array.from(
-			document.querySelectorAll<HTMLPreElement>('pre.mermaid[data-processed="true"]'),
-		);
-		for (const diagram of processed) {
-			diagram.removeAttribute("data-processed");
-		}
-		for (const diagram of getUnprocessedDiagrams()) {
-			void renderIfNeeded(diagram);
-		}
-	});
-
-	obs.observe(document.documentElement, {
-		attributes: true,
-		attributeFilter: ["data-theme"],
-	});
 }
