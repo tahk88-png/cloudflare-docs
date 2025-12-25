@@ -1,0 +1,87 @@
+---
+import { BookingCalendarDemo } from '~/components/rentbox/BookingCalendarDemo';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Rentbox Booking Calendar - Demo</title>
+		
+		<!-- Google Fonts - Inter -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+		
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+			
+			body {
+				font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+				-webkit-font-smoothing: antialiased;
+				-moz-osx-font-smoothing: grayscale;
+				background: linear-gradient(to bottom, #F7F9F8, white);
+				min-height: 100vh;
+			}
+			
+			/* Custom scrollbar */
+			::-webkit-scrollbar {
+				width: 8px;
+				height: 8px;
+			}
+			
+			::-webkit-scrollbar-track {
+				background: #F7F9F8;
+				border-radius: 4px;
+			}
+			
+			::-webkit-scrollbar-thumb {
+				background: #CBD5CF;
+				border-radius: 4px;
+			}
+			
+			::-webkit-scrollbar-thumb:hover {
+				background: #1DB954;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="min-h-screen py-8 px-4">
+			<div class="max-w-5xl mx-auto">
+				<!-- Header -->
+				<div class="text-center mb-12">
+					<h1 class="text-4xl font-bold text-[#0F172A] mb-3">
+						Rentbox Tool Rental
+					</h1>
+					<p class="text-lg text-[#6B7280]">
+						24/7 self-service booking • Book your tools anytime, anywhere
+					</p>
+				</div>
+				
+				<!-- Calendar Component -->
+				<BookingCalendarDemo client:load />
+				
+				<!-- Info Footer -->
+				<div class="mt-12 text-center text-sm text-[#6B7280]">
+					<p class="mb-2">
+						Need help? Contact us at{' '}
+						<a href="mailto:support@rentbox.com" class="text-[#1DB954] hover:text-[#159A46] underline">
+							support@rentbox.com
+						</a>
+					</p>
+					<p>Timezone: Europe/Tallinn (EET/EEST)</p>
+					<p class="mt-4 text-xs">
+						<a href="/" class="text-[#1DB954] hover:text-[#159A46]">
+							← Back to Cloudflare Docs
+						</a>
+					</p>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

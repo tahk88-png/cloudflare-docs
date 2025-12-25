@@ -141,6 +141,19 @@
 	--color-cl1-gray-9: #f2f2f2;
 
 	--color-cl1-brand-orange: #f6821f;
+
+	/* Rentbox Brand Colors */
+	--color-rentbox-accent: #1DB954;
+	--color-rentbox-accent-hover: #159A46;
+	--color-rentbox-background: #F7F9F8;
+	--color-rentbox-surface: #FFFFFF;
+	--color-rentbox-border: #E2E8E4;
+	--color-rentbox-text-primary: #0F172A;
+	--color-rentbox-text-muted: #6B7280;
+	--color-rentbox-disabled: #CBD5CF;
+	--color-rentbox-error: #DC2626;
+	--color-rentbox-partial-booking: #EAF7F0;
+	--color-rentbox-unavailable: #F1F3F2;
 }
 
 @layer base {
