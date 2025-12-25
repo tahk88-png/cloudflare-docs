@@ -5,7 +5,7 @@
  */
 
 import type { APIRoute } from "astro";
-import { DocumentRepository } from "~/lib/content-creation/db-schema";
+import { getDocumentRepository } from "~/lib/content-creation/db";
 import type {
 	PreviewRequest,
 	PreviewResponse,
@@ -13,13 +13,9 @@ import type {
 } from "~/lib/content-creation/types";
 import { renderBlocksToHTML } from "~/lib/content-creation/renderer";
 
-function getDB() {
-	throw new Error("Database connection not configured");
-}
-
-export const POST: APIRoute = async ({ params, request }) => {
+export const POST: APIRoute = async (context) => {
 	try {
-		const { id } = params;
+		const { id } = context.params;
 		if (!id) {
 			return new Response(JSON.stringify({ error: "Document ID required" }), {
 				status: 400,
@@ -27,11 +23,10 @@ export const POST: APIRoute = async ({ params, request }) => {
 			});
 		}
 
-		const body: PreviewRequest = await request.json();
+		const body: PreviewRequest = await context.request.json();
 		const mode = body.mode || "web";
 
-		const db = getDB();
-		const repo = new DocumentRepository(db);
+		const repo = getDocumentRepository(context);
 
 		const blocks = await repo.getDocumentBlocks(id);
 		const blocksWithContent: DocumentBlock[] = blocks.map((block) => ({
@@ -54,6 +49,7 @@ export const POST: APIRoute = async ({ params, request }) => {
 			headers: { "Content-Type": "application/json" },
 		});
 	} catch (error) {
+		console.error("Failed to generate preview:", error);
 		return new Response(
 			JSON.stringify({ error: "Failed to generate preview" }),
 			{ status: 500, headers: { "Content-Type": "application/json" } },

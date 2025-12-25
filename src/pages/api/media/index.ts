@@ -5,18 +5,13 @@
  */
 
 import type { APIRoute } from "astro";
-import { MediaRepository } from "~/lib/content-creation/db-schema";
+import { getMediaRepository } from "~/lib/content-creation/db";
 
-function getDB() {
-	throw new Error("Database connection not configured");
-}
-
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async (context) => {
 	try {
-		const type = url.searchParams.get("type");
+		const type = context.url.searchParams.get("type");
 
-		const db = getDB();
-		const repo = new MediaRepository(db);
+		const repo = getMediaRepository(context);
 
 		const assets = await repo.listAssets(type || undefined);
 
@@ -25,6 +20,7 @@ export const GET: APIRoute = async ({ url }) => {
 			headers: { "Content-Type": "application/json" },
 		});
 	} catch (error) {
+		console.error("Failed to fetch media assets:", error);
 		return new Response(
 			JSON.stringify({ error: "Failed to fetch media assets" }),
 			{ status: 500, headers: { "Content-Type": "application/json" } },

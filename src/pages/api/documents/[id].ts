@@ -7,16 +7,12 @@
  */
 
 import type { APIRoute } from "astro";
-import { DocumentRepository } from "~/lib/content-creation/db-schema";
+import { getDocumentRepository } from "~/lib/content-creation/db";
 import type { UpdateDocumentRequest } from "~/lib/content-creation/types";
 
-function getDB() {
-	throw new Error("Database connection not configured");
-}
-
-export const GET: APIRoute = async ({ params }) => {
+export const GET: APIRoute = async (context) => {
 	try {
-		const { id } = params;
+		const { id } = context.params;
 		if (!id) {
 			return new Response(JSON.stringify({ error: "Document ID required" }), {
 				status: 400,
@@ -24,8 +20,7 @@ export const GET: APIRoute = async ({ params }) => {
 			});
 		}
 
-		const db = getDB();
-		const repo = new DocumentRepository(db);
+		const repo = getDocumentRepository(context);
 
 		const document = await repo.getDocument(id);
 		if (!document) {
@@ -52,6 +47,7 @@ export const GET: APIRoute = async ({ params }) => {
 			},
 		);
 	} catch (error) {
+		console.error("Failed to fetch document:", error);
 		return new Response(
 			JSON.stringify({ error: "Failed to fetch document" }),
 			{ status: 500, headers: { "Content-Type": "application/json" } },
@@ -59,9 +55,9 @@ export const GET: APIRoute = async ({ params }) => {
 	}
 };
 
-export const PUT: APIRoute = async ({ params, request }) => {
+export const PUT: APIRoute = async (context) => {
 	try {
-		const { id } = params;
+		const { id } = context.params;
 		if (!id) {
 			return new Response(JSON.stringify({ error: "Document ID required" }), {
 				status: 400,
@@ -69,9 +65,8 @@ export const PUT: APIRoute = async ({ params, request }) => {
 			});
 		}
 
-		const body: UpdateDocumentRequest = await request.json();
-		const db = getDB();
-		const repo = new DocumentRepository(db);
+		const body: UpdateDocumentRequest = await context.request.json();
+		const repo = getDocumentRepository(context);
 
 		await repo.updateDocument(id, body.title, body.language);
 
@@ -82,6 +77,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
 			headers: { "Content-Type": "application/json" },
 		});
 	} catch (error) {
+		console.error("Failed to update document:", error);
 		return new Response(
 			JSON.stringify({ error: "Failed to update document" }),
 			{ status: 500, headers: { "Content-Type": "application/json" } },
@@ -89,9 +85,9 @@ export const PUT: APIRoute = async ({ params, request }) => {
 	}
 };
 
-export const DELETE: APIRoute = async ({ params }) => {
+export const DELETE: APIRoute = async (context) => {
 	try {
-		const { id } = params;
+		const { id } = context.params;
 		if (!id) {
 			return new Response(JSON.stringify({ error: "Document ID required" }), {
 				status: 400,
@@ -99,8 +95,7 @@ export const DELETE: APIRoute = async ({ params }) => {
 			});
 		}
 
-		const db = getDB();
-		const repo = new DocumentRepository(db);
+		const repo = getDocumentRepository(context);
 
 		await repo.deleteDocument(id);
 
@@ -109,6 +104,7 @@ export const DELETE: APIRoute = async ({ params }) => {
 			headers: { "Content-Type": "application/json" },
 		});
 	} catch (error) {
+		console.error("Failed to delete document:", error);
 		return new Response(
 			JSON.stringify({ error: "Failed to delete document" }),
 			{ status: 500, headers: { "Content-Type": "application/json" } },

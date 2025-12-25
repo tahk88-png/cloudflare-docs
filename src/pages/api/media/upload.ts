@@ -5,22 +5,14 @@
  */
 
 import type { APIRoute } from "astro";
-import { MediaRepository } from "~/lib/content-creation/db-schema";
+import { getMediaRepository } from "~/lib/content-creation/db";
+import { uploadFile } from "~/lib/content-creation/storage";
 import { validateImageFile } from "~/lib/content-creation/media-utils";
 import type { UploadMediaResponse } from "~/lib/content-creation/types";
 
-function getDB() {
-	throw new Error("Database connection not configured");
-}
-
-function getStorage() {
-	// Replace with actual storage (Cloudflare R2, S3, etc.)
-	throw new Error("Storage not configured");
-}
-
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async (context) => {
 	try {
-		const formData = await request.formData();
+		const formData = await context.request.formData();
 		const file = formData.get("file") as File;
 		const type = formData.get("type") as string;
 		const altText = formData.get("altText") as string | null;
@@ -42,31 +34,22 @@ export const POST: APIRoute = async ({ request }) => {
 			}
 
 			// Upload to storage
-			const storage = getStorage();
 			const fileId = crypto.randomUUID();
-			const extension = file.name.split(".").pop() || "jpg";
-			const fileName = `${fileId}.${extension}`;
+			const uploadResult = await uploadFile(context, file, `${fileId}.${file.name.split(".").pop() || "jpg"}`);
 
-			// In production, upload file to storage service
-			// const url = await storage.upload(fileName, file);
-
-			// For now, return placeholder
-			const url = `/media/${fileName}`;
-
-			const db = getDB();
-			const repo = new MediaRepository(db);
+			const repo = getMediaRepository(context);
 
 			await repo.createAsset({
 				id: fileId,
 				type: "image",
-				url,
+				url: uploadResult.url,
 				altText: altText || undefined,
 			});
 
 			const response: UploadMediaResponse = {
 				id: fileId,
 				type: "image",
-				url,
+				url: uploadResult.url,
 				altText: altText || undefined,
 			};
 
@@ -81,6 +64,7 @@ export const POST: APIRoute = async ({ request }) => {
 			{ status: 400, headers: { "Content-Type": "application/json" } },
 		);
 	} catch (error) {
+		console.error("Failed to upload media:", error);
 		return new Response(
 			JSON.stringify({ error: "Failed to upload media" }),
 			{ status: 500, headers: { "Content-Type": "application/json" } },

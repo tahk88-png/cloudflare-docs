@@ -6,32 +6,26 @@
  */
 
 import type { APIRoute } from "astro";
-import { DocumentRepository } from "~/lib/content-creation/db-schema";
+import { getDocumentRepository } from "~/lib/content-creation/db";
 import type { CreateDocumentRequest } from "~/lib/content-creation/types";
 
-// In production, get database from environment/context
-// For now, this is a placeholder that shows the structure
-function getDB() {
-	// Replace with actual database connection
-	// Example: return env.DB; (Cloudflare D1)
-	throw new Error("Database connection not configured");
-}
-
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async (context) => {
 	try {
-		const db = getDB();
-		const repo = new DocumentRepository(db);
+		const repo = getDocumentRepository(context);
+		const db = repo["db"] as any;
 
-		// In a real implementation, add pagination and filtering
-		const documents = await db.query(
+		// Get documents with pagination
+		const result = await db.query(
 			`SELECT * FROM documents ORDER BY updated_at DESC LIMIT 100`,
 		);
+		const documents = result || [];
 
 		return new Response(JSON.stringify({ documents }), {
 			status: 200,
 			headers: { "Content-Type": "application/json" },
 		});
 	} catch (error) {
+		console.error("Failed to fetch documents:", error);
 		return new Response(
 			JSON.stringify({ error: "Failed to fetch documents" }),
 			{ status: 500, headers: { "Content-Type": "application/json" } },
@@ -39,9 +33,9 @@ export const GET: APIRoute = async ({ request }) => {
 	}
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async (context) => {
 	try {
-		const body: CreateDocumentRequest = await request.json();
+		const body: CreateDocumentRequest = await context.request.json();
 
 		if (!body.title || !body.language) {
 			return new Response(
@@ -50,8 +44,7 @@ export const POST: APIRoute = async ({ request }) => {
 			);
 		}
 
-		const db = getDB();
-		const repo = new DocumentRepository(db);
+		const repo = getDocumentRepository(context);
 
 		const id = crypto.randomUUID();
 		await repo.createDocument(id, body.title, body.language);
@@ -63,6 +56,7 @@ export const POST: APIRoute = async ({ request }) => {
 			headers: { "Content-Type": "application/json" },
 		});
 	} catch (error) {
+		console.error("Failed to create document:", error);
 		return new Response(
 			JSON.stringify({ error: "Failed to create document" }),
 			{ status: 500, headers: { "Content-Type": "application/json" } },

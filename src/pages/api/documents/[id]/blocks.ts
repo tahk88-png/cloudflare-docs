@@ -6,16 +6,12 @@
  */
 
 import type { APIRoute } from "astro";
-import { DocumentRepository } from "~/lib/content-creation/db-schema";
+import { getDocumentRepository } from "~/lib/content-creation/db";
 import type { DocumentBlock } from "~/lib/content-creation/types";
 
-function getDB() {
-	throw new Error("Database connection not configured");
-}
-
-export const POST: APIRoute = async ({ params, request }) => {
+export const POST: APIRoute = async (context) => {
 	try {
-		const { id } = params;
+		const { id } = context.params;
 		if (!id) {
 			return new Response(JSON.stringify({ error: "Document ID required" }), {
 				status: 400,
@@ -23,7 +19,7 @@ export const POST: APIRoute = async ({ params, request }) => {
 			});
 		}
 
-		const body: { blocks: DocumentBlock[] } = await request.json();
+		const body: { blocks: DocumentBlock[] } = await context.request.json();
 
 		if (!body.blocks || !Array.isArray(body.blocks)) {
 			return new Response(
@@ -32,8 +28,7 @@ export const POST: APIRoute = async ({ params, request }) => {
 			);
 		}
 
-		const db = getDB();
-		const repo = new DocumentRepository(db);
+		const repo = getDocumentRepository(context);
 
 		// Save all blocks
 		for (const block of body.blocks) {
@@ -60,6 +55,7 @@ export const POST: APIRoute = async ({ params, request }) => {
 			headers: { "Content-Type": "application/json" },
 		});
 	} catch (error) {
+		console.error("Failed to save blocks:", error);
 		return new Response(
 			JSON.stringify({ error: "Failed to save blocks" }),
 			{ status: 500, headers: { "Content-Type": "application/json" } },
@@ -67,9 +63,9 @@ export const POST: APIRoute = async ({ params, request }) => {
 	}
 };
 
-export const PUT: APIRoute = async ({ params, request }) => {
+export const PUT: APIRoute = async (context) => {
 	try {
-		const { id } = params;
+		const { id } = context.params;
 		if (!id) {
 			return new Response(JSON.stringify({ error: "Document ID required" }), {
 				status: 400,
@@ -78,7 +74,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
 		}
 
 		const body: { blockOrders: Array<{ id: string; order: number }> } =
-			await request.json();
+			await context.request.json();
 
 		if (!body.blockOrders || !Array.isArray(body.blockOrders)) {
 			return new Response(
@@ -87,8 +83,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
 			);
 		}
 
-		const db = getDB();
-		const repo = new DocumentRepository(db);
+		const repo = getDocumentRepository(context);
 
 		await repo.reorderBlocks(id, body.blockOrders);
 
@@ -97,6 +92,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
 			headers: { "Content-Type": "application/json" },
 		});
 	} catch (error) {
+		console.error("Failed to reorder blocks:", error);
 		return new Response(
 			JSON.stringify({ error: "Failed to reorder blocks" }),
 			{ status: 500, headers: { "Content-Type": "application/json" } },

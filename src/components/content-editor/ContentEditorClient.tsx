@@ -23,6 +23,14 @@ export default function ContentEditorClient({
 		if (documentId) {
 			loadDocument();
 		} else {
+			// Create new document if no ID provided
+			setInitialDocument({
+				id: crypto.randomUUID(),
+				title: "",
+				language: "et",
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString(),
+			});
 			setIsLoading(false);
 		}
 	}, [documentId]);
@@ -34,6 +42,15 @@ export default function ContentEditorClient({
 				const data = await response.json();
 				setInitialDocument(data.document);
 				setInitialBlocks(data.blocks || []);
+			} else if (response.status === 404) {
+				// Document doesn't exist, create placeholder
+				setInitialDocument({
+					id: documentId,
+					title: "Untitled Document",
+					language: "et",
+					createdAt: new Date().toISOString(),
+					updatedAt: new Date().toISOString(),
+				});
 			}
 		} catch (error) {
 			console.error("Failed to load document:", error);

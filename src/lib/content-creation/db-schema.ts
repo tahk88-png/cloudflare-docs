@@ -101,7 +101,7 @@ export class DocumentRepository {
 			`SELECT * FROM documents WHERE id = ?`,
 			[id],
 		);
-		return result[0];
+		return (result && result.length > 0) ? result[0] : null;
 	}
 
 	async updateDocument(
@@ -135,10 +135,11 @@ export class DocumentRepository {
 	}
 
 	async getDocumentBlocks(documentId: string): Promise<any[]> {
-		return await this.db.query(
+		const result = await this.db.query(
 			`SELECT * FROM document_blocks WHERE document_id = ? ORDER BY "order" ASC`,
 			[documentId],
 		);
+		return result || [];
 	}
 
 	async saveBlock(block: {
@@ -214,7 +215,7 @@ export class DocumentRepository {
 			`SELECT * FROM document_versions WHERE id = ?`,
 			[id],
 		);
-		return result[0];
+		return (result && result.length > 0) ? result[0] : null;
 	}
 
 	async logAIEdit(log: {
@@ -266,7 +267,7 @@ export class MediaRepository {
 			`SELECT * FROM media_assets WHERE id = ?`,
 			[id],
 		);
-		return result[0];
+		return (result && result.length > 0) ? result[0] : null;
 	}
 
 	async updateAsset(

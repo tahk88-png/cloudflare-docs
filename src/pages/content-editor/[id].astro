@@ -5,6 +5,8 @@
  * Main page for editing documents
  */
 import ContentEditorClient from "~/components/content-editor/ContentEditorClient";
+
+const documentId = Astro.params.id || "";
 ---
 
 <html lang="en">
@@ -12,8 +14,15 @@ import ContentEditorClient from "~/components/content-editor/ContentEditorClient
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Content Editor</title>
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+				font-family: system-ui, -apple-system, sans-serif;
+			}
+		</style>
 	</head>
 	<body>
-		<ContentEditorClient client:load documentId={Astro.params.id || ""} />
+		<ContentEditorClient client:load documentId={documentId} />
 	</body>
 </html>

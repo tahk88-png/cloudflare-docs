@@ -5,9 +5,7 @@
  */
 
 import type { APIRoute } from "astro";
-import {
-	MediaRepository,
-} from "~/lib/content-creation/db-schema";
+import { getMediaRepository } from "~/lib/content-creation/db";
 import {
 	detectVideoSource,
 	extractYouTubeId,
@@ -18,13 +16,9 @@ import {
 } from "~/lib/content-creation/media-utils";
 import type { UploadMediaResponse } from "~/lib/content-creation/types";
 
-function getDB() {
-	throw new Error("Database connection not configured");
-}
-
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async (context) => {
 	try {
-		const body: { url: string; title?: string } = await request.json();
+		const body: { url: string; title?: string } = await context.request.json();
 
 		if (!body.url) {
 			return new Response(
@@ -52,8 +46,7 @@ export const POST: APIRoute = async ({ request }) => {
 			thumbnailUrl = getVimeoThumbnailUrl(videoId);
 		}
 
-		const db = getDB();
-		const repo = new MediaRepository(db);
+		const repo = getMediaRepository(context);
 
 		const mediaId = crypto.randomUUID();
 
@@ -76,6 +69,7 @@ export const POST: APIRoute = async ({ request }) => {
 			headers: { "Content-Type": "application/json" },
 		});
 	} catch (error) {
+		console.error("Failed to link video:", error);
 		return new Response(
 			JSON.stringify({ error: "Failed to link video" }),
 			{ status: 500, headers: { "Content-Type": "application/json" } },

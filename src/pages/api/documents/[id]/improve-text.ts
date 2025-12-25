@@ -6,12 +6,8 @@
 
 import type { APIRoute } from "astro";
 import { improveText } from "~/lib/content-creation/ai-client";
-import { DocumentRepository } from "~/lib/content-creation/db-schema";
+import { getDocumentRepository } from "~/lib/content-creation/db";
 import type { ImproveTextRequest, ImproveTextResponse } from "~/lib/content-creation/types";
-
-function getDB() {
-	throw new Error("Database connection not configured");
-}
 
 function getAIConfig() {
 	// Get from environment variables
@@ -26,9 +22,9 @@ function getAIConfig() {
 	};
 }
 
-export const POST: APIRoute = async ({ params, request }) => {
+export const POST: APIRoute = async (context) => {
 	try {
-		const { id } = params;
+		const { id } = context.params;
 		if (!id) {
 			return new Response(JSON.stringify({ error: "Document ID required" }), {
 				status: 400,
@@ -36,7 +32,7 @@ export const POST: APIRoute = async ({ params, request }) => {
 			});
 		}
 
-		const body: ImproveTextRequest = await request.json();
+		const body: ImproveTextRequest = await context.request.json();
 
 		if (!body.text || !body.action || !body.language) {
 			return new Response(
@@ -51,8 +47,7 @@ export const POST: APIRoute = async ({ params, request }) => {
 		const result: ImproveTextResponse = await improveText(body, aiConfig);
 
 		// Log the AI edit
-		const db = getDB();
-		const repo = new DocumentRepository(db);
+		const repo = getDocumentRepository(context);
 
 		await repo.logAIEdit({
 			id: crypto.randomUUID(),
