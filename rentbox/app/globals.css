@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Rentbox Brand Colors */
+    --bg: #F7F9F8;
+    --card: #FFFFFF;
+    --text: #0F172A;
+    --muted: #6B7280;
+    --border: #E2E8E4;
+    --accent: #1DB954;
+    --accent-hover: #159A46;
+    --accent-foreground: #FFFFFF;
+    --disabled: #CBD5CF;
+    --error: #DC2626;
+    
+    /* Additional UI vars */
+    --radius: 0.5rem;
+    --input: #E2E8E4;
+    --ring: #1DB954;
+  }
+  
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

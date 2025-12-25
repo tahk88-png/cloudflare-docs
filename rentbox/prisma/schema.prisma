@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  description String
+  icon        String
+  order       Int
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+
+  @@index([slug])
+  @@index([active, order])
+}
+
+model Product {
+  id                String        @id @default(cuid())
+  slug              String        @unique
+  name              String
+  shortDescription  String
+  description       String        @default("")
+  categoryId        String
+  tags              String        @default("") // JSON array as string
+  basePrice         Float
+  priceUnit         String        @default("day") // "hour" or "day"
+  images            String        @default("[]") // JSON array as string
+  active            Boolean       @default(true)
+  featured          Boolean       @default(false)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  category          Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  compartments      Compartment[]
+
+  @@index([slug])
+  @@index([categoryId])
+  @@index([active, featured])
+}
+
+model Locker {
+  id           String        @id @default(cuid())
+  name         String
+  locationText String
+  timezone     String        @default("Europe/Tallinn")
+  active       Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  compartments Compartment[]
+}
+
+model Compartment {
+  id        String   @id @default(cuid())
+  lockerId  String
+  productId String
+  label     String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  locker    Locker   @relation(fields: [lockerId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([lockerId])
+  @@index([productId])
+  @@index([active])
+}
