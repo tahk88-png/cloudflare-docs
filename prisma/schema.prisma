@@ -42,6 +42,7 @@ model Product {
   updatedAt        DateTime     @updatedAt
   category         Category     @relation(fields: [categoryId], references: [id])
   compartments     Compartment[]
+  bookings         Booking[]
 
   @@unique([categoryId, slug])
   @@index([categoryId, active])
@@ -62,16 +63,35 @@ model Locker {
 }
 
 model Compartment {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   lockerId  String
   productId String
   label     String?
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  locker    Locker   @relation(fields: [lockerId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  locker    Locker    @relation(fields: [lockerId], references: [id])
+  product   Product   @relation(fields: [productId], references: [id])
+  bookings  Booking[]
 
   @@index([lockerId, productId])
   @@index([productId, active])
+}
+
+model Booking {
+  id            String      @id @default(cuid())
+  productId     String
+  compartmentId String
+  startsAt      DateTime    @db.Timestamptz
+  endsAt        DateTime    @db.Timestamptz
+  status        String      @default("pending") // 'pending' | 'confirmed' | 'cancelled' | 'completed'
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  product       Product     @relation(fields: [productId], references: [id])
+  compartment   Compartment @relation(fields: [compartmentId], references: [id])
+
+  @@index([productId, status])
+  @@index([compartmentId, status])
+  @@index([startsAt, endsAt])
+  @@index([status, startsAt])
 }

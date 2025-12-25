@@ -5,7 +5,9 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { getProductBySlug, getCategoryBySlug, getAvailabilityBadge } from '@/lib/catalog/data'
+import { BookingPanel } from '@/components/booking/BookingPanel'
+import { getProductBySlug, getCategoryBySlug, getAvailabilityBadge, getLockers } from '@/lib/catalog/data'
+import { getBookingsForProduct, getAvailableCompartments } from '@/lib/booking/data'
 
 interface ProductPageProps {
   params: Promise<{ categorySlug: string; productSlug: string }>
@@ -47,17 +49,24 @@ export default async function ProductPage({ params }: ProductPageProps) {
     )
   }
 
+  // Fetch booking data
+  const lockers = await getLockers()
+  const compartments = await getAvailableCompartments(product.id, new Date(), new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
+  const startDate = new Date()
+  const endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // Next 30 days
+  const existingBookings = await getBookingsForProduct(product.id, startDate, endDate)
+
   const availability = getAvailabilityBadge(product.compartmentCount || 0)
   const unitLabel = product.priceUnit === 'hour' ? 'tund' : 'päev'
   const imageUrl = product.images[0] || '/placeholder-product.jpg'
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-12 md:py-16">
       {/* Breadcrumbs */}
-      <nav className="mb-6 text-sm">
+      <nav className="mb-8 text-sm">
         <ol className="flex items-center gap-2">
           <li>
-            <Link href="/tooriistad" className="text-[var(--muted)] hover:text-[var(--accent)]">
+            <Link href="/tooriistad" className="text-[var(--muted)] hover:text-[var(--accent)] transition-colors">
               Tööriistad
             </Link>
           </li>
@@ -65,20 +74,20 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <li>
             <Link
               href={`/tooriistad/${category.slug}`}
-              className="text-[var(--muted)] hover:text-[var(--accent)]"
+              className="text-[var(--muted)] hover:text-[var(--accent)] transition-colors"
             >
               {category.name}
             </Link>
           </li>
           <li className="text-[var(--muted)]">/</li>
-          <li className="font-medium">{product.name}</li>
+          <li className="font-medium text-[var(--text)]">{product.name}</li>
         </ol>
       </nav>
 
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
         {/* Left Column - Image Gallery */}
         <div>
-          <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-[var(--bg)]">
+          <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-[var(--bg)]">
             <Image
               src={imageUrl}
               alt={product.name}
@@ -91,51 +100,53 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
 
         {/* Right Column - Product Info */}
-        <div>
-          <div className="mb-4 flex flex-wrap gap-2">
-            <Badge variant="outline">24/7</Badge>
-            <Badge variant="secondary">{category.name}</Badge>
-            <Badge variant={availability.variant}>{availability.label}</Badge>
+        <div className="space-y-8">
+          <div>
+            <div className="mb-4 flex flex-wrap gap-2">
+              <Badge variant="outline" className="font-normal">24/7</Badge>
+              <Badge variant="secondary" className="font-normal">{category.name}</Badge>
+              <Badge 
+                variant={availability.variant} 
+                className={`font-normal ${
+                  availability.variant === 'success' ? 'bg-green-50 text-green-700 border-green-200' :
+                  availability.variant === 'secondary' ? 'bg-[var(--bg)] text-[var(--muted)]' :
+                  'bg-[var(--bg)] text-[var(--disabled)]'
+                }`}
+              >
+                {availability.label}
+              </Badge>
+            </div>
+
+            <h1 className="mb-4 text-4xl font-semibold tracking-tight md:text-5xl">{product.name}</h1>
+
+            {product.shortDescription && (
+              <p className="mb-6 text-lg text-[var(--muted)] leading-relaxed">{product.shortDescription}</p>
+            )}
+
+            <div className="mb-8">
+              <p className="text-4xl font-semibold tracking-tight">
+                al. {product.basePrice.toFixed(2)}€ / {unitLabel}
+              </p>
+            </div>
           </div>
 
-          <h1 className="mb-4 text-3xl font-bold md:text-4xl">{product.name}</h1>
-
-          {product.shortDescription && (
-            <p className="mb-6 text-lg text-[var(--muted)]">{product.shortDescription}</p>
-          )}
-
-          <div className="mb-6">
-            <p className="text-3xl font-bold">
-              al. {product.basePrice}€ / {unitLabel}
-            </p>
-          </div>
-
-          <div className="mb-8">
-            <p className="mb-4 text-sm font-medium text-[var(--muted)]">
-              Võta kapist, kasuta, tagasta.
-            </p>
-            <Button size="lg" className="w-full md:w-auto">
-              Broneeri kohe
-            </Button>
-          </div>
-
-          <Separator className="my-8" />
+          <Separator />
 
           {/* Specs */}
           {product.description && (
-            <div className="mb-8">
-              <h2 className="mb-4 text-xl font-semibold">Kirjeldus</h2>
-              <p className="text-[var(--muted)]">{product.description}</p>
+            <div>
+              <h2 className="mb-3 text-xl font-semibold tracking-tight">Kirjeldus</h2>
+              <p className="text-[var(--muted)] leading-relaxed">{product.description}</p>
             </div>
           )}
 
           {/* Tags */}
           {product.tags.length > 0 && (
-            <div className="mb-8">
-              <h2 className="mb-4 text-xl font-semibold">Sildid</h2>
+            <div>
+              <h2 className="mb-3 text-xl font-semibold tracking-tight">Sildid</h2>
               <div className="flex flex-wrap gap-2">
                 {product.tags.map((tag) => (
-                  <Badge key={tag} variant="outline">
+                  <Badge key={tag} variant="outline" className="font-normal">
                     {tag}
                   </Badge>
                 ))}
@@ -143,21 +154,25 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
           )}
 
-          {/* Booking Panel Placeholder */}
-          {/* TODO: Integrate BookingPanel component here when available */}
-          <Card className="mt-8">
-            <CardContent className="p-6">
-              <h2 className="mb-4 text-xl font-semibold">Broneeri tööriist</h2>
-              <p className="mb-4 text-sm text-[var(--muted)]">
-                Vali sobiv aeg ja kapp broneerimiseks.
-              </p>
-              <Button className="w-full" asChild>
-                <Link href={`/tooriistad/${category.slug}/${product.slug}/broneeri`}>
-                  Ava broneerimisvorm
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+          {/* Trust Line */}
+          <div className="rounded-lg bg-[var(--bg)] p-6">
+            <p className="text-center text-sm font-medium text-[var(--muted)]">
+              Võta kapist. Kasuta. Tagasta.
+            </p>
+          </div>
+
+          {/* Booking Panel */}
+          <BookingPanel
+            product={product}
+            compartments={compartments}
+            lockers={lockers}
+            existingBookings={existingBookings.map(b => ({
+              id: b.id,
+              compartmentId: b.compartmentId,
+              startsAt: b.startsAt,
+              endsAt: b.endsAt,
+            }))}
+          />
         </div>
       </div>
 

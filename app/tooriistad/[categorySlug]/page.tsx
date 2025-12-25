@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { CategoryListing } from '@/components/catalog/CategoryListing'
 import { SkeletonGrid } from '@/components/catalog/SkeletonGrid'
 import { getCategoryBySlug } from '@/lib/catalog/data'
+import { trackCategoryView } from '@/lib/analytics'
 
 interface CategoryPageProps {
   params: Promise<{ categorySlug: string }>
@@ -72,11 +73,11 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       </nav>
 
       {/* Category Header */}
-      <div className="mb-8">
-        <div className="mb-2 text-4xl">{category.icon}</div>
-        <h1 className="mb-2 text-3xl font-bold md:text-4xl">{category.name}</h1>
+      <div className="mb-12">
+        <div className="mb-4 text-5xl">{category.icon}</div>
+        <h1 className="mb-4 text-4xl font-semibold tracking-tight md:text-5xl">{category.name}</h1>
         {category.description && (
-          <p className="text-lg text-[var(--muted)]">{category.description}</p>
+          <p className="text-xl text-[var(--muted)] leading-relaxed">{category.description}</p>
         )}
       </div>
 

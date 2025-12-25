@@ -18,42 +18,40 @@ export default async function CatalogPage() {
   })
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-12 md:py-16">
       {/* Hero */}
-      <div className="mb-12 text-center">
-        <h1 className="mb-4 text-4xl font-bold md:text-5xl">
-          Tööriistad 24/7. Rendi ainult siis, kui vaja.
+      <div className="mb-16 text-center">
+        <h1 className="mb-6 text-5xl font-semibold tracking-tight md:text-6xl">
+          Tööriistad 24/7
         </h1>
-        <p className="text-lg text-[var(--muted)]">
-          Leia õige tööriist oma projektile
+        <p className="mx-auto max-w-2xl text-xl text-[var(--muted)] md:text-2xl">
+          Professionaalsed tööriistad. Kohene kättesaamine.
         </p>
       </div>
 
       {/* Search Bar */}
-      <div className="mb-8">
-        <form action="/tooriistad" method="get" className="flex gap-2">
+      <div className="mb-12">
+        <form action="/tooriistad" method="get" className="mx-auto max-w-md">
           <Input
             name="q"
             type="search"
             placeholder="Otsi tööriistu..."
-            className="max-w-md"
+            className="w-full border-[var(--border)] bg-[var(--card)]"
             defaultValue=""
           />
-          <Button type="submit">Otsi</Button>
         </form>
       </div>
 
       {/* Category Grid */}
-      <section className="mb-16">
-        <h2 className="mb-6 text-2xl font-semibold">Kategooriad</h2>
+      <section className="mb-20">
         <CategoryGrid categories={categories} />
       </section>
 
       {/* Featured Products */}
       {featuredProducts.length > 0 && (
         <section>
-          <h2 className="mb-6 text-2xl font-semibold">Populaarsed tööriistad</h2>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <h2 className="mb-8 text-3xl font-semibold tracking-tight">Enim kasutatud tööriistad</h2>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {featuredProducts.map((product) => {
               const category = categories.find((c) => c.id === product.categoryId)
               return (

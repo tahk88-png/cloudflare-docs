@@ -19,51 +19,57 @@ export function ProductCard({ product, category }: ProductCardProps) {
   const productUrl = `/tooriistad/${category?.slug || 'unknown'}/${product.slug}`
 
   return (
-    <Card className="group flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md">
-      <div className="relative aspect-square w-full overflow-hidden bg-[var(--bg)]">
+    <Card className="group flex h-full flex-col overflow-hidden border-[var(--border)] bg-[var(--card)] transition-all hover:border-[var(--accent)] hover:shadow-sm">
+      <div className="relative aspect-square w-full overflow-hidden rounded-t-lg bg-[var(--bg)]">
         <Link href={productUrl}>
           <Image
             src={imageUrl}
             alt={product.name}
             fill
-            className="object-cover transition-transform group-hover:scale-105"
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </Link>
       </div>
-      <CardContent className="flex flex-1 flex-col p-4">
-        <div className="mb-2 flex flex-wrap gap-1">
-          <Badge variant="outline" className="text-xs">24/7</Badge>
+      <CardContent className="flex flex-1 flex-col p-6">
+        <div className="mb-3 flex flex-wrap gap-2">
           {category && (
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="outline" className="text-xs font-normal">
               {category.name}
             </Badge>
           )}
-          <Badge variant={availability.variant} className="text-xs">
+          <Badge 
+            variant={availability.variant} 
+            className={`text-xs font-normal ${
+              availability.variant === 'success' ? 'bg-green-50 text-green-700 border-green-200' :
+              availability.variant === 'secondary' ? 'bg-[var(--bg)] text-[var(--muted)]' :
+              'bg-[var(--bg)] text-[var(--disabled)]'
+            }`}
+          >
             {availability.label}
           </Badge>
         </div>
         <Link href={productUrl}>
-          <h3 className="mb-2 text-lg font-semibold line-clamp-2 group-hover:text-[var(--accent)]">
+          <h3 className="mb-2 text-xl font-semibold tracking-tight line-clamp-2 group-hover:text-[var(--accent)] transition-colors">
             {product.name}
           </h3>
         </Link>
         {product.shortDescription && (
-          <p className="mb-3 text-sm text-[var(--muted)] line-clamp-1">
+          <p className="mb-4 text-sm text-[var(--muted)] line-clamp-2 leading-relaxed">
             {product.shortDescription}
           </p>
         )}
-        <div className="mt-auto">
-          <p className="text-lg font-semibold">
-            al. {product.basePrice}€ / {unitLabel}
+        <div className="mt-auto mb-4">
+          <p className="text-xl font-semibold tracking-tight">
+            al. {product.basePrice.toFixed(2)}€ / {unitLabel}
           </p>
         </div>
       </CardContent>
-      <CardFooter className="flex gap-2 p-4 pt-0">
-        <Button asChild className="flex-1">
+      <CardFooter className="flex gap-3 p-6 pt-0">
+        <Button asChild className="flex-1 font-medium">
           <Link href={productUrl}>Broneeri</Link>
         </Button>
-        <Button variant="outline" asChild className="flex-1">
+        <Button variant="outline" asChild className="flex-1 font-medium">
           <Link href={productUrl}>Vaata detaile</Link>
         </Button>
       </CardFooter>
