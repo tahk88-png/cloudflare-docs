@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #F7F9F8;
+    --card: #FFFFFF;
+    --text: #0F172A;
+    --muted: #6B7280;
+    --border: #E2E8E4;
+    --accent: #1DB954;
+    --accent-hover: #159A46;
+    --accent-foreground: #FFFFFF;
+    --disabled: #CBD5CF;
+    --error: #DC2626;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-[var(--bg)] text-[var(--text)];
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}

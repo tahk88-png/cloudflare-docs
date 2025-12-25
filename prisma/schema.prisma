@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  description String?
+  icon        String?
+  order       Int       @default(0)
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+
+  @@index([slug])
+  @@index([active, order])
+}
+
+model Product {
+  id               String       @id @default(cuid())
+  slug             String
+  name             String
+  shortDescription String?
+  description      String?
+  categoryId       String
+  tags             String[]
+  basePrice        Float
+  priceUnit        String       // 'hour' | 'day'
+  images           String[]
+  active           Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  category         Category     @relation(fields: [categoryId], references: [id])
+  compartments     Compartment[]
+
+  @@unique([categoryId, slug])
+  @@index([categoryId, active])
+  @@index([slug])
+  @@index([active])
+}
+
+model Locker {
+  id          String        @id @default(cuid())
+  name        String
+  locationText String?
+  timezone    String        @default("Europe/Tallinn")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  compartments Compartment[]
+
+  @@index([id])
+}
+
+model Compartment {
+  id        String   @id @default(cuid())
+  lockerId  String
+  productId String
+  label     String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  locker    Locker   @relation(fields: [lockerId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@index([lockerId, productId])
+  @@index([productId, active])
+}
