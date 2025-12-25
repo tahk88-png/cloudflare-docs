@@ -33,6 +33,20 @@ If we require more information to address your pull request, the `more-informati
 - [npm](https://nodejs.org/en/learn/getting-started/an-introduction-to-the-npm-package-manager#introduction-to-npm) is the recommended package manager that must be used in installing dependencies.
 - The generated `package-lock.json` file must be committed to git.
 
+## Local testing
+
+Before opening a pull request, run the same checks CI runs:
+
+```sh
+npm run check
+npm run lint
+npm run format:core:check
+npm test
+
+RUN_LINK_CHECK=true npm run build
+npx tsx bin/validate-redirects.ts
+```
+
 ## Wrangler config
 
 If you are adding a code snippet to the docs that represents a Wrangler config file (`wrangler.toml`, `wrangler.json`, or `wrangler.jsonc`) make sure you wrap it with the `<WranglerConfig>` component, which ensures it is rendered as both JSON and TOML. For example:

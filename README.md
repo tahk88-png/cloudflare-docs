@@ -33,9 +33,42 @@ $ npm run dev
 
 This spawns a server that will be accessible via `http://localhost:1111` in your browser. Additionally, any changes made within the project – including `content/**` changes – will automatically reload your browser tab(s), allowing you to instantly preview your changes.
 
+## Testing
+
+These are the same checks CI runs on pull requests.
+
+```sh
+# Typechecking (site + worker)
+npm run check
+
+# Lint
+npm run lint
+
+# Unit/integration tests
+npm test
+
+# Prettier (core files) - CI uses the check mode
+npm run format:core:check
+```
+
+CI also validates redirects and runs a build with link checking enabled. You can run those locally too:
+
+```sh
+# Build (set RUN_LINK_CHECK=true to enable link validation during build)
+RUN_LINK_CHECK=true npm run build
+
+# Redirect validation (infinite loops, fragments, etc.)
+npx tsx bin/validate-redirects.ts
+```
+
 ## Deployment
 
-Our docs are deployed using [Cloudflare Pages](https://pages.cloudflare.com). Every commit pushed to production will automatically deploy to [developers.cloudflare.com](https://developers.cloudflare.com), and any pull requests opened will have a corresponding staging URL available in the pull request comments.
+Deployments are automated via GitHub Actions and `wrangler`:
+
+- **Production**: pushes to the `production` branch build and deploy to Cloudflare, then publish additional “vendored Markdown” artifacts used internally.
+- **Previews**: pushes to non-`production` branches (in the upstream repo) build and deploy to a preview namespace; pull requests get a preview URL posted in a comment.
+
+In forks, you can still build and preview locally (`npm run build`, `npm run preview`), but you won’t be able to deploy without Cloudflare credentials.
 
 ## For Cloudflare employees
 
