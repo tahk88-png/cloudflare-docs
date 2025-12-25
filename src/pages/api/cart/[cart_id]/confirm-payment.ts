@@ -2,6 +2,10 @@ import type { APIRoute } from 'astro';
 import type { D1Database } from '@cloudflare/workers-types';
 import { getCheckoutConsent } from '~/lib/db/queries';
 
+/**
+ * Legacy endpoint - kept for backwards compatibility
+ * New payment flow uses /api/payments/confirm
+ */
 export const POST: APIRoute = async ({ params, request, locals }) => {
 	try {
 		const cartId = params.cart_id;
@@ -53,6 +57,17 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 		if (consent.status !== 'signed' && consent.status !== 'verified') {
 			return new Response(
 				JSON.stringify({ error: 'Valid signature required' }),
+				{
+					status: 400,
+					headers: { 'Content-Type': 'application/json' },
+				},
+			);
+		}
+
+		// Verify payment status
+		if (consent.payment_status !== 'succeeded') {
+			return new Response(
+				JSON.stringify({ error: 'Payment not succeeded' }),
 				{
 					status: 400,
 					headers: { 'Content-Type': 'application/json' },

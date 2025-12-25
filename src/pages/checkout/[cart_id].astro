@@ -1,6 +1,6 @@
 ---
 import { SigningConsent } from '~/components/checkout/SigningConsent';
-import { Button } from '~/components/ui/button';
+import { Payment } from '~/components/checkout/Payment';
 
 interface Props {
 	cart_id: string;
@@ -48,45 +48,34 @@ const cartInfo = {
 				cartId={cart_id || ''}
 				cartInfo={cartInfo}
 				onSigningComplete={async (consent) => {
-					// Verify checkout can proceed
-					try {
-						const res = await fetch(`/api/cart/${cart_id}/checkout`, {
-							method: 'POST',
-						});
-						const data = await res.json();
-						
-						const payButton = document.getElementById('pay-button') as HTMLButtonElement;
-						if (payButton && data.success) {
-							payButton.disabled = false;
-							payButton.classList.remove('opacity-50', 'cursor-not-allowed');
-						} else if (payButton) {
-							payButton.disabled = true;
-							payButton.classList.add('opacity-50', 'cursor-not-allowed');
-						}
-					} catch (err) {
-						console.error('Error checking checkout status:', err);
-					}
+					// Verify checkout can proceed - payment component will handle enabling itself
+					console.log('Signing complete:', consent);
 				}}
 			/>
 
-			<div class="payment-section" style="margin-top: 2rem;">
-				<button
-					id="pay-button"
-					disabled
-					class="bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-					onclick="handlePayment()"
-				>
-					Maksa
-				</button>
-			</div>
+			<Payment
+				client:load
+				cartId={cart_id || ''}
+				cartInfo={cartInfo}
+				onPaymentSuccess={(bookingId, accessCode) => {
+					// Show success message and redirect
+					const successDiv = document.createElement('div');
+					successDiv.className = 'bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded text-sm mt-4';
+					successDiv.innerHTML = `
+						<div class="font-medium mb-1">Makse õnnestus!</div>
+						<div>Broneering ID: ${bookingId}</div>
+						<div>Ligipääsukood: ${accessCode}</div>
+						<div class="mt-2 text-xs">Ligipääsukood saadetud SMS-iga.</div>
+					`;
+					document.getElementById('checkout-root')?.appendChild(successDiv);
+					
+					// Scroll to success message
+					successDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+				}}
+				onPaymentError={(error) => {
+					console.error('Payment error:', error);
+				}}
+			/>
 		</div>
-
-		<script>
-			async function handlePayment() {
-				const cartId = '{cart_id}';
-				// In production, redirect to payment provider or call payment API
-				alert('Payment flow would start here for cart: ' + cartId);
-			}
-		</script>
 	</body>
 </html>

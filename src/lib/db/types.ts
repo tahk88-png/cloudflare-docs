@@ -22,6 +22,12 @@ export interface CheckoutConsent {
 	contract_hash: string;
 	signature_ref: string | null;
 	status: 'pending' | 'signed' | 'verified';
+	payment_intent_id: string | null;
+	payment_status: 'pending' | 'processing' | 'succeeded' | 'failed' | 'canceled';
+	payment_amount: number | null;
+	payment_currency: string | null;
+	payment_method: string | null;
+	payment_completed_at: string | null;
 	created_at: string;
 	updated_at: string;
 }

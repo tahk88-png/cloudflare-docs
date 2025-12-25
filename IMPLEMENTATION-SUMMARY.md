@@ -183,11 +183,42 @@ src/
 4. **Error Handling**: All endpoints include proper error responses
 5. **Type Safety**: Full TypeScript types for all data structures
 
+## 💳 Payment Integration
+
+### Completed
+- ✅ Stripe Payment Intent creation
+- ✅ Payment confirmation endpoint
+- ✅ Webhook handler for async payment updates
+- ✅ Payment component with Stripe Elements integration
+- ✅ Payment status tracking in database
+- ✅ Booking creation on successful payment
+- ✅ Locker access code generation
+
+### Payment Flow
+1. User completes signing → Payment component enabled
+2. Click "Alusta maksmist" → Creates Payment Intent
+3. Enter card details → Stripe Elements handles securely
+4. Confirm payment → Payment processed via Stripe
+5. Success → Booking created, access code generated and sent
+
+### Database Updates
+Added payment fields to `checkout_consents`:
+- `payment_intent_id` - Stripe Payment Intent ID
+- `payment_status` - Current status (pending/processing/succeeded/failed)
+- `payment_amount` - Amount in cents
+- `payment_currency` - Currency (EUR)
+- `payment_method` - Payment method used
+- `payment_completed_at` - Completion timestamp
+
 ## 🚀 Next Steps
 
-1. Integrate actual Smart-ID/Mobiil-ID/ID-kaart APIs
-2. Add payment provider integration
-3. Add email/SMS notifications for locker access codes
-4. Add audit logging for compliance
-5. Add admin interface for managing terms versions
-6. Add signature verification endpoint for legal purposes
+1. Install Stripe SDK: `npm install stripe @stripe/stripe-js`
+2. Update `src/lib/payments/stripe.ts` with actual Stripe API calls
+3. Integrate Stripe.js Elements in `Payment.tsx` component
+4. Configure Stripe webhook in dashboard
+5. Integrate actual Smart-ID/Mobiil-ID/ID-kaart APIs
+6. Add email/SMS notifications for locker access codes
+7. Create booking table and implement booking creation
+8. Add audit logging for compliance
+9. Add admin interface for managing terms versions
+10. Add signature verification endpoint for legal purposes

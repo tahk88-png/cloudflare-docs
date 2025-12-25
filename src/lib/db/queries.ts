@@ -131,6 +131,30 @@ export async function updateCheckoutConsent(
 		fields.push('status = ?');
 		values.push(updates.status);
 	}
+	if (updates.payment_intent_id !== undefined) {
+		fields.push('payment_intent_id = ?');
+		values.push(updates.payment_intent_id);
+	}
+	if (updates.payment_status !== undefined) {
+		fields.push('payment_status = ?');
+		values.push(updates.payment_status);
+	}
+	if (updates.payment_amount !== undefined) {
+		fields.push('payment_amount = ?');
+		values.push(updates.payment_amount);
+	}
+	if (updates.payment_currency !== undefined) {
+		fields.push('payment_currency = ?');
+		values.push(updates.payment_currency);
+	}
+	if (updates.payment_method !== undefined) {
+		fields.push('payment_method = ?');
+		values.push(updates.payment_method);
+	}
+	if (updates.payment_completed_at !== undefined) {
+		fields.push('payment_completed_at = ?');
+		values.push(updates.payment_completed_at);
+	}
 
 	if (fields.length === 0) {
 		return;

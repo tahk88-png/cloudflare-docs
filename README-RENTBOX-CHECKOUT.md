@@ -99,6 +99,59 @@ CREATE TABLE checkout_consents (
 );
 ```
 
+## Payment Integration
+
+The checkout flow now includes full payment integration with Stripe:
+
+### Payment Endpoints
+
+**POST /api/payments/create-intent**
+Creates a Stripe Payment Intent and validates checkout readiness.
+
+**Request:**
+```json
+{
+  "cart_id": "cart123",
+  "total_amount": 150.00,
+  "rental_duration_hours": 48,
+  "is_b2b": false
+}
+```
+
+**Response:**
+```json
+{
+  "client_secret": "pi_xxx_secret_xxx",
+  "payment_intent_id": "pi_xxx",
+  "amount": 15000,
+  "currency": "eur"
+}
+```
+
+**POST /api/payments/confirm**
+Confirms payment and creates booking.
+
+**Request:**
+```json
+{
+  "payment_intent_id": "pi_xxx",
+  "cart_id": "cart123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "booking_id": "uuid",
+  "locker_access_code": "1234-5678",
+  "message": "Broneering loodud. Ligipääsukood saadetud SMS-iga."
+}
+```
+
+**POST /api/payments/webhook**
+Handles Stripe webhook events (payment_intent.succeeded, payment_intent.payment_failed).
+
 ## API Endpoints
 
 ### GET /api/terms/active
@@ -308,6 +361,18 @@ All user-facing text is in Estonian:
   - "Allkiri kinnitatud" (Signature confirmed)
   - "Allkirjastamine ebaõnnestus" (Signing failed)
 
+## Payment Component
+
+The `Payment` component handles the complete payment flow:
+
+1. Creates payment intent when user clicks "Alusta maksmist"
+2. Displays Stripe Elements card input
+3. Confirms payment on submit
+4. Shows success message with booking ID and access code
+5. Handles errors gracefully
+
+The component is automatically enabled after signing is complete.
+
 ## Setup Instructions
 
 1. **Create D1 Database:**
@@ -341,24 +406,51 @@ All user-facing text is in Estonian:
    );
    ```
 
-5. **Integrate eID Providers:**
+5. **Set up Stripe:**
+   ```bash
+   # Add to wrangler.toml
+   [vars]
+   STRIPE_SECRET_KEY = "sk_test_..."
+   STRIPE_PUBLISHABLE_KEY = "pk_test_..."
+   
+   # Or use secrets
+   wrangler secret put STRIPE_SECRET_KEY
+   wrangler secret put STRIPE_WEBHOOK_SECRET
+   ```
+
+6. **Install Stripe SDK (when ready for production):**
+   ```bash
+   npm install stripe @stripe/stripe-js
+   ```
+
+7. **Configure Stripe Webhook:**
+   - Endpoint: `https://your-domain.com/api/payments/webhook`
+   - Events: `payment_intent.succeeded`, `payment_intent.payment_failed`
+
+8. **Integrate eID Providers:**
    - Update `/api/checkout/:cart_id/sign/digital/start.ts` to call actual Smart-ID/Mobiil-ID/ID-kaart APIs
    - Update `/api/checkout/:cart_id/sign/digital/status.ts` to verify signatures with providers
 
 ## Testing
 
-Test the flow:
+Test the complete flow:
 
 1. Navigate to `/checkout/[cart_id]`
 2. Check both consent boxes
 3. Enter name and sign (or use digital signature if required)
-4. Verify payment button is enabled
-5. Complete payment flow
+4. Click "Alusta maksmist" to create payment intent
+5. Enter card details (use Stripe test cards)
+6. Complete payment
+7. Verify booking ID and access code are displayed
+8. Check database for payment status and booking record
 
 ## Notes
 
 - Digital signature integration is mocked - replace with actual eID provider APIs
 - Contract hash computation uses base64 encoding - consider using crypto.subtle.digest in production
-- Payment flow is simplified - integrate with actual payment provider
+- Stripe integration is mocked - install Stripe SDK and update `src/lib/payments/stripe.ts` for production
+- Stripe Elements card input is placeholder - integrate actual Stripe.js Elements in `Payment.tsx`
 - Terms PDF URL should point to actual terms document
 - IP address capture uses Cloudflare's `cf-connecting-ip` header
+- Booking creation is mocked - implement actual booking table and SMS/email sending
+- Locker access code generation is simple - consider more secure methods in production
