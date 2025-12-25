@@ -1,6 +1,8 @@
 import { WorkerEntrypoint } from "cloudflare:workers";
 import { generateRedirectsEvaluator } from "redirects-in-workers";
 import redirectsFileContents from "../dist/__redirects";
+import { handleInvoicingRequest, handlePaymentWebhook } from "./invoicing/api";
+import { reminderService } from "./invoicing/services/reminder";
 
 import { htmlToMarkdown } from "../src/util/markdown";
 
@@ -12,6 +14,11 @@ const redirectsEvaluator = generateRedirectsEvaluator(redirectsFileContents, {
 
 export default class extends WorkerEntrypoint<Env> {
 	override async fetch(request: Request) {
+		const invoicingResponse = await handleInvoicingRequest(request);
+		if (invoicingResponse) {
+			return invoicingResponse;
+		}
+
 		if (request.url.endsWith("/markdown.zip")) {
 			const res = await this.env.VENDORED_MARKDOWN.get("markdown.zip");
 
@@ -127,5 +134,9 @@ export default class extends WorkerEntrypoint<Env> {
 		}
 
 		return response;
+	}
+
+	async scheduled() {
+		await reminderService.processReminders();
 	}
 }
