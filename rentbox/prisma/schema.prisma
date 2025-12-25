@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  SUPPORT
+  OPS
+  SALES
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  PAID
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum MessageSender {
+  USER
+  AI
+  AGENT
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  phone     String?
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings  Booking[]
+  tickets   Ticket[] // Tickets created by or assigned to? Let's say created by for customers, but agents view them.
+}
+
+model Product {
+  id    String  @id @default(uuid())
+  name  String
+  price Decimal
+  bookings Booking[]
+}
+
+model Locker {
+  id           String        @id @default(uuid())
+  location     String
+  apiKey       String?       // For integration
+  compartments Compartment[]
+}
+
+model Compartment {
+  id       String    @id @default(uuid())
+  lockerId String
+  size     String    // S, M, L
+  status   String    // available, occupied, maintenance
+  locker   Locker    @relation(fields: [lockerId], references: [id])
+  bookings Booking[]
+}
+
+model Booking {
+  id            String        @id @default(uuid())
+  userId        String
+  productId     String
+  compartmentId String
+  startTime     DateTime
+  endTime       DateTime
+  status        BookingStatus @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  user        User        @relation(fields: [userId], references: [id])
+  product     Product     @relation(fields: [productId], references: [id])
+  compartment Compartment @relation(fields: [compartmentId], references: [id])
+  
+  payments Payment[]
+  messages Message[]
+  tickets  Ticket[]
+  events   Event[]
+}
+
+model Payment {
+  id         String        @id @default(uuid())
+  bookingId  String
+  amount     Decimal
+  status     PaymentStatus
+  externalId String?
+  createdAt  DateTime      @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+}
+
+model Event {
+  id        String   @id @default(uuid())
+  type      String   // webhook.payment, locker.opened, cron.reminder
+  payload   Json
+  status    String   // pending, processed, failed
+  bookingId String?
+  createdAt DateTime @default(now())
+
+  booking Booking? @relation(fields: [bookingId], references: [id])
+}
+
+model Message {
+  id        String        @id @default(uuid())
+  bookingId String
+  sender    MessageSender
+  content   String
+  role      Role?         // If sender is AI/AGENT, which role handled it?
+  createdAt DateTime      @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+}
+
+model AiAction {
+  id        String   @id @default(uuid())
+  type      String   // email, sms, ticket, log
+  reason    String
+  outcome   String
+  createdAt DateTime @default(now())
+}
+
+model Ticket {
+  id          String         @id @default(uuid())
+  bookingId   String?
+  userId      String?
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority @default(MEDIUM)
+  description String
+  assignedTo  Role?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  booking Booking? @relation(fields: [bookingId], references: [id])
+  user    User?    @relation(fields: [userId], references: [id])
+}
