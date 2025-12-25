@@ -1,9 +1,10 @@
 import { headingRank } from "hast-util-heading-rank";
 import { visit } from "unist-util-visit";
 import type { Root, Element } from "hast";
+import type { VFile } from "vfile";
 
 export default function () {
-	return function (tree: Root, file: any) {
+	return function (tree: Root, file: VFile) {
 		visit(tree, "element", function (element) {
 			if (
 				!file.history.find((path: string) =>

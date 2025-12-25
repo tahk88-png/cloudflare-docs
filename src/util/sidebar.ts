@@ -346,12 +346,21 @@ export const lookupProductTitle = async (product: string, module: string) => {
 	return entry?.data?.product?.title ?? "Unknown";
 };
 
-export function sortBySidebarOrder(a: any, b: any): number {
-	const aOrder = a.order ?? a.data.sidebar.order;
-	const aLabel = a.label ?? a.data.title;
+type SortableSidebarLike = {
+	order?: number;
+	label?: string;
+	data?: {
+		sidebar?: { order?: number };
+		title?: string;
+	};
+};
 
-	const bOrder = b.order ?? b.data.sidebar.order;
-	const bLabel = b.label ?? b.data.title;
+export function sortBySidebarOrder(a: SortableSidebarLike, b: SortableSidebarLike): number {
+	const aOrder = a.order ?? a.data?.sidebar?.order ?? Number.MAX_VALUE;
+	const aLabel = a.label ?? a.data?.title ?? "";
+
+	const bOrder = b.order ?? b.data?.sidebar?.order ?? Number.MAX_VALUE;
+	const bLabel = b.label ?? b.data?.title ?? "";
 
 	if (aOrder !== bOrder) return aOrder - bOrder;
 

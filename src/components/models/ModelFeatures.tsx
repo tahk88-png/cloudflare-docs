@@ -7,10 +7,41 @@ const ModelFeatures = ({ model }: { model: WorkersAIModelsSchema }) => {
 		currency: "USD",
 		maximumFractionDigits: 10,
 	});
-	const properties: any = {};
-	model.properties.forEach((property: any) => {
-		properties[property.property_id] = property.value;
-	});
+	type ModelProperty = WorkersAIModelsSchema["properties"][number];
+	type PropertyValue = ModelProperty["value"];
+
+	const properties = Object.fromEntries(
+		model.properties.map((property: ModelProperty) => [
+			property.property_id,
+			property.value,
+		]),
+	) as Record<string, PropertyValue>;
+
+	const plannedDeprecationDate =
+		typeof properties.planned_deprecation_date === "string"
+			? properties.planned_deprecation_date
+			: undefined;
+
+	const contextWindow =
+		typeof properties.context_window === "string" ? properties.context_window : undefined;
+
+	const terms = typeof properties.terms === "string" ? properties.terms : undefined;
+	const info = typeof properties.info === "string" ? properties.info : undefined;
+	const maxInputTokens =
+		typeof properties.max_input_tokens === "string"
+			? properties.max_input_tokens
+			: undefined;
+	const outputDimensions =
+		typeof properties.output_dimensions === "string"
+			? properties.output_dimensions
+			: undefined;
+
+	const functionCalling = properties.function_calling === "true";
+	const lora = properties.lora === "true";
+	const beta = properties.beta === "true";
+	const asyncQueue = properties.async_queue === "true";
+
+	const price = Array.isArray(properties.price) ? properties.price : undefined;
 
 	return (
 		<>
@@ -26,25 +57,25 @@ const ModelFeatures = ({ model }: { model: WorkersAIModelsSchema }) => {
 							</tr>
 						</thead>
 						<tbody>
-							{properties.planned_deprecation_date && (
+							{plannedDeprecationDate && (
 								<tr>
 									<td>
 										{Date.now() >
 										Math.floor(
-											new Date(properties.planned_deprecation_date).getTime() /
+											new Date(plannedDeprecationDate).getTime() /
 												1000,
 										)
 											? "Deprecated"
 											: "Planned Deprecation"}
 									</td>
 									<td>
-										{new Date(
-											properties.planned_deprecation_date,
-										).toLocaleDateString("en-US")}
+										{new Date(plannedDeprecationDate).toLocaleDateString(
+											"en-US",
+										)}
 									</td>
 								</tr>
 							)}
-							{properties.context_window && (
+							{contextWindow && (
 								<tr>
 									<td>
 										Context Window
@@ -52,42 +83,42 @@ const ModelFeatures = ({ model }: { model: WorkersAIModelsSchema }) => {
 											<span className="external-link"> ↗</span>
 										</a>
 									</td>
-									<td>{nf.format(properties.context_window)} tokens</td>
+									<td>{nf.format(Number(contextWindow))} tokens</td>
 								</tr>
 							)}
-							{properties.terms && (
+							{terms && (
 								<tr>
 									<td>Terms and License</td>
 									<td>
-										<a href={properties.terms} target="_blank">
+										<a href={terms} target="_blank">
 											link<span className="external-link"> ↗</span>
 										</a>
 									</td>
 								</tr>
 							)}
-							{properties.info && (
+							{info && (
 								<tr>
 									<td>More information</td>
 									<td>
-										<a href={properties.info} target="_blank">
+										<a href={info} target="_blank">
 											link<span className="external-link"> ↗</span>
 										</a>
 									</td>
 								</tr>
 							)}
-							{properties.max_input_tokens && (
+							{maxInputTokens && (
 								<tr>
 									<td>Maximum Input Tokens</td>
-									<td>{nf.format(properties.max_input_tokens)}</td>
+									<td>{nf.format(Number(maxInputTokens))}</td>
 								</tr>
 							)}
-							{properties.output_dimensions && (
+							{outputDimensions && (
 								<tr>
 									<td>Output Dimensions</td>
-									<td>{nf.format(properties.output_dimensions)}</td>
+									<td>{nf.format(Number(outputDimensions))}</td>
 								</tr>
 							)}
-							{properties.function_calling && (
+							{functionCalling && (
 								<tr>
 									<td>
 										Function calling{" "}
@@ -98,33 +129,46 @@ const ModelFeatures = ({ model }: { model: WorkersAIModelsSchema }) => {
 									<td>Yes</td>
 								</tr>
 							)}
-							{properties.lora && (
+							{lora && (
 								<tr>
 									<td>LoRA</td>
 									<td>Yes</td>
 								</tr>
 							)}
-							{properties.beta && (
+							{beta && (
 								<tr>
 									<td>Beta</td>
 									<td>Yes</td>
 								</tr>
 							)}
-							{properties.async_queue && (
+							{asyncQueue && (
 								<tr>
 									<td>Batch</td>
 									<td>Yes</td>
 								</tr>
 							)}
-							{properties.price && properties.price.length > 0 && (
+							{price && price.length > 0 && (
 								<tr>
 									<td>Unit Pricing</td>
 									<td>
-										{properties.price
-											.map(
-												(price: { price: number; unit: string }) =>
-													`${currencyFormatter.format(price.price)} ${price.unit}`,
-											)
+										{price
+											.map((p) => {
+												if (
+													typeof p !== "object" ||
+													p === null ||
+													!("price" in p) ||
+													!("unit" in p)
+												) {
+													return "";
+												}
+
+												const priceValue = Number(
+													(p as Record<string, unknown>).price,
+												);
+												const unit = String((p as Record<string, unknown>).unit);
+												return `${currencyFormatter.format(priceValue)} ${unit}`;
+											})
+											.filter(Boolean)
 											.join(", ")}
 									</td>
 								</tr>

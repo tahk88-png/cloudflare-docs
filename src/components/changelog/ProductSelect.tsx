@@ -73,7 +73,7 @@ export default function ProductSelect({ products, groups }: Props) {
 			className="mt-2"
 			options={options}
 			value={selectedOption}
-			onChange={(e) => handleChange(e as Option | null)}
+			onChange={handleChange}
 			urlParam="product"
 		/>
 	);

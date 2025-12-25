@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import ReactSelect from "./ReactSelect";
+import type { Option } from "./ReactSelect";
 import type { CollectionEntry } from "astro:content";
 import { formatDistance } from "date-fns";
 
@@ -32,7 +33,7 @@ export default function ResourcesBySelector({
 		return formatDistance(date, new Date(), { addSuffix: true });
 	};
 
-	const handleFilterChange = (option: any) => {
+	const handleFilterChange = (option: Option | null) => {
 		setSelectedFilter(option?.value || null);
 	};
 

@@ -130,7 +130,7 @@ if (model.name.includes("@cf/openai/gpt-oss") ) {
 }
 
 
-const author = (authorData as any)[model.name.split("/")[1]];
+const author = authorData[model.name.split("/")[1]];
 
 // Strong type coercion needed due to Starlight's component override for hideTitle
 const starlightPageProps = {

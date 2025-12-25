@@ -4,6 +4,12 @@ import { fetchWithToken } from "~/util/github";
 
 const REPO = "cloudflare/templates";
 
+type GitHubContentEntry = {
+	type: "file" | "dir" | string;
+	name: string;
+	path: string;
+};
+
 const latestCommit = await fetchWithToken(
 	`https://api.github.com/repos/${REPO}/commits?sha=main&per_page=1`,
 )
@@ -14,13 +20,13 @@ const contents = await fetchWithToken(
 	`https://api.github.com/repos/${REPO}/contents/?ref=${latestCommit}`,
 ).then((r) => r.json());
 
-const dirs = contents.filter((ent: any) => ent.type === "dir");
+const dirs = (contents as GitHubContentEntry[]).filter((ent) => ent.type === "dir");
 ---
 
 {
 	dirs
-		.filter((dir: any) => dir.name !== ".github")
-		.map(async (dir: any) => {
+		.filter((dir) => dir.name !== ".github")
+		.map(async (dir) => {
 			const packageJson = await fetch(
 				`https://gh-code.developers.cloudflare.com/${REPO}/${latestCommit}/${dir.path}/package.json`,
 			)

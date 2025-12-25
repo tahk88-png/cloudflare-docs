@@ -1,5 +1,4 @@
 import { z } from "astro:schema";
-import type { SchemaContext } from "astro:content";
 
 import { sidebar, SidebarIconSchema } from "./types/sidebar";
 
@@ -14,7 +13,14 @@ const spotlightAuthorDetails = z
 		"These are used to automatically add the [SpotlightAuthorDetails component](/style-guide/components/spotlight-author-details/) to the page.",
 	);
 
-export const baseSchema = ({ image }: SchemaContext) =>
+type BaseSchemaContext = {
+	// `SchemaContext["image"]` returns a Zod schema describing an Astro image.
+	// For schema composition we only need "something Zod-like", and this also
+	// lets us call `baseSchema()` in non-content contexts (e.g. docs components).
+	image: (...args: unknown[]) => z.ZodTypeAny;
+};
+
+export const baseSchema = ({ image }: BaseSchemaContext) =>
 	z.object({
 		preview_image: image()
 			.optional()
