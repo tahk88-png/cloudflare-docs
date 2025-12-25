@@ -84,6 +84,7 @@ model Product {
   assetValue          Decimal? // V2
   rentalCount         Int      @default(0)
   lastMaintenanceDate DateTime @default(now())
+  externalId          String?  @unique
   
   bookings        Booking[]
   maintenanceLogs MaintenanceLog[]
@@ -94,6 +95,7 @@ model Locker {
   location     String
   apiKey       String?       
   reliability  Int           @default(100) // 0-100 score
+  externalId   String?       @unique
   compartments Compartment[]
 }
 
@@ -120,6 +122,8 @@ model Booking {
   paymentStatus PaymentStatus @default(PENDING)
   riskScore     Int           @default(0) // 0-100
   riskFlags     Json?         // V2: Details on why risk is high
+  externalSource String       @default("rentster")
+  externalId    String?       @unique
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
