@@ -50,7 +50,7 @@ export async function openLocker(
       const recentAttempts = await prisma.lockerOpenAttempt.count({
           where: {
               bookingId,
-              attemptedAt: { gt: tenMinsAgo }
+              createdAt: { gt: tenMinsAgo }
           }
       });
 
@@ -68,7 +68,9 @@ export async function openLocker(
           compartmentId,
           correlationId,
           status: 'PENDING',
-          isOverride
+          isOverride,
+          requestedBy: isOverride ? 'admin' : 'user', // Basic assumption
+          reason: isOverride ? 'manual_override' : 'user_request'
       }
   });
 

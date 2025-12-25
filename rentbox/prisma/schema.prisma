@@ -238,7 +238,8 @@ model LockerOpenAttempt {
   requestedBy   String   @default("unknown")
   reason        String   @default("unknown")
   status        String   // PENDING, SUCCESS, FAILURE, TIMEOUT
-  attemptedAt   DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   resultAt      DateTime?
   errorCode     String?
   errorDetails  String?
@@ -249,5 +250,5 @@ model LockerOpenAttempt {
   compartment   Compartment @relation(fields: [compartmentId], references: [id])
   
   @@index([bookingId])
-  @@index([attemptedAt])
+  @@index([createdAt])
 }
