@@ -16,8 +16,10 @@ const uuid = isProduction
 	data-domain-script={uuid}
 	is:inline></script>
 <script type="text/javascript" is:inline>
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	// OneTrust looks for a global `OptanonWrapper()` callback.
 	function OptanonWrapper() {}
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	(window as any).OptanonWrapper = OptanonWrapper;
 </script>
 <!-- OneTrust Cookies Settings button start -->
 <div class="inline-flex items-center gap-2">
