@@ -1,10 +1,9 @@
 ---
 title: Onboard a domain
 pcx_content_type: tutorial
-
 ---
 
-import { GlossaryTooltip, Render } from "~/components"
+import { GlossaryTooltip, Render } from "~/components";
 
 If you purchased your domain from a different provider, you can still connect the domain to Cloudflare. After you connect your domain to Cloudflare, Cloudflare will act as the [reverse proxy](/fundamentals/concepts/how-cloudflare-works/#cloudflare-as-a-reverse-proxy) and [DNS provider](/fundamentals/concepts/how-cloudflare-works/#cloudflare-as-a-dns-provider) for your site.
 
@@ -33,7 +32,6 @@ To use Cloudflare as a reverse proxy but maintain your DNS provider, refer to [p
 5. [Review your DNS records](/dns/zone-setups/full-setup/setup/#review-dns-records) to ensure none are missing. Your DNS records must accurate for your domain to work properly.
 
    <Render file="dns-scan-intro" product="dns" /> <br />
-
    1. <Render file="dns-scan-procedure" product="dns" />
 
       <Render file="dns-nxdomain-warning" product="dns" />
@@ -44,7 +42,7 @@ To use Cloudflare as a reverse proxy but maintain your DNS provider, refer to [p
 
 ## 2. Update nameservers
 
-<Render file="nameserver-preamble" product="dns" /> <br/>
+<Render file="nameserver-preamble" product="dns" /> <br />
 
 <Render file="update-nameservers" product="fundamentals" />
 

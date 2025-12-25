@@ -140,22 +140,22 @@ If you encounter any issues with BFM/SBFM feature (for example, false positive),
 
 For **Free** plans
 
-  1. Filter by **Bot traffic**.
-  2. Turn **Bot Fight Mode** off.
+1. Filter by **Bot traffic**.
+2. Turn **Bot Fight Mode** off.
 
 For **Pro** plans
 
-  1. Filter by **Bot traffic**. 
-  2. Go to **Super Bot Fight Mode**.
-  3. Set **Definitely automated traffic** and **Verified bots** to **Allow** 
-  4. Turn **Static resource protection** and **JavaScript detections** off.
+1. Filter by **Bot traffic**.
+2. Go to **Super Bot Fight Mode**.
+3. Set **Definitely automated traffic** and **Verified bots** to **Allow**
+4. Turn **Static resource protection** and **JavaScript detections** off.
 
 For **Business** and **Enterprise** (with no Bot Management add-on) plans
 
-  1. Filter by **Bot traffic**. 
-  2. Go to **Super Bot Fight Mode**. 
-  3. Set each of **Definitely automated traffic**, **Likely automated** and **Verified bots** to **Allow**.
-  4. Turn **Static resource protection** and **JavaScript detections** off.
+1. Filter by **Bot traffic**.
+2. Go to **Super Bot Fight Mode**.
+3. Set each of **Definitely automated traffic**, **Likely automated** and **Verified bots** to **Allow**.
+4. Turn **Static resource protection** and **JavaScript detections** off.
 
 <Render file="flexible-sbfm" />
 
@@ -171,19 +171,13 @@ This is a known issue the Bots team is working to resolve in the near future. In
 
 1. List the existing Rulesets at the zone level.
 
-    <APIRequest
-      path="/zones/{zone_id}/rulesets"
-      method="GET"
-    />
+   <APIRequest path="/zones/{zone_id}/rulesets" method="GET" />
 
 2. From the output in step 1, find the ruleset ID that is associated with the zone's SBFM configuration. You should be able to see `"kind": "zone"` and `"phase": "http_request_sbfm"` for that ruleset.
 
 3. Use the ruleset ID you found to delete the SBFM ruleset.
 
-      <APIRequest
-        path="/zones/{zone_id}/rulesets/{ruleset_id}"
-        method="DELETE"
-      />
+   <APIRequest path="/zones/{zone_id}/rulesets/{ruleset_id}" method="DELETE" />
 
 Note that you need to replace `<API_TOKEN>` with your own [API token](/fundamentals/api/get-started/create-token/).
 

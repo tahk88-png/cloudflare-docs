@@ -3,10 +3,9 @@ title: Health Checks Analytics
 pcx_content_type: reference
 sidebar:
   order: 3
-
 ---
 
-import { AvailableNotifications, Render } from "~/components"
+import { AvailableNotifications, Render } from "~/components";
 
 Once you have set up a standalone Health Check including notification emails, use Health Check Analytics to debug possible origin issues.
 
@@ -17,12 +16,12 @@ To access health check analytics:
 
 You can evaluate origin uptime, latency, failure reason, and specific event logs:
 
-* **Health Checks By Uptime**: Shows the percentage of uptime for individual origins over time.
-* **Health Checks By Failure Reason**: Shows a breakdown of failures by the specific reason. See [common error code causes and solutions below](/health-checks/health-checks-analytics/#common-error-codes).
-* **Health Checks By Latency**: Shows average latency – measured in round trip time — for individual origins over time.
-* **Event Log**: Shows individual health check data.
-  * Select each record for additional details on **Round trip time**, the **Failure Reason**, the **Average Waterfall** (showing chronological data about request stages), **Response status code**, and more.
-  * Note that **Global** is not a configured region; it represents the aggregated data from all enabled regions.
+- **Health Checks By Uptime**: Shows the percentage of uptime for individual origins over time.
+- **Health Checks By Failure Reason**: Shows a breakdown of failures by the specific reason. See [common error code causes and solutions below](/health-checks/health-checks-analytics/#common-error-codes).
+- **Health Checks By Latency**: Shows average latency – measured in round trip time — for individual origins over time.
+- **Event Log**: Shows individual health check data.
+  - Select each record for additional details on **Round trip time**, the **Failure Reason**, the **Average Waterfall** (showing chronological data about request stages), **Response status code**, and more.
+  - Note that **Global** is not a configured region; it represents the aggregated data from all enabled regions.
 
 ## Set up alerts
 
@@ -76,10 +75,10 @@ Change your Cloudflare Health Check configuration to use HTTPS or set the value 
 
 #### Cause
 
-The response body returns from your origin server and does not include the (case-insensitive) value of `expected_body` configured in your Health Check. 
+The response body returns from your origin server and does not include the (case-insensitive) value of `expected_body` configured in your Health Check.
 
 :::note
-We only read the first 10 KB of the response. If you return a larger response, and the `expected_body` is not in the first 10 KB, the Health Check will fail. 
+We only read the first 10 KB of the response. If you return a larger response, and the `expected_body` is not in the first 10 KB, the Health Check will fail.
 :::
 
 #### Solution

@@ -11,22 +11,20 @@ head:
     content: Cloudflare Network Analytics v1 (deprecated)
 description: Network Analytics v1 (deprecated) provides near real-time
   visibility into network and transport-layer traffic patterns and DDoS attacks.
-
 ---
 
-import { GlossaryTooltip, Render } from "~/components"
+import { GlossaryTooltip, Render } from "~/components";
 
 :::caution
 
-
-* <Render file="network-analytics-v1-deprecation" />
-* If you are using the Network Analytics GraphQL API, you should migrate from NAv1 to NAv2 by following the [migration guide](/analytics/graphql-api/migration-guides/network-analytics-v2/).
+- <Render file="network-analytics-v1-deprecation" />
+- If you are using the Network Analytics GraphQL API, you should migrate from NAv1 to NAv2 by following the [migration guide](/analytics/graphql-api/migration-guides/network-analytics-v2/).
   :::
 
 Access to Network Analytics requires the following:
 
-* A Cloudflare Enterprise plan
-* Cloudflare [Magic Transit](/magic-transit/) or [Spectrum](/spectrum/).
+- A Cloudflare Enterprise plan
+- Cloudflare [Magic Transit](/magic-transit/) or [Spectrum](/spectrum/).
 
 Cloudflare’s **Network Analytics** view provides near real-time visibility into network and transport-layer traffic patterns and DDoS attacks. Network Analytics visualizes packet and bit-level data, the same data available via the [GraphQL Analytics API](/analytics/graphql-api/).
 
@@ -34,29 +32,29 @@ Cloudflare’s **Network Analytics** view provides near real-time visibility int
 
 Network Analytics accelerates reporting and investigation of malicious traffic. You can filter data by these parameters:
 
-* Mitigation action taken by Cloudflare
-* Source IP, port, ASN
-* Destination IP and port
-* The Cloudflare data center city and country of where the traffic was observed
-* Attack size, type, rate, and duration
-* TCP flag 
-* IP version
-* Protocol
+- Mitigation action taken by Cloudflare
+- Source IP, port, ASN
+- Destination IP and port
+- The Cloudflare data center city and country of where the traffic was observed
+- Attack size, type, rate, and duration
+- TCP flag 
+- IP version
+- Protocol
 
 Use Network Analytics to quickly identify key intelligence:
 
-* Top attack vectors targeting the network 
-* Traffic mitigation over time, broken down by action 
-* Attack source, by country or data center
+- Top attack vectors targeting the network 
+- Traffic mitigation over time, broken down by action 
+- Attack source, by country or data center
 
-***
+---
 
 ## Access Network Analytics v1
 
 1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com) and select an account that has access to Magic Transit or Spectrum.
 2. Go to Account Home > **Analytics & Logs** > **Network Analytics**.
 
-***
+---
 
 ## Navigate Network Analytics v1
 
@@ -74,11 +72,11 @@ To toggle your view of the data, select the **Packets** or **Bits** side panels.
 
 Use the **timeframe** drop-down list to change the time range over which Network Analytics displays data. When you select a timeframe, the entire view is updated to reflect your choice.
 
-When you select *Last 30 minutes*, the **Network Analytics** view displays the data from the last 30 minutes, refreshing every 20 seconds. A *Live* notification appears next to the statistic drop-down list to let you know that the view keeps updating automatically:
+When you select _Last 30 minutes_, the **Network Analytics** view displays the data from the last 30 minutes, refreshing every 20 seconds. A _Live_ notification appears next to the statistic drop-down list to let you know that the view keeps updating automatically:
 
 ![Auto-refresh enabled in Network Analytics](~/assets/images/analytics/network-analytics/v1-auto-refresh.png)
 
-When you select the *Custom range* option, you can specify a time range of up to 30 days throughout any period during the last 365 days.
+When you select the _Custom range_ option, you can specify a time range of up to 30 days throughout any period during the last 365 days.
 
 :::note
 
@@ -87,7 +85,7 @@ Source IPs are stored for 30 days. Report periods older than 30 days do not incl
 
 ### View by average rate or total volume 
 
-Choose a statistic from the drop-down list to toggle between plotting *Average rate* and *Total count*. 
+Choose a statistic from the drop-down list to toggle between plotting _Average rate_ and _Total count_. 
 
 ### Show IP prefix advertisement/withdrawal events
 
@@ -103,7 +101,7 @@ Select and drag to zoom in on a region of the chart. Using this technique you ca
 
 To zoom out, select **X** in the **time range** selector.
 
-***
+---
 
 ## Apply filters to data
 
@@ -117,15 +115,15 @@ Select **Add filter** to open the **New filter** popover. Specify a field, an op
 
 When applying filters, observe these guidelines:
 
-* Wildcards are not supported.
-* You do not need to wrap values in quotes.
-* When specifying an ASN number, leave out the *AS* prefix. For example, enter *1423* instead of *AS1423*.
+- Wildcards are not supported.
+- You do not need to wrap values in quotes.
+- When specifying an ASN number, leave out the _AS_ prefix. For example, enter _1423_ instead of _AS1423_.
 
 ### Use a stat filter
 
 To filter based on the type of data associated with one of the Network Analytics stats, use the **Filter** and **Exclude** buttons that display when you hover your pointer over the stat. 
 
-In this example, selecting **Filter** narrows the scope of the view to only traffic associated with the *Allow* action.
+In this example, selecting **Filter** narrows the scope of the view to only traffic associated with the _Allow_ action.
 
 ### Create a Magic Firewall rule from the applied filters
 
@@ -136,11 +134,11 @@ This feature is only available for Magic Transit users.
 
 You can create a [Magic Firewall](/magic-firewall/) rule that blocks all traffic matching the selected filters in Network Analytics. The currently supported filters are:
 
-* Destination IP
-* Protocol
-* Source data center
-* Source IP
-* TCP flags
+- Destination IP
+- Protocol
+- Source data center
+- Source IP
+- TCP flags
 
 Other types of Network Analytics filters will not be added to the new rule definition. However, you can further configure the rule in Magic Firewall.
 
@@ -162,8 +160,6 @@ Do the following:
 
 The table below shows the range of fields, operators, and values you can use to filter Network Analytics.
 
-
-
 | Field                | Operators                                                                                                   | Value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | -------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Action               | Equals<br/>Does not equal                                                                                   | **Allow:** Traffic allowed through Cloudflare's automated DDoS protection systems. May also include traffic mitigated by Firewall Rules, flowtrackd and L7 rules.<br/>**Block:** Traffic blocked by Cloudflare's automated DDoS protection systems.<br/>**Connection-tracking:** Applies only exclusively to L7, as Magic Transit is excluded from scope and no conntrack ever runs for Magic Transit prefixes.<br/>**Rate-limit:** Can be applied per source IP, subnet or any connection. The decision is made programmatically based on heuristics.<br/>**Monitor:** Attacks which were identified but have chosen to simply observe and not mitigate with any rule. |
@@ -181,9 +177,7 @@ The table below shows the range of fields, operators, and values you can use to 
 | Source port          | Equals Does not equal<br/>Greater than<br/>Greater than or equals<br/>Less than<br/>Less than or equals     | Port number<br/>Port range                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | TCP Flag             | Equals<br/>Does not equal<br/>Contains                                                                      | SYN, SYN-ACK, FIN, ACK, RST                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
-
-
-***
+---
 
 ## Select a dimension to plot
 
@@ -193,18 +187,18 @@ Select one of the **Summary** tabs to view the data along a different dimension.
 
 You can choose from these options: 
 
-* Action
-* Attack type
-* Destination IP
-* Destination port
-* IP version
-* Protocol
-* Source ASN
-* Source country
-* Source data center
-* Source IP
-* Source port
-* TCP flag
+- Action
+- Attack type
+- Destination IP
+- Destination port
+- IP version
+- Protocol
+- Source ASN
+- Source country
+- Source data center
+- Source IP
+- Source port
+- TCP flag
 
 :::note
 
@@ -219,7 +213,7 @@ To share your view of the data, copy the URL and send it to other users so that 
 
 ![Selecting the URL of the Network Analytics page](~/assets/images/analytics/network-analytics/v1-share-url.png)
 
-***
+---
 
 ## View the Activity log
 
@@ -239,9 +233,9 @@ The **Source Country,** **Source**, and **Destination** panels display the top i
 
 To select the number of items to display, use the drop-down list associated with the view.
 
-To review the top data centers, select *Data center* from the drop-down list in the **Source country** view. The **Source data center** view replaces the **Source country** view.
+To review the top data centers, select _Data center_ from the drop-down list in the **Source country** view. The **Source data center** view replaces the **Source country** view.
 
-***
+---
 
 ## Export log data and reports
 
@@ -261,25 +255,24 @@ network-analytics-attacks-[start_time]-[end_time].json
 
 To print or download a snapshot report from **Network Analytics**, select **Print report**. Your web browser's print interface displays options for printing or saving as a PDF.
 
-***
+---
 
 ## Limitations
 
 Network Analytics currently has these limitations:
 
-* Network Analytics v1 provides insights on [denial of service daemon (dosd)](https://blog.cloudflare.com/who-ddosd-austin/) attacks. Although it provides a timely view of the data, it does not have a complete view of all events. 
+- Network Analytics v1 provides insights on [denial of service daemon (dosd)](https://blog.cloudflare.com/who-ddosd-austin/) attacks. Although it provides a timely view of the data, it does not have a complete view of all events. 
 
-* The following data sources are not available in Network Analytics v1:
+- The following data sources are not available in Network Analytics v1:
+  - Firewall Rules (available in [Network Analytics v2](/analytics/network-analytics/))
+  - Application layer rules
+  - Gatekeeper and manually applied rules
+  - [flowtrackd](https://blog.cloudflare.com/announcing-flowtrackd/) (Advanced TCP protection) (available in Network Analytics v2)
+  - WARP traffic and [Orange-clouded traffic](/fundamentals/concepts/how-cloudflare-works/)
 
-  * Firewall Rules (available in [Network Analytics v2](/analytics/network-analytics/))
-  * Application layer rules
-  * Gatekeeper and manually applied rules
-  * [flowtrackd](https://blog.cloudflare.com/announcing-flowtrackd/) (Advanced TCP protection) (available in Network Analytics v2)
-  * WARP traffic and [Orange-clouded traffic](/fundamentals/concepts/how-cloudflare-works/)
+- Data from Cloudflare services that proxy traffic, such as CDN, is not available in Network Analytics.
 
-* Data from Cloudflare services that proxy traffic, such as CDN, is not available in Network Analytics.
-
-***
+---
 
 ## Frequently asked questions
 
@@ -289,28 +282,28 @@ If you are using Network Analytics v2 (NAv2), the range of historical data you c
 
 Network Analytics v1 (NAv1) uses GraphQL nodes to roll up data into 1 minute, 1 hour, and 1 day IP flows. For example, the ipFlows1mGroups node stores data in minute-wise aggregations.
 
-To identify the range of historical data you can query in NAv1, refer to this table. Use the ***notOlderThan*** column as an indicator of retention time.
+To identify the range of historical data you can query in NAv1, refer to this table. Use the **_notOlderThan_** column as an indicator of retention time.
 
 GraphQL data nodes:
 
-* `ipFlows1mGroups`
-  * **maxDuration**[^1]: 25 hours
-  * **notOlderThan**[^2]: 30 days
-  * **Time range selection** and **Number of data points**:
-    * 30 minutes - 30 data points
-    * 6 hours - 71 data points
-    * 12 hours - 48 data points
-    * 24 hours - 96 data points
-    * 1 week - 168 data points
-* `ipFlows1dGroups`
-  * **maxDuration**[^1]: 6 months
-  * **notOlderThan**[^2]: 1 year
-  * **Time range selection** and **Number of data points**:
-    * 30 minutes - 30 data points
-    * 6 hours - 71 data points
-    * 12 hours - 48 data points
-    * 24 hours - 96 data points
-    * 1 week - 168 data points
+- `ipFlows1mGroups`
+  - **maxDuration**[^1]: 25 hours
+  - **notOlderThan**[^2]: 30 days
+  - **Time range selection** and **Number of data points**:
+    - 30 minutes - 30 data points
+    - 6 hours - 71 data points
+    - 12 hours - 48 data points
+    - 24 hours - 96 data points
+    - 1 week - 168 data points
+- `ipFlows1dGroups`
+  - **maxDuration**[^1]: 6 months
+  - **notOlderThan**[^2]: 1 year
+  - **Time range selection** and **Number of data points**:
+    - 30 minutes - 30 data points
+    - 6 hours - 71 data points
+    - 12 hours - 48 data points
+    - 24 hours - 96 data points
+    - 1 week - 168 data points
 
 [^1]: maxDuration defines the time window that can be requested in one query (varies by data node).
 
@@ -318,13 +311,13 @@ GraphQL data nodes:
 
 When working with attack logs in the dashboard, keep the following in mind:
 
-* Attack logs are stored with start and end timestamps, packet and bit statistics for minimum, maximum, and average data rate, as well as totals, attack type, and action taken. 
-* Source IP addresses are considered personally identifiable information. Therefore, Cloudflare only stores them for 30 days. After 30 days, source IP addresses are discarded, and the logs are rolled up first into 1-hour groups, then 1-day groups. The 1-hour rollups are stored for 6 month. The one day rollups are stored for 1 year.
+- Attack logs are stored with start and end timestamps, packet and bit statistics for minimum, maximum, and average data rate, as well as totals, attack type, and action taken. 
+- Source IP addresses are considered personally identifiable information. Therefore, Cloudflare only stores them for 30 days. After 30 days, source IP addresses are discarded, and the logs are rolled up first into 1-hour groups, then 1-day groups. The 1-hour rollups are stored for 6 month. The one day rollups are stored for 1 year.
 
 For more information on querying and accessing log data, refer to the [GraphQL Analytics API](/analytics/graphql-api/limits). 
 
 ### Why does Network Analytics say the destination IP is “unavailable”?
 
-The destination IP is indicated as *Unavailable*, when the destination IP was not included in the real-time signature generated by our [DDoS protection systems](/ddos-protection/). 
+The destination IP is indicated as _Unavailable_, when the destination IP was not included in the real-time signature generated by our [DDoS protection systems](/ddos-protection/). 
 
 To view the destination IP, filter by **Attack ID** and scroll to the **Destination** section in the top items lists. When you filter on a specific Attack ID, the entire Network Analytics dashboard becomes an attack report.

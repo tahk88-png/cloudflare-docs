@@ -33,12 +33,10 @@ After you [enable the Cloudflare China Network service](/china-network/get-start
     The current China Network supports both a [full setup](/dns/zone-setups/full-setup/) and a [partial setup](/dns/zone-setups/partial-setup/).
 
 2.  Update your domain registrar with the assigned in-China nameservers.
-
     - For a full setup: These nameservers are displayed in the Cloudflare dashboard.
     - For a partial setup: Create a `CNAME` record pointing to `<host_name>.cdn.cloudflarecn.net`.
 
     For example, consider a zone named `samplezone.cn`. In this zone, you have two DNS records, `www` and `media`, pointing to two different origin servers. Your Authoritative DNS server needs to set the following DNS records:
-
     - CNAME `www.samplezone.cn` to `www.samplezone.cn.cdn.cloudflarecn.net`
     - CNAME `media.samplezone.cn` to `media.samplezone.cn.cdn.cloudflarecn.net`
 

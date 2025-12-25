@@ -3,7 +3,6 @@ title: Available products and features
 pcx_content_type: reference
 sidebar:
   order: 2
-
 ---
 
 The following products and features are available on the Cloudflare China Network operated by JD Cloud:
@@ -37,7 +36,7 @@ The following products and features are available on the Cloudflare China Networ
 | [Browser Rendering](/browser-rendering/)                                  | ❌        | Browser automation for Cloudflare Workers and quick browser actions.                                                                                                           |
 | [D1](/d1/)                                                                | ❌        | Create new serverless SQL databases to query from your Workers and Pages projects.                                                                                             |
 | [Workers for Platforms](/cloudflare-for-platforms/workers-for-platforms/) | ✅        | Deploy custom code on behalf of your users or let your users directly deploy their own code to your platform, managing infrastructure.                                         |
-| [Durable Objects](/durable-objects/)                                      | 🟠[^1]        | Create AI agents, collaborative applications, real-time interactions like chat, and more without needing to coordinate state, have separate storage, or manage infrastructure. |
+| [Durable Objects](/durable-objects/)                                      | 🟠[^1]    | Create AI agents, collaborative applications, real-time interactions like chat, and more without needing to coordinate state, have separate storage, or manage infrastructure. |
 | [Environment Variables](/workers/configuration/environment-variables/)    | ✅        | Environment variables allow you to attach text strings or JSON values to your Worker.                                                                                          |
 | [Hyperdrive](/hyperdrive/)                                                | ❌        | Turn your existing regional database into a globally distributed database.                                                                                                     |
 | [Images](/images/transform-images/bindings/)                              | 🟠[^2]    | Store, transform, optimize, and deliver images at scale.                                                                                                                       |
@@ -55,7 +54,9 @@ The following products and features are available on the Cloudflare China Networ
 | [Workflows](/workflows/)                                                  | ❌        | Build durable multi-step applications on Cloudflare Workers with Workflows.                                                                                                    |
 
 [^1]: Durable Objects cannot be created within China, all new instances will be created outside. Invoking a Durable Object still works as normal.
+
 [^2]: [Image Resizing works within Workers](/images/transform-images/transform-via-workers/) but not through [URL format](/images/transform-images/transform-via-url/).
+
 [^3]: R2 buckets cannot be created within China and [custom domains](/r2/buckets/public-buckets/#add-your-domain-to-cloudflare) are not supported within China. You can use [Worker bindings](/r2/api/workers/workers-api-usage/) however.
 
 ## Network services
@@ -69,8 +70,8 @@ The following products and features are available on the Cloudflare China Networ
 
 ## Other services
 
-| Product                  | Feature       | Description                                                      |
-| ------------------------ | ------------- | ---------------------------------------------------------------- | 
-| [Logs](/logs/)           | Instant Logs  | Live Tail your Cloudflare HTTP logs in the Cloudflare Dashboard. |
+| Product        | Feature      | Description                                                      |
+| -------------- | ------------ | ---------------------------------------------------------------- |
+| [Logs](/logs/) | Instant Logs | Live Tail your Cloudflare HTTP logs in the Cloudflare Dashboard. |
 
 For more details or specific product features, contact your account team.

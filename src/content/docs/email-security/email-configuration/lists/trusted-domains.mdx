@@ -3,7 +3,6 @@ title: Trusted domains
 pcx_content_type: concept
 sidebar:
   order: 2
-
 ---
 
 **Trusted domains** allows you to identify domains that should be exempted from Email Security (formerly Area 1) detections.
@@ -12,8 +11,8 @@ sidebar:
 
 When messages come to your recipients from certain domains, Email Security triggers certain [detections](/email-security/reference/dispositions-and-attributes/) by default:
 
-* **Proximity Domains**: Domains with similar spelling to your existing domain. Will trigger a `SPOOF` detection.
-* **Recent Domains**: Domains created recently (exact definition set in [Added Detections](/email-security/email-configuration/enhanced-detections/added-detections/)). Will trigger a `MALICIOUS` or `SUSPICIOUS` detection.
+- **Proximity Domains**: Domains with similar spelling to your existing domain. Will trigger a `SPOOF` detection.
+- **Recent Domains**: Domains created recently (exact definition set in [Added Detections](/email-security/email-configuration/enhanced-detections/added-detections/)). Will trigger a `MALICIOUS` or `SUSPICIOUS` detection.
 
 However, sometimes those domains are legitimate. For example, your company may have registered several lookalike domains to combat domain squatters.
 
@@ -32,9 +31,8 @@ To add a trusted domain:
 4. Select **+ Add Domain**.
 
 5. The exact flow varies based on what you select for your **Pattern Type**:
-
-   * **Domain**: Allows you to specify a particular domain and then adjust triggers for *Proximity Domain* and *Recent Domain*.
-   * **Create Regex**: Allows you to create Regex rules for the domain name, top-level domain (TLDs), and subdomains and then adjust triggers for *Proximity Domain* and *Recent Domain*.
+   - **Domain**: Allows you to specify a particular domain and then adjust triggers for _Proximity Domain_ and _Recent Domain_.
+   - **Create Regex**: Allows you to create Regex rules for the domain name, top-level domain (TLDs), and subdomains and then adjust triggers for _Proximity Domain_ and _Recent Domain_.
 
 6. Select **Save**.
 

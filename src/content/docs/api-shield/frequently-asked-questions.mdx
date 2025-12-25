@@ -4,7 +4,6 @@ title: FAQ
 structured_data: true
 sidebar:
   order: 8
-
 ---
 
 ## Why are my API endpoints not found by API Discovery?
@@ -22,7 +21,6 @@ Endpoints discovered using session identifiers will be labeled as such in the da
 ---
 
 ## How does Cloudflare calculate the recommended rate limit for my endpoint?
-
 
 Cloudflare uses both the volume and frequency of traffic to guide your recommended rate. We calculate the recommended rate value throughout the day, and the new calculation may equal the existing recommendation due to similar traffic profiles existing on your API. When we recalculate, we look at requests that happened in the last 24 hours.
 
@@ -68,5 +66,3 @@ The importing ([Schema validation](/api-shield/security/schema-validation/)) and
 Latency metrics currently are not supported when a Cloudflare Worker is running on the URL, as the requests are not passed directly to your origin.
 
 Some Cloudflare products such as [Waiting Room](/waiting-room/) are built on top of Workers, so the same limitations apply to applications using these products.
-
-

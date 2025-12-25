@@ -81,21 +81,21 @@ Ensure your Kubernetes API server is configured to accept authentication from Cl
    apiVersion: v1
    kind: Config
    clusters:
-   - cluster:
-       server: https://k8s.example.com
-     name: cloudflare-k8s
+     - cluster:
+         server: https://k8s.example.com
+       name: cloudflare-k8s
    users:
-   - name: cloudflare-user
-     user:
-       exec:
-         apiVersion: client.authentication.k8s.io/v1beta1
-         command: /path/to/cloudflare-k8s-auth.sh
-         interactiveMode: Never
+     - name: cloudflare-user
+       user:
+         exec:
+           apiVersion: client.authentication.k8s.io/v1beta1
+           command: /path/to/cloudflare-k8s-auth.sh
+           interactiveMode: Never
    contexts:
-   - context:
-       cluster: cloudflare-k8s
-       user: cloudflare-user
-     name: cloudflare-k8s-context
+     - context:
+         cluster: cloudflare-k8s
+         user: cloudflare-user
+       name: cloudflare-k8s-context
    current-context: cloudflare-k8s-context
    ```
 

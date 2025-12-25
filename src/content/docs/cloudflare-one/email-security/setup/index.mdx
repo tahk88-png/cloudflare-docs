@@ -32,10 +32,11 @@ Post-delivery deployment is time-efficient, because it does not involve MX chang
 
 :::note
 When you choose post-delivery deployment:
+
 - The threat is removed **after** the message has been delivered to the inbox.
 - It requires API scopes, or BCC/Journaling rule configuration.
 - Auto-move is only available in BCC/Journaling if you associate an integration.
-:::
+  :::
 
 ### Pre-delivery deployment
 
@@ -49,10 +50,11 @@ Pre-delivery blocks threats in transit, and it adds banners or texts before the 
 
 :::note
 When you choose pre-delivery deployment:
+
 - You must edit MX records or create a connector.
 - You can enable auto-move events only after you associate an integration.
 - Cloudflare [egress IPs](/cloudflare-one/email-security/setup/pre-delivery-deployment/egress-ips/) are allowed on downstream mail servers.
-:::
+  :::
 
 ## 2. Understand dispositions
 
@@ -78,10 +80,9 @@ You should review your impersonation registry on a quarterly basis as roles chan
 
 A reclassification is a change to an email's disposition **after** initial scanning. It is Cloudflare's built-in feedback loop for correcting false positives/negatives **and** training the detection models to get smarter over time. Refer to [Reclassify messages](/cloudflare-one/email-security/email-monitoring/search-email/#reclassify-messages) to learn how to reclassify a message.
 
-
 ### Who can reclassify messages
 
-[Security teams](/cloudflare-one/email-security/email-monitoring/search-email/#team-submissions) and [end users](/cloudflare-one/email-security/email-monitoring/search-email/#user-submissions) can submit a reclassification. 
+[Security teams](/cloudflare-one/email-security/email-monitoring/search-email/#team-submissions) and [end users](/cloudflare-one/email-security/email-monitoring/search-email/#user-submissions) can submit a reclassification.
 
 ### Why you should reclassify messages
 
@@ -104,19 +105,20 @@ A correct use of reclassifications ensures that Email Security delivers a strong
 
 Follow the below checklist to ensure your email environment is set up correctly:
 
-| Step                                                                                                    | Post-delivery | Pre-delivery |
-|---------------------------------------------------------------------------------------------------------|---------------|--------------|
-| Authorize integration ([Graph API](/cloudflare-one/email-security/setup/post-delivery-deployment/api/m365-api/#enable-microsoft-integration) or [Google Workspace](/cloudflare-one/email-security/setup/post-delivery-deployment/bcc-journaling/bcc-setup/gmail-bcc-setup/enable-gmail-integration/))                                                | Required[^1]      | Required [^2]     |
-| Associate an integration with an MX/Inline domain                                                       |               | Required     |
-| Add/verify domains                                                                                      | Required      | Required     |
-| [Update MX records/connector](/cloudflare-one/email-security/setup/pre-delivery-deployment/mx-inline-deployment-setup/), then allow Cloudflare [egress IPs](/cloudflare-one/email-security/setup/pre-delivery-deployment/egress-ips/) on downstream mail server |               | Required     |
-| Enable [Post‑delivery response and Phish submission response](/cloudflare-one/email-security/auto-moves/)                                             | Required      | Required     |
-| Populate [impersonation registry](/cloudflare-one/email-security/detection-settings/impersonation-registry/) and [allow](/cloudflare-one/email-security/detection-settings/allow-policies/)/[block](/cloudflare-one/email-security/detection-settings/blocked-senders/) lists                                                 | Required      | Required     |
-| Configure [partner domain TLS](/cloudflare-one/email-security/setup/pre-delivery-deployment/partner-domain-tls/) and admin quarantine                                                              |               | Required     |
-| Configure [text add-ons](/cloudflare-one/email-security/detection-settings/configure-text-add-ons/) and [link actions](/cloudflare-one/email-security/detection-settings/configure-link-actions/)                                                                  |               | Required     |
-| Send a test email and verify it appears in **Monitoring** > [**Email activity**](/cloudflare-one/email-security/email-monitoring/#email-activity) with expected disposition        | Required      | Required     |
+| Step                                                                                                                                                                                                                                                                                                  | Post-delivery | Pre-delivery  |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------- |
+| Authorize integration ([Graph API](/cloudflare-one/email-security/setup/post-delivery-deployment/api/m365-api/#enable-microsoft-integration) or [Google Workspace](/cloudflare-one/email-security/setup/post-delivery-deployment/bcc-journaling/bcc-setup/gmail-bcc-setup/enable-gmail-integration/)) | Required[^1]  | Required [^2] |
+| Associate an integration with an MX/Inline domain                                                                                                                                                                                                                                                     |               | Required      |
+| Add/verify domains                                                                                                                                                                                                                                                                                    | Required      | Required      |
+| [Update MX records/connector](/cloudflare-one/email-security/setup/pre-delivery-deployment/mx-inline-deployment-setup/), then allow Cloudflare [egress IPs](/cloudflare-one/email-security/setup/pre-delivery-deployment/egress-ips/) on downstream mail server                                       |               | Required      |
+| Enable [Post‑delivery response and Phish submission response](/cloudflare-one/email-security/auto-moves/)                                                                                                                                                                                             | Required      | Required      |
+| Populate [impersonation registry](/cloudflare-one/email-security/detection-settings/impersonation-registry/) and [allow](/cloudflare-one/email-security/detection-settings/allow-policies/)/[block](/cloudflare-one/email-security/detection-settings/blocked-senders/) lists                         | Required      | Required      |
+| Configure [partner domain TLS](/cloudflare-one/email-security/setup/pre-delivery-deployment/partner-domain-tls/) and admin quarantine                                                                                                                                                                 |               | Required      |
+| Configure [text add-ons](/cloudflare-one/email-security/detection-settings/configure-text-add-ons/) and [link actions](/cloudflare-one/email-security/detection-settings/configure-link-actions/)                                                                                                     |               | Required      |
+| Send a test email and verify it appears in **Monitoring** > [**Email activity**](/cloudflare-one/email-security/email-monitoring/#email-activity) with expected disposition                                                                                                                           | Required      | Required      |
 
 [^1]: Associating an integration with BCC/Journaling is required for post-delivery but not for pre-delivery.
+
 [^2]: Still used for directory/auto‑move insight if desired as well as authorizing free API CASB.
 
 Now that you know which deployment path to choose, you can begin your onboarding process.

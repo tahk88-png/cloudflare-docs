@@ -32,7 +32,6 @@ To retrieve those values:
 4. Under **Domain**, copy your user pool domain or [configure a new domain](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-assign-domain.html).
 
 5. Make note of the following [Amazon Cognito OIDC endpoints](https://docs.aws.amazon.com/cognito/latest/developerguide/federation-endpoints.html):
-
    - **Auth URL**: `https://<your user pool domain>/oauth2/authorize`
    - **Token URL**: `https://<your user pool domain>/oauth2/token`
    - **Certificate (key) URL**: `https://cognito-idp.<region>.amazonaws.com/<your user pool ID>/.well-known/jwks.json` (This is the **Token signing key URL** shown in **User pool overview**.)
@@ -46,7 +45,6 @@ To retrieve those values:
 9. Ensure that **Generate a client secret** is selected.
 
 10. Configure the following **Hosted UI settings**:
-
     1. In **Allowed callback URLs**, add the following URL:
 
        ```txt

@@ -3,10 +3,9 @@ pcx_content_type: troubleshooting
 title: Super Bot Fight Mode for WordPress
 sidebar:
   order: 2
-
 ---
 
-import { Tabs, TabItem, Steps, Render } from '~/components';
+import { Tabs, TabItem, Steps, Render } from "~/components";
 
 When users attempt to run diagnostics in the Site Status page for WordPress installations, loopback issues arise when our bot detection services block them.
 
@@ -14,29 +13,28 @@ WordPress relies on making loopback requests to monitor and occasionally adminis
 
 :::note
 
-Loopback requests may also be blocked by [I’m Under Attack mode](/fundamentals/reference/under-attack-mode/) or certain [WAF custom rules](/waf/custom-rules/). 
+Loopback requests may also be blocked by [I’m Under Attack mode](/fundamentals/reference/under-attack-mode/) or certain [WAF custom rules](/waf/custom-rules/).
 :::
 
 ## Enable Optimize for WordPress
 
-<Tabs syncKey="dashNewNav"> 
-  <TabItem label="Old dashboard">
-    <Steps>
-      1. Log in to the [Cloudflare dashboard](http://dash.cloudflare.com), and select your account and domain.
-      2. Go to **Security** > **Bots**.
-      3. Select **Configure Bot Management**.
-      4. Enable **Optimize for WordPress**.
-    </Steps>
-  </TabItem> 
-  <TabItem label="New dashboard" icon="rocket">
-    <Steps>
-      1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com/login), and select your account and domain.
-      2. Go to **Security** > **Settings**.
-      3. Filter by **Bot traffic**.
-      4. Go to **Super Bot Fight Mode**.
-      4. Under **Configurations**, select the edit icon for **Optimize for WordPress** and turn it on.
-    </Steps>
-  </TabItem>
+<Tabs syncKey="dashNewNav">
+	<TabItem label="Old dashboard">
+		<Steps>
+			1. Log in to the [Cloudflare dashboard](http://dash.cloudflare.com), and
+			select your account and domain. 2. Go to **Security** > **Bots**. 3.
+			Select **Configure Bot Management**. 4. Enable **Optimize for WordPress**.
+		</Steps>
+	</TabItem>
+	<TabItem label="New dashboard" icon="rocket">
+		<Steps>
+			1. Log in to the [Cloudflare
+			dashboard](https://dash.cloudflare.com/login), and select your account and
+			domain. 2. Go to **Security** > **Settings**. 3. Filter by **Bot
+			traffic**. 4. Go to **Super Bot Fight Mode**. 4. Under **Configurations**,
+			select the edit icon for **Optimize for WordPress** and turn it on.
+		</Steps>
+	</TabItem>
 </Tabs>
 
 ## Availability

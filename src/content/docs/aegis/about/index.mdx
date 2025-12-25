@@ -9,7 +9,6 @@ sidebar:
 head:
   - tag: title
     content: How Aegis works
-
 ---
 
 When you use Cloudflare [as a reverse proxy](/fundamentals/concepts/how-cloudflare-works/#how-cloudflare-works-as-a-reverse-proxy), [Cloudflare's global network](https://www.cloudflare.com/network/) sits between client requests and your origin servers.
@@ -42,9 +41,9 @@ Each dedicated egress pool can consist of either IPs from a [BYOIP prefix](/byoi
 
 With dedicated egress IPs, you can:
 
-* Lock down your [network firewall](/aegis/configuration-options/network-firewall/) to only allow traffic from the Aegis IPs.
-* Use [Cloudflare Access](/aegis/configuration-options/access-cni/) to secure your applications without installing software or customizing code on your server.
-* Ensure only authorized [Workers](/aegis/configuration-options/workers/) can access your origin services.
+- Lock down your [network firewall](/aegis/configuration-options/network-firewall/) to only allow traffic from the Aegis IPs.
+- Use [Cloudflare Access](/aegis/configuration-options/access-cni/) to secure your applications without installing software or customizing code on your server.
+- Ensure only authorized [Workers](/aegis/configuration-options/workers/) can access your origin services.
 
 Refer to the [introductory blog post](https://blog.cloudflare.com/cloudflare-aegis/) for details and example use cases.
 

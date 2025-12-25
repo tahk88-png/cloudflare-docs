@@ -15,9 +15,10 @@ For Google Cloud Project (GCP) deployments, [enable IP forwarding](https://cloud
 ## AWS
 
 For Amazon Web Services (AWS) deployments:
+
 - Stop [source/destination checking](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html) on the EC2 instance where you installed WARP Connector.
 - In your [subnet route table](https://docs.aws.amazon.com/vpc/latest/userguide/subnet-route-tables.html), route all IPv4 traffic to the EC2 instance where you installed WARP Connector. For example,
 
-		| Destination | Target |
-		| ----------- | ------ |
-		| `0.0.0.0/0` | `eni-11223344556677889` |
+      | Destination | Target |
+      | ----------- | ------ |
+      | `0.0.0.0/0` | `eni-11223344556677889` |

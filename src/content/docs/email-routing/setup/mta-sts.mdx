@@ -35,13 +35,15 @@ To do this you need to deploy a Worker that allows email clients to pull Cloudfl
 
 ```js
 export default {
-  async fetch(request, env, ctx) {
-    return await fetch("https://mta-sts.mx.cloudflare.net/.well-known/mta-sts.txt")
-  },
+	async fetch(request, env, ctx) {
+		return await fetch(
+			"https://mta-sts.mx.cloudflare.net/.well-known/mta-sts.txt",
+		);
+	},
 };
 ```
 
-This Worker proxies `https://mta-sts.mx.cloudflare.net/.well-known/mta-sts.txt` to your own domain. 
+This Worker proxies `https://mta-sts.mx.cloudflare.net/.well-known/mta-sts.txt` to your own domain.
 
 5. After deploying it, go to the Worker configuration, then **Settings** > **Domains & Routes** > **+Add**. Type the subdomain `mta-sts.example.com`.
 

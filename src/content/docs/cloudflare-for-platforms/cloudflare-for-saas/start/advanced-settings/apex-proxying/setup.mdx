@@ -6,22 +6,26 @@ sidebar:
 head:
   - tag: title
     content: Set up apex proxying
-
 ---
 
-import { Render } from "~/components"
+import { Render } from "~/components";
 
 To set up Cloudflare for SaaS for [apex proxying](/cloudflare-for-platforms/cloudflare-for-saas/start/advanced-settings/apex-proxying/) - as opposed to the [normal setup](/cloudflare-for-platforms/cloudflare-for-saas/start/getting-started/) - perform the following steps.
 
-***
+---
 
-<Render file="get-started-prereqs" params={{ one: "(this should be within the account associated with your IP prefixes)." }} />
+<Render
+	file="get-started-prereqs"
+	params={{
+		one: "(this should be within the account associated with your IP prefixes).",
+	}}
+/>
 
-***
+---
 
 ## Initial setup
 
-<Render file="get-started-initial-setup-preamble" /> <br/>
+<Render file="get-started-initial-setup-preamble" /> <br />
 
 ### 1. Get IP range
 
@@ -31,9 +35,7 @@ For more details on this step, reach out to your account team.
 
 :::caution
 
-
 These IP addresses are different than those associated with your Cloudflare zone.
-
 
 :::
 
@@ -41,7 +43,7 @@ These IP addresses are different than those associated with your Cloudflare zone
 
 <Render file="get-started-fallback-origin" />
 
-***
+---
 
 ## Per-hostname setup
 
@@ -53,9 +55,7 @@ To finish the custom hostname setup, your customer can set up either an A or CNA
 
 :::note
 
-
 If you want your customers to be able to use CNAME records, you will need to complete the [normal setup process](/cloudflare-for-platforms/cloudflare-for-saas/start/getting-started/) as well.
-
 
 :::
 
@@ -83,7 +83,8 @@ Your customer's CNAME record might look like the following:
 mystore.com CNAME customers.saasprovider.com
 ```
 
-[^1]: <Render file="regional-services" />
+[^1]:
+    <Render file="regional-services" />
 
 #### Service continuation
 

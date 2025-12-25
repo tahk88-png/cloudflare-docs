@@ -3,10 +3,9 @@ title: Phish submissions
 pcx_content_type: concept
 sidebar:
   order: 6
-
 ---
 
-import { DirectoryListing, GlossaryTooltip } from "~/components"
+import { DirectoryListing, GlossaryTooltip } from "~/components";
 
 As part of your continuous email security posture, administrators and security analysts need to submit missed <GlossaryTooltip term="phishing">phish</GlossaryTooltip> samples to [Email Security (formerly Area 1) Service Addresses](https://horizon.area1security.com/support/service-addresses/) so Cloudflare can process them and take necessary action.
 
@@ -18,10 +17,10 @@ Submitting missed phish samples to Cloudflare is of paramount importance and nec
 
 There are two different ways to submit a phish sample:
 
-* **User submission**: Submitted directly by the end users, and used with phish submission buttons. <br />
+- **User submission**: Submitted directly by the end users, and used with phish submission buttons. <br />
   To learn more about user-submitted phish, refer to the following documentation: <DirectoryListing />
 
-* **Team submission**: To be used when IT administrators or security teams submit to Email Security. Submit original phish samples as an attachment in EML format to the appropriate [Team Submissions address](https://horizon.area1security.com/support/service-addresses/). For example, if you think an email should be marked as spoof, send it to the `SPOOF` address listed in Team Submissions. <br />
+- **Team submission**: To be used when IT administrators or security teams submit to Email Security. Submit original phish samples as an attachment in EML format to the appropriate [Team Submissions address](https://horizon.area1security.com/support/service-addresses/). For example, if you think an email should be marked as spoof, send it to the `SPOOF` address listed in Team Submissions. <br />
   Phish samples submitted to this address will be considered as submissions from the customer's email security team. This increases the chances of similar samples being detected as malicious in the future.
 
 After submitting a phish sample to the team address, you will receive an update from `status@submission.area1reports.com` regarding the investigation and the verdict. The feedback is directly provided to customers by our threat research team, bypassing the support channel, to expedite the process.
@@ -34,9 +33,9 @@ After you or your users submit a phish sample, Email Security adds that sample d
 
 Use the following keywords to search for submitted phish samples on the Email Security dashboard:
 
-* `phish_submission`
-* `user_malicious_submission`
-* `team_malicious_submission`
+- `phish_submission`
+- `user_malicious_submission`
+- `team_malicious_submission`
 
 On the **Reasons** column you will see the feedback regarding the messages found. If the ML module learns and detects it as phish, the **Reasons** column shows the details regarding it. If not, the information on this column shows up as `phish submission`.
 
@@ -65,7 +64,7 @@ If you find emails in your Email Security account that are actually false positi
 1. Log in to the [Email Security dashboard](https://horizon.area1security.com/).
 2. Select the **Search** bar.
 3. Search for one or more messages that you want to report as a false positive, and select **Report as false positive**.
-4. In the next screen, choose a disposition from the list to clarify the nature of the false positive. The options are *Bulk*, *Malicious*, *None*, *Spam*, *Spoof* and *Suspicious*.
+4. In the next screen, choose a disposition from the list to clarify the nature of the false positive. The options are _Bulk_, _Malicious_, _None_, _Spam_, _Spoof_ and _Suspicious_.
 5. Select **Report False Positive**.
 
 ## False negatives
@@ -76,5 +75,5 @@ If you find emails in your Email Security account that are actually false positi
 2. Select the **Search** bar.
 3. Search for one or more messages that you want to report as a false negative, and select **Report as False Negative**.
    ![The link to submit false negatives, in the search results](~/assets/images/email-security/phish-submissions/false-negative.png)
-4. In the next screen, choose a disposition from the list to clarify the nature of the false negative. The options are *Bulk*, *Malicious*, *Spam*, *Suspicious* and *Spoof*.
+4. In the next screen, choose a disposition from the list to clarify the nature of the false negative. The options are _Bulk_, _Malicious_, _Spam_, _Suspicious_ and _Spoof_.
 5. Select **Report False Negative**.

@@ -4,10 +4,9 @@ source: https://support.cloudflare.com/hc/en-us/articles/360021357131-Delegating
 title: Delegate subdomains
 sidebar:
   order: 20
-
 ---
 
-import { FeatureTable } from "~/components"
+import { FeatureTable } from "~/components";
 
 Subdomain delegation allows different individuals, teams, or organizations to manage different subdomains of a site.
 
@@ -27,7 +26,7 @@ Cloudflare's CDN and security services are not applied to delegated subdomains.
 
 <FeatureTable id="dns.subdomain_delegation" />
 
-***
+---
 
 ## Delegate a subdomain (outgoing)
 
@@ -37,12 +36,12 @@ To delegate a subdomain such as *internal.example.com*, tell DNS resolvers wher
 2. Select the domain that contains the subdomain to be delegated.
 3. Go to **DNS** > **Records**.
 4. Create `NS` records for the subdomain. For example:
-   * `internal.example.com NS ns1.externalhost.com`
-   * `internal.example.com NS ns2.externalhost.com`
-   * `internal.example.com NS ns3.externalhost.com`
-   :::note
-   The `A` records for the subdomain are only required as glue records for nameservers that are located in the subdomain of the current zone that is being delegated.
-   :::
+   - `internal.example.com NS ns1.externalhost.com`
+   - `internal.example.com NS ns2.externalhost.com`
+   - `internal.example.com NS ns3.externalhost.com`
+     :::note
+     The `A` records for the subdomain are only required as glue records for nameservers that are located in the subdomain of the current zone that is being delegated.
+     :::
 5. (Optional) If the delegated nameserver has DNSSEC enabled, [add the `DS` record](/dns/dnssec/#1-activate-dnssec-in-cloudflare) in Cloudflare.
 
 ## Delegate a subdomain (incoming)

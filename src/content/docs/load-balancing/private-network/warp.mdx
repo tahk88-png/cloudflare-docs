@@ -1,10 +1,8 @@
 ---
-
 pcx_content_type: how-to
 title: Set up Private Network Load Balancing with WARP
 sidebar:
   order: 4
-
 ---
 
 To use Private Network Load Balancing, you must first set up a Cloudflare Tunnel and a Virtual Local Area Network in the [Cloudflare Zero Trust Dashboard](http://one.dash.cloudflare.com). This guide walks you through all required steps, from setup to optional configurations.
@@ -19,7 +17,7 @@ Skip to [step 2](/load-balancing/private-network/warp/#2-create-load-balancer-po
 2. Go to **Networks** > **Tunnels**.
 3. Select **Create a tunnel**.
 4. Choose **Cloudflared** for the connector type.
-5. Enter a name for your tunnel. We suggest choosing a name that reflects the type of resources you want to  connect through this tunnel (for example, `enterprise-VPC-01`).
+5. Enter a name for your tunnel. We suggest choosing a name that reflects the type of resources you want to connect through this tunnel (for example, `enterprise-VPC-01`).
 6. Select **Save tunnel**.
 7. Next, make sure the environment under **Choose your environment** matches your operating system, then copy the provided command, paste it into your terminal, and run it to install and launch `cloudflared`.
 8. Once the command has finished running, your connector will appear in the Zero Trust dashboard.
@@ -33,11 +31,11 @@ For more details, refer to the [Create tunnel](/cloudflare-one/connections/conne
 3. Select **Add new** or **Manage** > **Create virtual network**.
 4. Name your virtual network and select **Save**.
 5. To assign the virtual network to the tunnel go to **Networks** > **Tunnels**.
-2. Select the tunnel created in the previous steps and select **Edit**.
-3. Under **Private Network**, select **Add a private network**.
-4. Enter the CIDR IP range for your private network.
-5. Under **Additional settings**, select the virtual network you created.
-6. Select **Save private network**.
+6. Select the tunnel created in the previous steps and select **Edit**.
+7. Under **Private Network**, select **Add a private network**.
+8. Enter the CIDR IP range for your private network.
+9. Under **Additional settings**, select the virtual network you created.
+10. Select **Save private network**.
 
 For more details, refer to the [Virtual Network](/cloudflare-one/connections/connect-networks/private-net/cloudflared/tunnel-virtual-networks/) documentation. For API-specific details, refer to the [virtual networks](/api/resources/zero_trust/subresources/networks/subresources/virtual_networks/) API documentation.
 
@@ -51,15 +49,17 @@ Load Balancer Pools are logical groupings of endpoints — typically organized b
 If your endpoint address is an RFC 1918 private IP address, you must assign a Virtual Network (VNET) that includes the corresponding CIDR range.
 :::
 
-Pools can be created using either the Cloudflare dashboard or the API. Refer to the [Create a pool](/load-balancing/pools/create-pool/#create-a-pool) documentation section for more information. 
+Pools can be created using either the Cloudflare dashboard or the API. Refer to the [Create a pool](/load-balancing/pools/create-pool/#create-a-pool) documentation section for more information.
 
 ## 3. Create an Account Load Balancer with a Private IP
 
 1. Go to **Load Balancing** at the account level and select **Create a Load Balancer**.
 2. Select **Private Load Balancer**.
 3. On the next step you can choose to associate this load balancer with either:
- - A CGNAT IP from the Cloudflare range or
- - A custom [RFC1918 address](https://datatracker.ietf.org/doc/html/rfc1918).
+
+- A CGNAT IP from the Cloudflare range or
+- A custom [RFC1918 address](https://datatracker.ietf.org/doc/html/rfc1918).
+
 4. Add a descriptive name to identify your Load Balancer.
 5. Proceed through the setup.
 
@@ -67,13 +67,13 @@ After selecting an IP address and completing the setup, you will be redirected t
 
 ## 4. Make CGNAT IP routable (optional)
 
-If you are using an automatically assigned CGNAT IP address, you may need to update your Zero Trust settings to make this IP address accessible to WARP users. 
+If you are using an automatically assigned CGNAT IP address, you may need to update your Zero Trust settings to make this IP address accessible to WARP users.
 
 ### Update Split Tunnel settings
 
 1. In Zero Trust, go to **Settings** > **WARP Client**.
 2. Under **Device settings**, find the [device profile](/cloudflare-one/connections/connect-devices/warp/configure-warp/device-profiles/) you would like to modify and select **Edit**.
-3. Under **Split Tunnels**, check whether your [Split Tunnels mode](/cloudflare-one/connections/connect-devices/warp/configure-warp/route-traffic/split-tunnels/#change-split-tunnels-mode) is set to **Exclude** or **Include**. 
+3. Under **Split Tunnels**, check whether your [Split Tunnels mode](/cloudflare-one/connections/connect-devices/warp/configure-warp/route-traffic/split-tunnels/#change-split-tunnels-mode) is set to **Exclude** or **Include**.
 4. Select **Manage**. Depending on the mode:
 
 - Exclude Mode: Delete the `100.64.0.0/10` entry.
@@ -86,7 +86,7 @@ WARP traffic can now reach your Private Load Balancer at its CGNAT IP address. T
 If you want your load balancer and its endpoints to be transparently accessible to users via a hostname, you can create an override that maps the hostname to the Load Balancer's IP address. This ensures that traffic destined for the hostname resolves to the correct IP.
 
 1. In **Gateway**, select **Firewall policies**.
-2. In the **DNS**** tab, create an override where the **Selector** equals `Host`, the **Operator** equals `is`, and the **Value** is the hostname you wish to associate with your load balancer.
-3. Set the **Action** to _Override_ and in **Override Hostname**, enter the IP address of your Private Load Balancer. 
+2. In the **DNS\*\*** tab, create an override where the **Selector** equals `Host`, the **Operator** equals `is`, and the **Value** is the hostname you wish to associate with your load balancer.
+3. Set the **Action** to _Override_ and in **Override Hostname**, enter the IP address of your Private Load Balancer.
 
-Requests to the hostname will now resolve to your private load balancer. 
+Requests to the hostname will now resolve to your private load balancer.

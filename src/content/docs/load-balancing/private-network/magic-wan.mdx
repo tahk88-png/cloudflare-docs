@@ -3,7 +3,6 @@ pcx_content_type: how-to
 title: Set up Private Network Load Balancing with Magic WAN
 sidebar:
   order: 3
-
 ---
 
 Consider the following steps to learn how to configure Private Network Load Balancing solution, using [Magic WAN](/magic-wan/) as the on-ramp and off-ramp to securely connect to your private or internal services.
@@ -15,7 +14,7 @@ One of the pre-requisites to using Private Network Load Balancing (PNLB) with Ma
 Load Balancer Pools are logical groupings of endpoints — typically organized by physical datacenter or geographic region. The endpoints in the pool are the destinations where traffic is ultimately routed.
 
 :::note
-Endpoints accessed via Magic WAN  must be accessible in and assigned to the default VNET.
+Endpoints accessed via Magic WAN must be accessible in and assigned to the default VNET.
 :::
 
 :::caution
@@ -29,8 +28,10 @@ Pools can be created using either the Cloudflare dashboard or the API. Refer to 
 1. Go to **Load Balancing** at the account level and select **Create a Load Balancer**.
 2. Select **Private Load Balancer**.
 3. On the next step you can choose to associate this load balancer with either:
- - A CGNAT IP from the Cloudflare range or
- - A custom [RFC1918 address](https://datatracker.ietf.org/doc/html/rfc1918).
+
+- A CGNAT IP from the Cloudflare range or
+- A custom [RFC1918 address](https://datatracker.ietf.org/doc/html/rfc1918).
+
 4. Add a descriptive name to identify your Load Balancer.
 5. Proceed through the setup.
 
@@ -51,6 +52,6 @@ To create the override, follow these steps:
    - The **Selector** equals `Host`
    - The **Operator** equals `is`
    - The **Value** is the hostname you wish to associate with your load balancer.
-3. Set the **Action** to _Override_, and in **Override Hostname**, enter the IP address of your Private Load Balancer. 
+3. Set the **Action** to _Override_, and in **Override Hostname**, enter the IP address of your Private Load Balancer.
 
 Requests to the hostname will now resolve to your private load balancer.

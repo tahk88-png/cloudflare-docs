@@ -6,7 +6,6 @@ sidebar:
 head:
   - tag: title
     content: Adjust the data displayed in Network Analytics
-
 ---
 
 ## Select the appropriate tab
@@ -42,9 +41,9 @@ Select **Add filter** to open the **New filter** popover. Specify a field, an op
 
 When applying filters, observe these guidelines:
 
-* Wildcards are not supported.
-* You do not need to wrap values in quotes.
-* When specifying an ASN number, leave out the `AS` prefix. For example, enter `1423` instead of `AS1423`. 
+- Wildcards are not supported.
+- You do not need to wrap values in quotes.
+- When specifying an ASN number, leave out the `AS` prefix. For example, enter `1423` instead of `AS1423`.
   :::
 
 ### Select a stat filter
@@ -55,7 +54,7 @@ To filter based on the type of data associated with one of the Network Analytics
 
 :::note
 
-This feature is only available to Magic Transit and Magic WAN users. 
+This feature is only available to Magic Transit and Magic WAN users.
 :::
 
 Select **Create Magic Firewall rule** to create a [Magic Firewall](/magic-firewall/) rule that will block all traffic matching the selected filters in Network Analytics.
@@ -77,8 +76,8 @@ To filter for these traffic events:
 1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com/) and select your account.
 2. Go to **Analytics & Logs** > **Network Analytics** > **DDoS managed rules**.
 3. Select **Add filter**.
-    - Set `Verdict equals drop`.
-    - Set `Action equals pass`.
-4. Select **Apply**. 
+   - Set `Verdict equals drop`.
+   - Set `Action equals pass`.
+4. Select **Apply**.
 
 By setting `verdict` to `drop` and `outcome` as `pass`, we are filtering for traffic that was marked as a detection (that is, verdict was `drop`) but was not dropped (for example, outcome was `pass`).

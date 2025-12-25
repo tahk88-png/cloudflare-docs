@@ -3,10 +3,9 @@ title: FAQ
 pcx_content_type: faq
 sidebar:
   order: 10
-
 ---
 
-import { Glossary } from "~/components"
+import { Glossary } from "~/components";
 
 Frequently asked questions regarding Workers KV.
 
@@ -31,7 +30,7 @@ Refer to [How KV works](/kv/concepts/how-kv-works/).
 ### If a Worker makes a bulk request to Workers KV, would each individual key get counted against the [Worker subrequest limit (of 1000)](/kv/platform/limits/)?
 
 No. A bulk request to Workers KV, regardless of the amount of keys included in the request, will count as a single operation. For example, you could make
-500 bulk KV requests and 500 R2 requests for a total of 1000 operations. 
+500 bulk KV requests and 500 R2 requests for a total of 1000 operations.
 
 ## Pricing
 

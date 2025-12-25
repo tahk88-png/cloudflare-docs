@@ -192,7 +192,10 @@ export default {
 		const newRequest = new Request(url.toString(), request);
 
 		newRequest.headers.set("cf-access-client-id", env.CF_ACCESS_CLIENT_ID);
-		newRequest.headers.set("cf-access-client-secret", env.CF_ACCESS_CLIENT_SECRET);
+		newRequest.headers.set(
+			"cf-access-client-secret",
+			env.CF_ACCESS_CLIENT_SECRET,
+		);
 		try {
 			const response = await fetch(newRequest);
 

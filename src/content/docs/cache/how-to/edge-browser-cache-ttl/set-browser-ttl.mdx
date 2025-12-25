@@ -3,15 +3,14 @@ title: Set Browser Cache TTL
 pcx_content_type: how-to
 sidebar:
   order: 3
-
 ---
 
 Specify a time for a visitor’s Browser Cache TTL to accelerate the page load for repeat visitors to your website. To configure cache duration within Cloudflare’s data centers, refer to [Edge Cache TTL](/cache/how-to/cache-rules/settings/#edge-ttl).
 
 By default, Cloudflare honors the cache expiration set in your `Expires` and `Cache-Control` headers. Cloudflare overrides any `Cache-Control` or `Expires` headers with values set via the **Browser Cache TTL** option under **Caching** on your dashboard if:
 
-* The value of the `Cache-Control` header from the origin web server is less than the **Browser Cache TTL** setting. This means that **Browser cache TTL** value needs to be higher than origin `max-age`.
-* The origin web server does not send a `Cache-Control` or an `Expires` header.
+- The value of the `Cache-Control` header from the origin web server is less than the **Browser Cache TTL** setting. This means that **Browser cache TTL** value needs to be higher than origin `max-age`.
+- The origin web server does not send a `Cache-Control` or an `Expires` header.
 
 Unless specifically set in a [Cache Rule](/cache/how-to/cache-rules/), Cloudflare does not override or insert `Cache-Control` headers if you set **Browser Cache TTL** to **Respect Existing Headers**.
 
@@ -23,9 +22,7 @@ The Cloudflare UI and [API](/api/resources/zones/subresources/settings/methods/e
 
 :::note[Note]
 
-
 If you modify cached assets, the new asset is not displayed to repeat visitors before the Browser Cache TTL duration. [Purging Cloudflare’s cache](/cache/how-to/purge-cache/) does not affect assets cached in a visitor’s browser.
-
 
 :::
 
@@ -37,8 +34,6 @@ The **Respect Existing Headers** option tells Cloudflare to honor the settings i
 
 :::note[Respect Existing Headers Availability]
 
-
 For all plan types, you can set Browser Cache TTL to Respect Existing Headers at a zone level (zone setting) or you can use a Cache Rule.
-
 
 :::

@@ -6,10 +6,9 @@ sidebar:
 head:
   - tag: title
     content: Override examples for Network-layer DDoS Attack Protection
-
 ---
 
-import { Details, GlossaryTooltip } from "~/components"
+import { Details, GlossaryTooltip } from "~/components";
 
 ## Use cases
 
@@ -17,7 +16,7 @@ The following scenarios detail how you can make use of override rules as a solut
 
 ### VPN traffic is blocked by a UDP rule
 
-If you have VPN traffic concentrated to a single or a few single destination IP addresses and the traffic is being blocked by a UDP rule, you can create an override rule for the UDP rule to the destination IPs or ranges. 
+If you have VPN traffic concentrated to a single or a few single destination IP addresses and the traffic is being blocked by a UDP rule, you can create an override rule for the UDP rule to the destination IPs or ranges.
 
 :::note
 The override only applies to the fingerprint and not the detection. Refer to [Important remarks](/ddos-protection/managed-rulesets/network/network-overrides/override-expressions/#important-remarks) for more information.

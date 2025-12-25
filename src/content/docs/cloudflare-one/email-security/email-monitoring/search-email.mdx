@@ -28,12 +28,12 @@ To use a popular screen criteria:
 
 1. Under **Method**, select **Popular screens**.
 2. Select one of the following criteria:
-   * **Moved emails**: View emails automatically or manually moved within the last seven days.
-   * **Reclassified emails**: Emails that had their disposition reclassified within the last seven days.
-   * **Malicious emails**: Emails assigned the malicious disposition within the last seven days.
-   * **Spoof emails**: Emails assigned the spoof disposition within the last seven days.
-   * **Suspicious emails**: Emails assigned the suspicious disposition within the last seven days.
-   * **Spam emails**: Emails assigned to the spam disposition within the last seven days.
+   - **Moved emails**: View emails automatically or manually moved within the last seven days.
+   - **Reclassified emails**: Emails that had their disposition reclassified within the last seven days.
+   - **Malicious emails**: Emails assigned the malicious disposition within the last seven days.
+   - **Spoof emails**: Emails assigned the spoof disposition within the last seven days.
+   - **Suspicious emails**: Emails assigned the suspicious disposition within the last seven days.
+   - **Spam emails**: Emails assigned to the spam disposition within the last seven days.
 3. Select **Run screen**.
 
 To modify your screening criteria, under **Active screen criteria**, select **Modify**.
@@ -171,7 +171,7 @@ A submission is invalid when:
 
 - A submission has no EML file attached.
 - A submission has been made with an incorrect file extension.
-- You did not configure the domain you are submitting emails for. 
+- You did not configure the domain you are submitting emails for.
 - A policy has been enforced that causes an email to be received or blocked.
 - A submission was made to the wrong team or user alias.
 
@@ -232,10 +232,10 @@ To view status and actions for each email:
 2. On the **Investigation** page, select the three dots.
 3. Selecting the three dots will show you the following options:
    - If the email is quarantined:
-      - **View details**: Refer to [Email details](/cloudflare-one/email-security/email-monitoring/search-email/#email-details) to learn more.
-      - **View similar emails**: Find similar emails based on the `value_edf_hash` (Electronic Detection Fingerprint hash).
-      - **Release**: Email Security will no longer quarantine your chosen messages.
-      - **Request reclassification**: Choose the dispositions of your messages if they are incorrect. Refer to [Reclassify messages](/cloudflare-one/email-security/email-monitoring/search-email/#reclassify-messages) to learn more.
+     - **View details**: Refer to [Email details](/cloudflare-one/email-security/email-monitoring/search-email/#email-details) to learn more.
+     - **View similar emails**: Find similar emails based on the `value_edf_hash` (Electronic Detection Fingerprint hash).
+     - **Release**: Email Security will no longer quarantine your chosen messages.
+     - **Request reclassification**: Choose the dispositions of your messages if they are incorrect. Refer to [Reclassify messages](/cloudflare-one/email-security/email-monitoring/search-email/#reclassify-messages) to learn more.
 4. If the email is not quarantined:
    - **View details**.
    - **View similar emails**.
@@ -276,19 +276,19 @@ To open links in Security Center:
 
 1. In [Zero Trust](https://one.dash.cloudflare.com/), go to **Email Security** > **Investigation**.
 2. Locate the message you want to open links for, select the three dots, then select **View details**.
-2. Under **Details**, go to **Links identified**. 
-3. Locate the link you want to open, and select **Open in Security Center**.
-4. You will be redirected to **Investigate** under **Security Center**.
-5. Select **Scan now**.
-6. The dashboard will generate a report for your link.
+3. Under **Details**, go to **Links identified**.
+4. Locate the link you want to open, and select **Open in Security Center**.
+5. You will be redirected to **Investigate** under **Security Center**.
+6. Select **Scan now**.
+7. The dashboard will generate a report for your link.
 
 To open links in Browser Isolation:
 
 1. In [Zero Trust](https://one.dash.cloudflare.com/), go to **Email Security** > **Investigation**.
 2. Locate the message you want to open links for, select the three dots, then select **View details**.
-2. Under **Details**, go to **Links identified**. 
-3. Locate the link you want to open, and select **Open in Browser Isolation**.
-4. The link will open in a separate window where you will be able to browse the content securely.
+3. Under **Details**, go to **Links identified**.
+4. Locate the link you want to open, and select **Open in Browser Isolation**.
+5. The link will open in a separate window where you will be able to browse the content securely.
 
 Alternatively, you can directly [open links in Browser Isolation](/cloudflare-one/policies/browser-isolation/setup/clientless-browser-isolation/#open-links-in-browser-isolation).
 
@@ -296,12 +296,12 @@ To open and investigate a link in an external tool:
 
 1. In [Zero Trust](https://one.dash.cloudflare.com/), go to **Email Security** > **Investigation**.
 2. Locate the message you want to open links for, select the three dots, then select **View details**.
-2. Under **Details**, go to **Links identified**. 
-3. Locate the link you want to open, and select **Copy URL**.
-3. Paste the link in your external tool.
+3. Under **Details**, go to **Links identified**.
+4. Locate the link you want to open, and select **Copy URL**.
+5. Paste the link in your external tool.
 
 :::caution
-You may encounter a `400 Bad Request` error after turning **Clientless Web Isolation** on. 
+You may encounter a `400 Bad Request` error after turning **Clientless Web Isolation** on.
 
 If you encounter this error:
 
@@ -311,7 +311,7 @@ If you encounter this error:
 4. Select the three dots, and then select **Activate** to activate your certificate.
 5. Select the three dots, and then select **Mark as in-use**.
 6. Your certificate deployment status should display **AVAILABLE IN-USE**.
-:::
+   :::
 
 ### Action log
 

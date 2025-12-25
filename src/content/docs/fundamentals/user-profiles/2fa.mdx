@@ -1,14 +1,11 @@
 ---
 title: Two-factor authentication
 pcx_content_type: how-to
-
 ---
 
-import { Render } from "~/components"
-
+import { Render } from "~/components";
 
 <Render file="2fa-enable" product="support" />
-
 
 ## Configure security key authentication for two-factor Cloudflare login
 
@@ -38,12 +35,12 @@ You can configure a built-in authenticator such as Apple Touch ID, Android finge
 
 ### Security keys
 
-You can configure a security key, such as a Yubikey, to use with your account. Before you begin, ensure your hardware security key is configured and plugged in. 
+You can configure a security key, such as a Yubikey, to use with your account. Before you begin, ensure your hardware security key is configured and plugged in.
 
 On a Windows device, you may need to set up Windows Hello or register your security key to your Microsoft account. Review the Windows documentation for more details.
 
 1. Once your security key is plugged in, go to **Profile** > **Authentication**.
-2. From **Two-Factor Authentication, select **Set up**.
+2. From **Two-Factor Authentication, select **Set up\*\*.
 3. From **Security Key Authentication**, select **Add**.
 4. Enter your Cloudflare password on the **Add a Security Key** screen, then select **Next**.
 5. Interact with your security key to add it to your Cloudflare account. Ensure that the dialog is for the security key setup. If the Windows Hello dialog appears on a Windows device, select **Cancel**. The security key dialog box will then appear. Depending on your system, you may be required to register a PIN for the security key.
@@ -55,7 +52,7 @@ On a Windows device, you may need to set up Windows Hello or register your secur
 
 ## Configure TOTP mobile application authentication
 
-Time-based one-time password (TOTP) authentication works by using an authenticatior app, such as Google Authenticator or Microsoft Authenticator, which generates a secret code shared between the app and a website. When you log in to the website, you enter your username, password, and the secret code generated from the authenticator app. The secret code is only valid for a short period of time, about 30 to 60 seconds, before a new code is generated. 
+Time-based one-time password (TOTP) authentication works by using an authenticatior app, such as Google Authenticator or Microsoft Authenticator, which generates a secret code shared between the app and a website. When you log in to the website, you enter your username, password, and the secret code generated from the authenticator app. The secret code is only valid for a short period of time, about 30 to 60 seconds, before a new code is generated.
 
 1. Once your security key is plugged in, go to **Profile** > **Authentication**.
 2. From **Two-Factor Authentication**, select **Set up**.
@@ -71,7 +68,7 @@ Time-based one-time password (TOTP) authentication works by using an authenticat
 
 :::note
 
-To avoid being locked out of your account, be sure to generate and save your recovery codes. If you forget your password and cannot receive the reset code or lose access to your phone with the authenticator app, you can use the recovery codes to access your account. 
+To avoid being locked out of your account, be sure to generate and save your recovery codes. If you forget your password and cannot receive the reset code or lose access to your phone with the authenticator app, you can use the recovery codes to access your account.
 
 You can regenerate your backup codes at any time using the Cloudflare dashboard.
 :::
@@ -116,12 +113,12 @@ If you are not the Super Administrator of an organization with **2FA Enforcement
 2. Select **Profile**.
 3. Select the **Authentication**.
    - To remove your security key:
-      1. Select **Edit** in the **Security Key Authentication** card. A drop-down menu shows more details about your security key.
-      2. Select **Delete**.
-      3. Enter your Cloudflare password, then select **Remove**.
+     1. Select **Edit** in the **Security Key Authentication** card. A drop-down menu shows more details about your security key.
+     2. Select **Delete**.
+     3. Enter your Cloudflare password, then select **Remove**.
    - To remove your TOTP mobile application authentication:
-      1. Select **Delete method** in the **Mobile App Authentication** card.
-      2. Enter your Cloudflare password, authenticator application code, or a recovery code, then select **Disable**.
+     1. Select **Delete method** in the **Mobile App Authentication** card.
+     2. Enter your Cloudflare password, authenticator application code, or a recovery code, then select **Disable**.
 
 ![how to disable your TOTP mobile application authentication.](https://developerdocsgifs.cloudflaretraining.com/resampled_5fps_disable_mobile_auth_v2_final.gif)
 
@@ -129,15 +126,15 @@ If you are not the Super Administrator of an organization with **2FA Enforcement
 
 If you lose access to a mobile device, security key, or authentication code, you can solve these issues by using a backup code or retrieving a backup code from your preferred authentication app.
 
-Refer to Google's documentation to [transfer Google Authenticator codes from one Android device to another](https://support.google.com/accounts/answer/1066447?co=GENIE.Platform%3DAndroid\&hl=en\&oco=0).
+Refer to Google's documentation to [transfer Google Authenticator codes from one Android device to another](https://support.google.com/accounts/answer/1066447?co=GENIE.Platform%3DAndroid&hl=en&oco=0).
 
 When setting up 2FA, you should have saved your backup codes in a secure location. To restore lost access using a Cloudflare backup code:
 
 1. Retrieve the backup code from where you stored it.
 2. Go to the [Cloudflare login page](https://dash.cloudflare.com/login), enter your username and password and select **Log in**.
 3. You should see a page titled **Two-Factor Authentication**
-   * If it has a text box, enter one of your backup codes and select **Log in**.
-   * If instead you see "Insert your security key and touch it", cancel any prompts from your browser that appear and select **try another authentication method or backup code**. Proceed to enter one of your backup codes and select **Log in**.
+   - If it has a text box, enter one of your backup codes and select **Log in**.
+   - If instead you see "Insert your security key and touch it", cancel any prompts from your browser that appear and select **try another authentication method or backup code**. Proceed to enter one of your backup codes and select **Log in**.
 
 :::note
 
@@ -159,16 +156,16 @@ If you see **Device verified**, you will receive an email within 3-5 days with i
 
 If you see **Device verification failed**, you may be able to try again considering the following:
 
-   * If you clear your cookies often or are logging in from a different IP address, you have wiped Cloudflare's memory of your device and will need to use a different device to verify.
-   * Your browser may be set to clear cookies on exit or after browser or OS upgrades. This interferes with the device verification process.
-   * You may be using anti-malware or other software that automatically clears your browser cookies and makes your device unregognizable by Cloudflare's Dashboard.
+- If you clear your cookies often or are logging in from a different IP address, you have wiped Cloudflare's memory of your device and will need to use a different device to verify.
+- Your browser may be set to clear cookies on exit or after browser or OS upgrades. This interferes with the device verification process.
+- You may be using anti-malware or other software that automatically clears your browser cookies and makes your device unregognizable by Cloudflare's Dashboard.
 
 If you are still unable to verify your device, follow the instructions shown in the recovery workflow.
 
-***
+---
 
 ## Related resources
 
-* [Google Authentication documentation](https://support.google.com/accounts/answer/1066447?hl=en\&ref_topic=2954345\&co=GENIE.Platform%3DiOS\&oco=0)
-* [YubiKey documentation](https://www.yubico.com/works-with-yubikey/catalog/cloudflare/)
-* [Set up multi-user accounts on Cloudflare](/fundamentals/manage-members/)
+- [Google Authentication documentation](https://support.google.com/accounts/answer/1066447?hl=en&ref_topic=2954345&co=GENIE.Platform%3DiOS&oco=0)
+- [YubiKey documentation](https://www.yubico.com/works-with-yubikey/catalog/cloudflare/)
+- [Set up multi-user accounts on Cloudflare](/fundamentals/manage-members/)

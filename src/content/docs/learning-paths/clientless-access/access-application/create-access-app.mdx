@@ -3,10 +3,9 @@ title: Create an Access application
 pcx_content_type: overview
 sidebar:
   order: 1
-
 ---
 
-import { Render } from "~/components"
+import { Render } from "~/components";
 
 Cloudflare Access allows you to securely publish internal tools and applications to the Internet by providing an authentication layer between the end user and your origin server. You can use signals from your existing identity providers (IdPs), device posture providers, and [other rules](/cloudflare-one/policies/access/#selectors) to control who can access your application.
 
@@ -14,6 +13,9 @@ Each application can have multiple policies with different constraints depending
 
 ## Add your application to Access
 
-<Render file="access/self-hosted-app/generic-public-app" product="cloudflare-one" />
+<Render
+	file="access/self-hosted-app/generic-public-app"
+	product="cloudflare-one"
+/>
 
 When users go to the application, they will be prompted to login with your identity provider.

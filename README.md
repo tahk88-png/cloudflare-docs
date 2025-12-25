@@ -33,9 +33,44 @@ $ npm run dev
 
 This spawns a server that will be accessible via `http://localhost:1111` in your browser. Additionally, any changes made within the project – including `content/**` changes – will automatically reload your browser tab(s), allowing you to instantly preview your changes.
 
+## Testing
+
+We run a suite of checks and tests to ensure the quality of the documentation and code. You can run these locally before submitting a PR.
+
+### Unit Tests
+
+Run unit tests using [Vitest](https://vitest.dev/):
+
+```sh
+$ npm test
+```
+
+> **Note:** Some tests may require the project to be built first (`npm run build`) as they rely on the `dist/` directory.
+
+
+### Linting & Formatting
+
+Check for code style issues and formatting:
+
+```sh
+$ npm run lint
+$ npm run format:core:check
+```
+
+### Type Checking
+
+Perform type checking for the Astro project and Workers code:
+
+```sh
+$ npm run check
+```
+
 ## Deployment
 
-Our docs are deployed using [Cloudflare Pages](https://pages.cloudflare.com). Every commit pushed to production will automatically deploy to [developers.cloudflare.com](https://developers.cloudflare.com), and any pull requests opened will have a corresponding staging URL available in the pull request comments.
+Our docs are deployed automatically via GitHub Actions.
+
+- **Production**: Commits to the `production` branch are deployed to [developers.cloudflare.com](https://developers.cloudflare.com) using `wrangler deploy`.
+- **Preview**: Pull requests deploy a preview version to a staging URL.
 
 ## For Cloudflare employees
 
@@ -50,17 +85,19 @@ Cloudflare and any contributors reserve all other rights, whether under their re
 
 Please note that we may use AI tools to help us review technical documentation, pull requests and other issues submitted to our public GitHub page in order to identify and correct mistakes and other inconsistencies in our developer documentation. Please refrain from sharing any personal information in your submissions.
 
-
 ## 🧞 Commands
 
 All commands are run from the root of the project, from a terminal:
 
 | Command                   | Action                                      |
-|:--------------------------|:--------------------------------------------|
+| :------------------------ | :------------------------------------------ |
 | `npm install`             | Installs dependencies                       |
 | `npm run dev`             | Starts local dev server at `localhost:1111` |
 | `npx astro build`         | Build your production site to `./dist/`     |
 | `npm run astro -- --help` | Get help using the Astro CLI                |
+| `npm test`                | Run unit tests                              |
+| `npm run check`           | Check types                                 |
+| `npm run lint`            | Lint code                                   |
 
 ## 👀 Want to learn more?
 
