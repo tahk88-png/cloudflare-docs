@@ -45,7 +45,7 @@ async function main() {
       compartmentId: compartment.id,
       startTime: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
       endTime: new Date(Date.now() + 10 * 60 * 1000), // Ends in 10 mins (Reminder candidate)
-      status: 'ACTIVE',
+      status: 'IN_USE',
       paymentStatus: 'SUCCESS'
     }
   });

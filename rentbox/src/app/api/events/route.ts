@@ -11,7 +11,7 @@ async function processEvent(event: any) {
     if (bookingId) {
       const booking = await prisma.booking.findUnique({
          where: { id: bookingId },
-         include: { user: true, locker: true, compartment: true }
+         include: { user: true, compartment: { include: { locker: true } } }
       });
       
       if (booking) {
@@ -23,7 +23,7 @@ async function processEvent(event: any) {
         await sendEmail(
           booking.user.email, 
           'Pickup Instructions', 
-          `Your locker is ${booking.locker.location}. Compartment: ${booking.compartment.size}.`
+          `Your locker is ${booking.compartment.locker.location}. Compartment: ${booking.compartment.size}.`
         );
       }
     }

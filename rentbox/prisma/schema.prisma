@@ -16,20 +16,31 @@ enum Role {
   OPS
   SALES
   ADMIN
+  MAINTENANCE
+  OWNER
 }
 
 enum BookingStatus {
-  PENDING
+  DRAFT
+  PENDING_PAYMENT
   PAID
-  ACTIVE
+  READY_FOR_PICKUP
+  PICKED_UP
+  IN_USE
+  RETURN_DUE
+  RETURNED
   COMPLETED
   CANCELLED
+  OVERDUE
+  DISPUTE
+  MAINTENANCE_HOLD
 }
 
 enum PaymentStatus {
   PENDING
   SUCCESS
   FAILED
+  REFUNDED
 }
 
 enum TicketStatus {
@@ -49,6 +60,7 @@ enum MessageSender {
   USER
   AI
   AGENT
+  SYSTEM
 }
 
 model User {
@@ -56,34 +68,43 @@ model User {
   email     String   @unique
   phone     String?
   role      Role     @default(CUSTOMER)
+  language  String   @default("et") // Preference: et, en, ru
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   bookings  Booking[]
-  tickets   Ticket[] // Tickets created by or assigned to? Let's say created by for customers, but agents view them.
+  tickets   Ticket[]
 }
 
 model Product {
-  id    String  @id @default(uuid())
-  name  String
-  price Decimal
-  bookings Booking[]
+  id                  String   @id @default(uuid())
+  name                String
+  price               Decimal
+  rentalCount         Int      @default(0)
+  lastMaintenanceDate DateTime @default(now())
+  
+  bookings        Booking[]
+  maintenanceLogs MaintenanceLog[]
 }
 
 model Locker {
   id           String        @id @default(uuid())
   location     String
-  apiKey       String?       // For integration
+  apiKey       String?       
+  reliability  Int           @default(100) // 0-100 score
   compartments Compartment[]
 }
 
 model Compartment {
-  id       String    @id @default(uuid())
-  lockerId String
-  size     String    // S, M, L
-  status   String    // available, occupied, maintenance
-  locker   Locker    @relation(fields: [lockerId], references: [id])
-  bookings Booking[]
+  id              String   @id @default(uuid())
+  lockerId        String
+  size            String   // S, M, L
+  status          String   // available, occupied, maintenance
+  openFailedCount Int      @default(0)
+  
+  locker          Locker   @relation(fields: [lockerId], references: [id])
+  bookings        Booking[]
+  maintenanceLogs MaintenanceLog[]
 }
 
 model Booking {
@@ -93,8 +114,9 @@ model Booking {
   compartmentId String
   startTime     DateTime
   endTime       DateTime
-  status        BookingStatus @default(PENDING)
+  status        BookingStatus @default(DRAFT)
   paymentStatus PaymentStatus @default(PENDING)
+  riskScore     Int           @default(0) // 0-100
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
@@ -102,10 +124,11 @@ model Booking {
   product     Product     @relation(fields: [productId], references: [id])
   compartment Compartment @relation(fields: [compartmentId], references: [id])
   
-  payments Payment[]
-  messages Message[]
-  tickets  Ticket[]
-  events   Event[]
+  payments    Payment[]
+  messages    Message[]
+  tickets     Ticket[]
+  events      Event[]
+  aiActions   AiAction[]
 }
 
 model Payment {
@@ -121,7 +144,7 @@ model Payment {
 
 model Event {
   id        String   @id @default(uuid())
-  type      String   // webhook.payment, locker.opened, cron.reminder
+  type      String   // webhook.payment, locker.opened, cron.reminder, etc.
   payload   Json
   status    String   // pending, processed, failed
   bookingId String?
@@ -135,7 +158,7 @@ model Message {
   bookingId String
   sender    MessageSender
   content   String
-  role      Role?         // If sender is AI/AGENT, which role handled it?
+  role      Role?         // If sender is AI, which agent role handled it?
   createdAt DateTime      @default(now())
 
   booking Booking @relation(fields: [bookingId], references: [id])
@@ -143,10 +166,15 @@ model Message {
 
 model AiAction {
   id        String   @id @default(uuid())
-  type      String   // email, sms, ticket, log
+  bookingId String?
+  type      String   // email, sms, ticket, log, tool_call
+  agentRole Role?    // Which agent performed this
   reason    String
   outcome   String
+  toolCalls Json?    // Arguments used if tool was called
   createdAt DateTime @default(now())
+
+  booking Booking? @relation(fields: [bookingId], references: [id])
 }
 
 model Ticket {
@@ -162,4 +190,18 @@ model Ticket {
 
   booking Booking? @relation(fields: [bookingId], references: [id])
   user    User?    @relation(fields: [userId], references: [id])
+}
+
+model MaintenanceLog {
+  id            String   @id @default(uuid())
+  productId     String?
+  compartmentId String?
+  issueType     String   // battery, noise, lock, etc.
+  description   String
+  status        String   // open, resolved
+  createdAt     DateTime @default(now())
+  resolvedAt    DateTime?
+
+  product     Product?     @relation(fields: [productId], references: [id])
+  compartment Compartment? @relation(fields: [compartmentId], references: [id])
 }

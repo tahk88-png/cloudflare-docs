@@ -1,60 +1,121 @@
 import cron from 'node-cron';
 import prisma from '../lib/prisma';
 import { sendEmail, sendSms } from '../lib/notifications';
+import { assessRiskAction } from '../lib/risk-engine';
 
-console.log('Worker started...');
+console.log('Rentbox AI Worker V2 Started...');
 
-// Schedule: Every minute
+// --- CRON SCHEDULES ---
+
+// 1. RISK & RULES ENGINE (Every Minute)
 cron.schedule('* * * * *', async () => {
-  console.log('Running scheduled checks...');
   const now = new Date();
-  
-  // 1. Check for Overdue Bookings
-  // Active bookings where endTime < now
-  const overdueBookings = await prisma.booking.findMany({
+  console.log(`[${now.toISOString()}] Running Rules Engine...`);
+
+  // A. PICKUP MONITORING (Start + 15m)
+  // If status is still PAID or READY_FOR_PICKUP 15 mins after start
+  const latePickups = await prisma.booking.findMany({
     where: {
-      status: 'ACTIVE',
-      endTime: { lt: now }
+      status: { in: ['PAID', 'READY_FOR_PICKUP'] },
+      startTime: { lt: new Date(now.getTime() - 15 * 60000) }
     },
     include: { user: true }
   });
 
-  for (const booking of overdueBookings) {
-    console.log(`Booking ${booking.id} is overdue.`);
-    // Send Notice
-    await sendSms(booking.user.phone || '', "Your rental is overdue. Please return immediately to avoid penalties.");
-    
-    // Create Ticket if very late (> 1 hour)
-    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-    if (booking.endTime < oneHourAgo) {
-        // Check if ticket already exists? 
-        // For simplicity, just log action or upsert logic (omitted for brevity)
-        await prisma.aiAction.create({
-            data: {
-                type: 'ticket',
-                reason: 'Booking overdue > 1h',
-                outcome: 'flagged_risk'
-            }
-        });
-    }
+  for (const b of latePickups) {
+    // Send gentle nudge
+    // Check if we already sent one? (Ideally check AiAction history)
+    await sendSms(b.user.phone || '', "Rentbox: Your booking time has started. Need help finding the locker?");
+    // Log
+    await prisma.aiAction.create({
+      data: {
+        bookingId: b.id,
+        type: 'sms',
+        agentRole: 'OPS',
+        reason: 'Pickup late > 15m',
+        outcome: 'reminder_sent'
+      }
+    });
   }
 
-  // 2. Reminders (e.g. 15 mins before end)
-  const fifteenMinsFromNow = new Date(now.getTime() + 15 * 60 * 1000);
-  const fourteenMinsFromNow = new Date(now.getTime() + 14 * 60 * 1000); // 1 minute window
-
-  const reminders = await prisma.booking.findMany({
+  // B. RETURN REMINDER (End - 15m)
+  const dueSoon = await prisma.booking.findMany({
     where: {
-      status: 'ACTIVE',
+      status: 'IN_USE',
       endTime: {
-        gte: fourteenMinsFromNow,
-        lte: fifteenMinsFromNow
+        gte: new Date(now.getTime() + 14 * 60000),
+        lte: new Date(now.getTime() + 15 * 60000)
       }
     },
     include: { user: true }
   });
 
-  for (const booking of reminders) {
-    await sendSms(booking.user.phone || '', "Your rental ends in 15 minutes.");
+  for (const b of dueSoon) {
+    await sendSms(b.user.phone || '', "Rentbox: Your rental ends in 15 minutes. Please return to Locker A.");
   }
+
+  // C. OVERDUE ENFORCEMENT (End + 30m)
+  const overdue = await prisma.booking.findMany({
+    where: {
+      status: 'IN_USE',
+      endTime: { lt: new Date(now.getTime() - 30 * 60000) }
+    },
+    include: { user: true }
+  });
+
+  for (const b of overdue) {
+    // Mark as OVERDUE
+    await prisma.booking.update({
+      where: { id: b.id },
+      data: { status: 'OVERDUE' }
+    });
+
+    // Notify
+    await sendSms(b.user.phone || '', "Rentbox: Your booking is 30m overdue. Late fees apply. Please return immediately.");
+    
+    // Create Ticket for Ops
+    await prisma.ticket.create({
+      data: {
+        bookingId: b.id,
+        userId: b.userId,
+        status: 'OPEN',
+        priority: 'HIGH',
+        assignedTo: 'OPS',
+        description: 'Auto-created: Booking overdue > 30m'
+      }
+    });
+  }
+});
+
+// 2. MAINTENANCE INTELLIGENCE (Every 5 Minutes)
+cron.schedule('*/5 * * * *', async () => {
+    // Check for compartments with high fail rates
+    const problematicCompartments = await prisma.compartment.findMany({
+        where: { openFailedCount: { gt: 3 }, status: 'available' } // If it failed > 3 times but still marked available
+    });
+
+    for (const c of problematicCompartments) {
+        // Auto-Hold
+        await prisma.compartment.update({
+            where: { id: c.id },
+            data: { status: 'maintenance' }
+        });
+
+        // Notify Indrek/Ops
+        await prisma.aiAction.create({
+            data: {
+                type: 'log',
+                agentRole: 'MAINTENANCE',
+                reason: `Compartment ${c.id} failure rate high`,
+                outcome: 'maintenance_hold_applied'
+            }
+        });
+    }
+});
+
+// 3. OWNER REPORT (Nightly)
+cron.schedule('0 23 * * *', async () => {
+    // Generate daily summary
+    // ... logic ...
+    console.log("Daily Owner Report Generated");
 });

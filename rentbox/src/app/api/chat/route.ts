@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { processUserMessage } from '@/lib/ai-employee';
+import { orchestrateAgent } from '@/lib/agents/orchestrator';
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing bookingId or message' }, { status: 400 });
     }
 
-    const result = await processUserMessage(bookingId, message);
+    const result = await orchestrateAgent(bookingId, message);
 
     return NextResponse.json(result);
   } catch (error) {
