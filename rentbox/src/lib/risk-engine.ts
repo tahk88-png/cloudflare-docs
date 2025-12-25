@@ -1,67 +1,91 @@
 import prisma from './prisma';
 
-interface RiskFactors {
-  isNewCustomer: boolean;
-  hasOverdueHistory: boolean;
-  isNightRental: boolean;
-  productValue: number;
-}
+const RISK_WEIGHTS = {
+  NEW_CUSTOMER: 30,
+  PAST_OVERDUE: 40,
+  NIGHT_RENTAL: 20, // 22:00 - 06:00
+  HIGH_VALUE_ITEM: 15, // Price > 50
+  BAD_FEEDBACK: 25, // Avg rating < 3
+  OPEN_FAILED_SPIKE: 50, // Recent open failures
+};
 
-export async function calculateRiskScore(bookingId: string): Promise<number> {
+export async function calculateRiskScore(bookingId: string) {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     include: {
       user: {
         include: {
-          bookings: true
+          bookings: true,
+          feedback: true
         }
       },
-      product: true
+      product: true,
+      compartment: true
     }
   });
 
-  if (!booking) return 0;
+  if (!booking) return { score: 0, flags: {} };
 
   let score = 0;
+  const flags: Record<string, boolean> = {};
 
-  // 1. New Customer? (First booking)
-  // If only 1 booking (the current one) or 0 completed/paid others
-  const pastBookings = booking.user.bookings.filter(b => b.id !== booking.id && (b.status === 'COMPLETED' || b.status === 'RETURNED'));
-  if (pastBookings.length === 0) {
-    score += 30; // High risk for completely new users
+  // 1. New Customer
+  const completedBookings = booking.user.bookings.filter(b => b.status === 'COMPLETED' || b.status === 'RETURNED');
+  if (completedBookings.length === 0) {
+    score += RISK_WEIGHTS.NEW_CUSTOMER;
+    flags.new_customer = true;
   }
 
-  // 2. Overdue History?
+  // 2. Overdue History
   const hasOverdue = booking.user.bookings.some(b => b.status === 'OVERDUE' || b.status === 'DISPUTE');
   if (hasOverdue) {
-    score += 40;
+    score += RISK_WEIGHTS.PAST_OVERDUE;
+    flags.past_overdue = true;
   }
 
-  // 3. Time of Day (Night rentals 22:00 - 06:00 are riskier)
+  // 3. Time of Day
   const hour = booking.startTime.getHours();
   if (hour >= 22 || hour < 6) {
-    score += 20;
+    score += RISK_WEIGHTS.NIGHT_RENTAL;
+    flags.night_rental = true;
   }
 
-  // 4. Product Value (Price > 50 is riskier)
+  // 4. Product Value
   if (Number(booking.product.price) > 50) {
-    score += 10;
+    score += RISK_WEIGHTS.HIGH_VALUE_ITEM;
+    flags.high_value = true;
   }
 
-  // Cap at 100
-  return Math.min(score, 100);
+  // 5. Bad Feedback History
+  const avgRating = booking.user.feedback.reduce((acc, f) => acc + f.rating, 0) / (booking.user.feedback.length || 1);
+  if (booking.user.feedback.length > 0 && avgRating < 3) {
+    score += RISK_WEIGHTS.BAD_FEEDBACK;
+    flags.bad_feedback = true;
+  }
+
+  // 6. Compartment/Locker Reliability (Contextual)
+  if (booking.compartment.openFailedCount > 2) {
+    score += RISK_WEIGHTS.OPEN_FAILED_SPIKE;
+    flags.locker_unreliable = true;
+  }
+
+  return { score: Math.min(score, 100), flags };
 }
 
 export async function assessRiskAction(bookingId: string) {
-  const score = await calculateRiskScore(bookingId);
+  const { score, flags } = await calculateRiskScore(bookingId);
   
   await prisma.booking.update({
     where: { id: bookingId },
-    data: { riskScore: score }
+    data: { 
+        riskScore: score,
+        riskFlags: flags
+    }
   });
 
   return {
     score,
-    level: score < 30 ? 'LOW' : score < 70 ? 'MEDIUM' : 'HIGH'
+    level: score < 30 ? 'LOW' : score < 70 ? 'MEDIUM' : 'HIGH',
+    flags
   };
 }

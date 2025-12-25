@@ -11,38 +11,12 @@ export async function runOpsAgent(
 
   // COMMAND: OPEN LOCKER
   if (lowerContent.includes('open') || lowerContent.includes('unlock')) {
-    // Rule Check 1: Payment
-    if (booking.status === 'PENDING_PAYMENT' || booking.status === 'DRAFT') {
-      return {
-        role: 'OPS',
-        response: "I cannot open the locker yet. Please complete payment first."
-      };
-    }
-
-    // Rule Check 2: Time Window (Start time - 15 mins)
-    const now = new Date();
-    const allowedStart = new Date(booking.startTime.getTime() - 15 * 60000);
     
-    // Allow if IN_USE or READY_FOR_PICKUP or (PAID and within time)
-    if (now < allowedStart) {
-       return {
-         role: 'OPS',
-         response: `It is too early. Your booking starts at ${booking.startTime.toLocaleTimeString()}. You can access 15 minutes prior.`
-       };
-    }
-
-    if (booking.status === 'COMPLETED' || booking.status === 'CANCELLED') {
-      return {
-        role: 'OPS',
-        response: "This booking is no longer active."
-      };
-    }
-
-    // Execute Open
     try {
       // Use nested locker from compartment
       const locker = booking.compartment.locker;
-      await openLocker(locker.id, booking.compartment.id);
+      // Pass bookingId for policy check
+      await openLocker(locker.id, booking.compartment.id, booking.id);
       
       // Update State if needed
       if (booking.status === 'PAID' || booking.status === 'READY_FOR_PICKUP') {
@@ -69,7 +43,7 @@ export async function runOpsAgent(
         actionTaken: 'opened_locker'
       };
 
-    } catch (e) {
+    } catch (e: any) {
       // Log failure
        await prisma.aiAction.create({
         data: {
@@ -78,13 +52,13 @@ export async function runOpsAgent(
           agentRole: 'OPS',
           reason: 'User requested unlock',
           outcome: 'failed',
-          toolCalls: { error: String(e) }
+          toolCalls: { error: e.message }
         }
       });
 
       return {
         role: 'OPS',
-        response: "I tried to open the locker but it failed. I have notified support."
+        response: `I cannot open the locker: ${e.message}. If this is an error, please ask for Support.`
       };
     }
   }

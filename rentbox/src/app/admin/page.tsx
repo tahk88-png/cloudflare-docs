@@ -1,10 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
 
+const QUERIES = [
+    { key: 'TOP_RISKS_TODAY', label: 'Top Risks Today' },
+    { key: 'OVERDUE_NOW', label: 'Overdue Now' },
+    { key: 'OPEN_FAILED_TODAY', label: 'Open Failures' },
+    { key: 'UNDERPERFORMING_PRODUCTS_ROI', label: 'Low ROI Products' },
+];
+
 export default function AdminPage() {
   const [data, setData] = useState<any>(null);
-  const [ownerQuery, setOwnerQuery] = useState("");
+  const [ownerQueryKey, setOwnerQueryKey] = useState("");
   const [ownerResponse, setOwnerResponse] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetch('/api/admin/dashboard')
@@ -12,17 +20,21 @@ export default function AdminPage() {
       .then(data => setData(data));
   }, []);
 
-  const askIndrekAI = async () => {
-      // We haven't built a dedicated route for this yet, let's just simulate or add it later.
-      // For now, I'll mock the response in UI or add a route if needed.
-      // Actually, I can use a server action or a new route.
-      // Let's just create a new api route for owner-ai
-      const res = await fetch('/api/owner-ai', {
-          method: 'POST',
-          body: JSON.stringify({ query: ownerQuery })
-      });
-      const json = await res.json();
-      setOwnerResponse(json.response);
+  const runQuery = async (key: string) => {
+      setLoading(true);
+      setOwnerQueryKey(key);
+      try {
+        const res = await fetch('/api/owner/query', {
+            method: 'POST',
+            body: JSON.stringify({ query_key: key })
+        });
+        const json = await res.json();
+        setOwnerResponse(json.summary);
+      } catch (e) {
+          console.error(e);
+      } finally {
+          setLoading(false);
+      }
   };
 
   if (!data) return <div className="p-8">Loading...</div>;
@@ -44,25 +56,28 @@ export default function AdminPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* LEFT COL: RISK & OWNER AI */}
+        {/* LEFT COL: OWNER AI */}
         <div className="space-y-8">
-            {/* OWNER AI */}
             <div className="bg-white p-6 rounded-lg shadow">
                 <h2 className="text-xl font-bold mb-4 text-purple-700">Indrek AI Assistant</h2>
-                <div className="flex gap-2 mb-4">
-                    <input 
-                        className="flex-1 border p-2 rounded" 
-                        placeholder="Ask about risk, revenue..."
-                        value={ownerQuery}
-                        onChange={e => setOwnerQuery(e.target.value)}
-                    />
-                    <button onClick={askIndrekAI} className="bg-purple-600 text-white px-4 rounded">Ask</button>
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                    {QUERIES.map(q => (
+                        <button 
+                            key={q.key}
+                            onClick={() => runQuery(q.key)}
+                            className="bg-purple-100 text-purple-700 p-2 rounded text-xs font-semibold hover:bg-purple-200"
+                        >
+                            {q.label}
+                        </button>
+                    ))}
                 </div>
                 {ownerResponse && (
-                    <div className="bg-purple-50 p-3 rounded text-sm whitespace-pre-line">
+                    <div className="bg-purple-50 p-3 rounded text-sm whitespace-pre-line border border-purple-100">
+                        <strong className="block mb-1 text-purple-800">{QUERIES.find(q=>q.key===ownerQueryKey)?.label}:</strong>
                         {ownerResponse}
                     </div>
                 )}
+                {loading && <div className="text-xs text-gray-400">Thinking...</div>}
             </div>
 
             {/* HIGH RISK */}
@@ -76,6 +91,14 @@ export default function AdminPage() {
                         </div>
                         <p className="text-sm text-gray-600">{b.user.email}</p>
                         <p className="text-xs text-gray-500">{b.product.name}</p>
+                        {/* Show flags if any */}
+                         {b.riskFlags && Object.keys(b.riskFlags).length > 0 && (
+                            <div className="mt-1 flex gap-1 flex-wrap">
+                                {Object.keys(b.riskFlags).map(f => (
+                                    <span key={f} className="text-[10px] px-1 bg-gray-100 rounded text-gray-500">{f}</span>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 ))}
                 {data.highRisk.length === 0 && <p className="text-gray-400">No high risk bookings.</p>}

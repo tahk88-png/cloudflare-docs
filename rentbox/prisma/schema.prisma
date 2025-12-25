@@ -74,12 +74,14 @@ model User {
 
   bookings  Booking[]
   tickets   Ticket[]
+  feedback  Feedback[]
 }
 
 model Product {
   id                  String   @id @default(uuid())
   name                String
   price               Decimal
+  assetValue          Decimal? // V2
   rentalCount         Int      @default(0)
   lastMaintenanceDate DateTime @default(now())
   
@@ -117,6 +119,7 @@ model Booking {
   status        BookingStatus @default(DRAFT)
   paymentStatus PaymentStatus @default(PENDING)
   riskScore     Int           @default(0) // 0-100
+  riskFlags     Json?         // V2: Details on why risk is high
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
@@ -129,6 +132,7 @@ model Booking {
   tickets     Ticket[]
   events      Event[]
   aiActions   AiAction[]
+  feedback    Feedback?
 }
 
 model Payment {
@@ -204,4 +208,16 @@ model MaintenanceLog {
 
   product     Product?     @relation(fields: [productId], references: [id])
   compartment Compartment? @relation(fields: [compartmentId], references: [id])
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  bookingId String   @unique
+  userId    String
+  rating    Int      // 1-5
+  comment   String?
+  createdAt DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
 }
