@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Rentbox Brand Colors - Luxury Industrial */
+    --primary: 145 77% 42%; /* #1DB954 - Rentbox Green */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 145 77% 34%; /* #159A46 - Accent Hover */
+    --secondary-foreground: 0 0% 100%;
+    
+    --background: 140 18% 97%; /* #F7F9F8 */
+    --foreground: 222 47% 11%; /* #0F172A - Text */
+    
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 222 47% 11%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    
+    --muted: 140 6% 94%; /* Slightly tinted gray */
+    --muted-foreground: 220 9% 46%; /* #6B7280 */
+    
+    --accent: 145 77% 42%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%; /* #DC2626 - Error */
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 140 14% 90%; /* #E2E8E4 */
+    --input: 140 14% 90%;
+    --ring: 145 77% 42%; /* Focus ring - Rentbox Green */
+    
+    --radius: 0.5rem;
+    
+    /* Chart colors */
+    --chart-1: 145 77% 42%;
+    --chart-2: 145 77% 34%;
+    --chart-3: 220 9% 46%;
+    --chart-4: 140 14% 80%;
+    --chart-5: 0 84% 60%;
+    
+    /* Additional Rentbox tokens */
+    --disabled: 140 10% 80%; /* #CBD5CF */
+    --success: 145 77% 42%;
+    --warning: 38 92% 50%;
+  }
+
+  .dark {
+    --background: 222 47% 8%;
+    --foreground: 210 40% 98%;
+    
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    
+    --accent: 145 77% 42%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 145 77% 42%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Custom scrollbar for tables */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 3px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+@layer utilities {
+  /* Focus styles for accessibility */
+  .focus-ring {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+  
+  /* Dense table styling */
+  .table-dense {
+    @apply text-sm;
+  }
+  
+  .table-dense th,
+  .table-dense td {
+    @apply px-3 py-2;
+  }
+  
+  /* Status badges */
+  .badge-pending {
+    @apply bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100;
+  }
+  
+  .badge-confirmed {
+    @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100;
+  }
+  
+  .badge-cancelled {
+    @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100;
+  }
+  
+  .badge-completed {
+    @apply bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100;
+  }
+  
+  /* KPI Card glow effect */
+  .kpi-glow {
+    @apply shadow-sm hover:shadow-md transition-shadow duration-200;
+  }
+  
+  /* Sidebar active state */
+  .sidebar-active {
+    @apply bg-primary/10 text-primary border-l-2 border-primary;
+  }
+  
+  /* Animation utilities */
+  .animate-in {
+    animation: fade-in 0.2s ease-out;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-break {
+    page-break-before: always;
+  }
+}

@@ -1,0 +1,274 @@
+// Rentbox Admin Panel - Database Schema
+// PostgreSQL with Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum UserRole {
+  owner    // Full access to all features
+  admin    // Most features except role management
+  operator // Manage bookings, maintenance, no pricing
+  viewer   // Read-only access
+}
+
+enum BookingStatus {
+  pending
+  confirmed
+  cancelled
+  completed
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  failed
+  refunded
+}
+
+enum PriceUnit {
+  hour
+  day
+}
+
+// ============================================
+// USERS & AUTHENTICATION
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  passwordHash  String    @map("password_hash")
+  role          UserRole  @default(viewer)
+  active        Boolean   @default(true)
+  lastLoginAt   DateTime? @map("last_login_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  bookings  Booking[]
+  auditLogs AuditLog[] @relation("AuditActor")
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+// ============================================
+// CATEGORIES & PRODUCTS
+// ============================================
+
+model Category {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  icon        String?  // Icon identifier (e.g., "drill", "saw")
+  order       Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id               String    @id @default(cuid())
+  slug             String    @unique
+  name             String
+  shortDescription String?   @map("short_description")
+  description      String?
+  categoryId       String    @map("category_id")
+  basePrice        Decimal   @map("base_price") @db.Decimal(10, 2)
+  priceUnit        PriceUnit @default(hour) @map("price_unit")
+  slotMinutes      Int       @default(15) @map("slot_minutes")
+  minRentalMinutes Int       @default(60) @map("min_rental_minutes")
+  maxRentalMinutes Int?      @map("max_rental_minutes")
+  active           Boolean   @default(true)
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  category     Category           @relation(fields: [categoryId], references: [id])
+  tags         ProductTag[]
+  images       ProductImage[]
+  compartments Compartment[]
+  bookings     Booking[]
+
+  @@index([categoryId])
+  @@index([active])
+  @@map("products")
+}
+
+model Tag {
+  id        String       @id @default(cuid())
+  slug      String       @unique
+  name      String
+  createdAt DateTime     @default(now()) @map("created_at")
+  products  ProductTag[]
+
+  @@map("tags")
+}
+
+model ProductTag {
+  productId String  @map("product_id")
+  tagId     String  @map("tag_id")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([productId, tagId])
+  @@map("product_tags")
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String   @map("product_id")
+  url       String
+  alt       String?
+  order     Int      @default(0)
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_images")
+}
+
+// ============================================
+// LOCKERS & COMPARTMENTS
+// ============================================
+
+model Locker {
+  id           String   @id @default(cuid())
+  name         String
+  locationText String   @map("location_text")
+  timezone     String   @default("Europe/Tallinn")
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  compartments Compartment[]
+
+  @@map("lockers")
+}
+
+model Compartment {
+  id        String   @id @default(cuid())
+  lockerId  String   @map("locker_id")
+  label     String   // e.g., "A1", "B2"
+  productId String?  @map("product_id")
+  active    Boolean  @default(true)
+  notes     String?  // Maintenance notes
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  locker   Locker    @relation(fields: [lockerId], references: [id])
+  product  Product?  @relation(fields: [productId], references: [id])
+  bookings Booking[]
+
+  @@unique([lockerId, label])
+  @@index([lockerId])
+  @@index([productId])
+  @@index([active])
+  @@map("compartments")
+}
+
+// ============================================
+// BOOKINGS
+// ============================================
+
+model Booking {
+  id            String        @id @default(cuid())
+  userId        String?       @map("user_id")
+  productId     String        @map("product_id")
+  compartmentId String        @map("compartment_id")
+  startsAt      DateTime      @map("starts_at") @db.Timestamptz
+  endsAt        DateTime      @map("ends_at") @db.Timestamptz
+  status        BookingStatus @default(pending)
+  paymentStatus PaymentStatus @default(pending) @map("payment_status")
+  totalPrice    Decimal?      @map("total_price") @db.Decimal(10, 2)
+  notes         String?
+  cancelReason  String?       @map("cancel_reason")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  user        User?       @relation(fields: [userId], references: [id])
+  product     Product     @relation(fields: [productId], references: [id])
+  compartment Compartment @relation(fields: [compartmentId], references: [id])
+
+  @@index([compartmentId])
+  @@index([productId])
+  @@index([userId])
+  @@index([startsAt])
+  @@index([endsAt])
+  @@index([status])
+  @@map("bookings")
+}
+
+// ============================================
+// AUDIT LOG
+// ============================================
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorUserId String?  @map("actor_user_id")
+  action      String   // create, update, delete, status_change
+  entityType  String   @map("entity_type") // booking, product, category, etc.
+  entityId    String   @map("entity_id")
+  beforeJson  Json?    @map("before_json")
+  afterJson   Json?    @map("after_json")
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  actor User? @relation("AuditActor", fields: [actorUserId], references: [id])
+
+  @@index([actorUserId])
+  @@index([entityType])
+  @@index([entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================
+// SETTINGS
+// ============================================
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
