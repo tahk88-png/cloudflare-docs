@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # 1. Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: rentbox
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d rentbox"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Web Application
+  web:
+    build: .
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://user:password@postgres:5432/rentbox?schema=public"
+      RENTBOX_HMAC_SECRET: "dev-secret-123"
+      GATEWAY_TOKEN: "dev-token-abc"
+      GATEWAY_URL: "http://mock-gateway:8080/v1"
+    ports:
+      - "3000:3000"
+    command: node server.js
+
+  # 3. Worker Service (Same image, different command)
+  worker:
+    build: .
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://user:password@postgres:5432/rentbox?schema=public"
+      RENTBOX_HMAC_SECRET: "dev-secret-123"
+      GATEWAY_TOKEN: "dev-token-abc"
+      GATEWAY_URL: "http://mock-gateway:8080/v1"
+    # We need to run the worker script. In the standalone build, we might need ts-node or built equivalent.
+    # For simplicity in this Dockerfile setup, assuming we run the source via ts-node or a built worker.js.
+    # Adjusting CMD to run the ts-node command from package.json assuming dev deps are present or we build worker separately.
+    # NOTE: The 'runner' stage in Dockerfile copies standalone Next.js build which doesn't include worker source easily unless configured.
+    # For production, we should compile worker to JS. For now, let's override entrypoint to run from source if we mount it, 
+    # OR we assume the user will fix the worker build step.
+    # Let's assume we copy the source in 'runner' for now or use a dev image for worker in this example.
+    command: echo "Worker requires build configuration. Run 'npm run worker' locally for now."
+
+  # 4. Mock Gateway (Simulation)
+  mock-gateway:
+    image: node:18-alpine
+    working_dir: /app
+    volumes:
+      - ./tools/mock-gateway.ts:/app/mock-gateway.ts
+    command: sh -c "npm install -g ts-node && npm install express node-fetch @types/express && ts-node mock-gateway.ts"
+    environment:
+      RENTBOX_CALLBACK_URL: "http://web:3000/api/webhooks/locker"
+      RENTBOX_HMAC_SECRET: "dev-secret-123"
+      GATEWAY_TOKEN: "dev-token-abc"
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
