@@ -1,5 +1,6 @@
 import type { StarlightRouteData } from "@astrojs/starlight/route-data";
 import { parse } from "node-html-parser";
+import type { HTMLElement } from "node-html-parser";
 import he from "he";
 import { remark } from "remark";
 import strip from "strip-markdown";
@@ -23,7 +24,7 @@ export async function generateTableOfContents(
 	const headers = dom.querySelectorAll("h2[id],h3[id]");
 
 	if (headers) {
-		function headerDepth(header: any) {
+		function headerDepth(header: HTMLElement) {
 			return Number(header.rawTagName.slice(1));
 		}
 

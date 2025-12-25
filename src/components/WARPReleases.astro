@@ -1,7 +1,7 @@
 ---
 import WARPRelease from "./WARPRelease.astro";
 import Details from "./Details.astro";
-import { getCollection } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 import { z } from "astro:schema";
 import { sub } from "date-fns";
 
@@ -19,7 +19,9 @@ const props = z.object({
 
 const { track } = props.parse(Astro.props);
 
-const sortByDate = (a: any, b: any) =>
+type WarpRelease = CollectionEntry<"warp-releases">["data"];
+
+const sortByDate = (a: WarpRelease, b: WarpRelease) =>
 	b.releaseDate.getTime() - a.releaseDate.getTime();
 
 const entries = await getCollection("warp-releases", (release) => {
@@ -41,7 +43,7 @@ releases.sort(sortByDate);
 const latestRelease = releases.at(0);
 
 if (!latestRelease) {
-	throw new Error();
+	throw new Error(`[WARPReleases] No releases found for track "${track}".`);
 }
 
 const platform = latestRelease.platformName;

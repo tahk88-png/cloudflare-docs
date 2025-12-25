@@ -1,6 +1,12 @@
 ---
 import { z } from "astro:schema";
-import { indexPlans } from "~/util/plans";
+import {
+	indexPlans,
+	isPlanFeature,
+	type PlanCellValue,
+	type PlanFeature,
+	type PlanFeatureProperty,
+} from "~/util/plans";
 import { marked } from "marked";
 
 type Props = z.infer<typeof props>;
@@ -13,21 +19,25 @@ const props = z
 
 const { id } = props.parse(Astro.props);
 
-// TODO: improve product features types
-const plan = (await indexPlans(id)) as any;
+const planUnknown = await indexPlans(id);
 
-const features: any[] = Object.values(plan.properties);
+if (!isPlanFeature(planUnknown)) {
+	throw new Error(`[FeatureTable] Plans id "${id}" did not resolve to a feature.`);
+}
 
-const hasFree = features.some((x) => x.free);
-const hasPro = features.some((x) => x.pro);
-const hasBiz = features.some((x) => x.biz);
-const hasEnt = features.some((x) => x.ent);
-const hasEntPlus = features.some((x) => x.ent_plus);
+const plan = planUnknown as PlanFeature;
 
-const markdown = (content: any) => {
-	if (typeof content !== "string") return content;
+const features = Object.values(plan.properties) as PlanFeatureProperty[];
 
-	return marked.parse(content);
+const hasFree = features.some((x) => x.free !== undefined);
+const hasPro = features.some((x) => x.pro !== undefined);
+const hasBiz = features.some((x) => x.biz !== undefined);
+const hasEnt = features.some((x) => x.ent !== undefined);
+const hasEntPlus = features.some((x) => x.ent_plus !== undefined);
+
+const markdown = (content: PlanCellValue | undefined) => {
+	if (content === undefined) return "";
+	return marked.parse(typeof content === "string" ? content : String(content));
 };
 ---
 
@@ -39,7 +49,7 @@ const markdown = (content: any) => {
 			{hasPro && <th>Pro</th>}
 			{hasBiz && <th>Business</th>}
 			{hasEnt && <th>Enterprise</th>}
-			{hasEntPlus && <th>{plan.ent_plus}</th>}
+			{hasEntPlus && <th>{plan.ent_plus ?? "Enterprise+"}</th>}
 		</tr>
 	</thead>
 	<tbody>

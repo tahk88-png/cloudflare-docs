@@ -6,7 +6,7 @@ interface Props {
 	icon?: ComponentProps<typeof Icon>["name"];
 	title: string;
 	href: string;
-	attrs?: any;
+	[key: string]: unknown;
 }
 
 const { icon, title, href, ...attrs } = Astro.props;

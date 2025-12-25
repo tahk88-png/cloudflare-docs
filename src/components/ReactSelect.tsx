@@ -1,5 +1,10 @@
-import Select, { type Props } from "react-select";
-import type { ActionMeta, StylesConfig } from "react-select";
+import Select, {
+	type Props as ReactSelectProps,
+	type SingleValue,
+	type GroupBase,
+	type StylesConfig,
+} from "react-select";
+import type { ActionMeta } from "react-select";
 import { setSearchParams } from "~/util/url";
 
 export type Option = {
@@ -7,8 +12,10 @@ export type Option = {
 	value: string;
 };
 
-export default function ReactSelect(props: Props & { urlParam?: string }) {
-	const selectStyles: StylesConfig = {
+export default function ReactSelect(
+	props: ReactSelectProps<Option, false, GroupBase<Option>> & { urlParam?: string },
+) {
+	const selectStyles: StylesConfig<Option, false, GroupBase<Option>> = {
 		control: (base, state) => ({
 			...base,
 			backgroundColor: "var(--sl-color-gray-6)",
@@ -50,7 +57,7 @@ export default function ReactSelect(props: Props & { urlParam?: string }) {
 	};
 
 	const onChangeHandler = (
-		option: Option | null,
+		option: SingleValue<Option>,
 		actionMeta: ActionMeta<Option>,
 	) => {
 		props.onChange?.(option, actionMeta);
@@ -70,9 +77,7 @@ export default function ReactSelect(props: Props & { urlParam?: string }) {
 		<Select
 			{...props}
 			styles={selectStyles}
-			onChange={(val: unknown, meta: ActionMeta<unknown>) =>
-				onChangeHandler(val as Option | null, meta as ActionMeta<Option>)
-			}
+			onChange={onChangeHandler}
 		/>
 	);
 }

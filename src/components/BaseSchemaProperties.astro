@@ -9,8 +9,9 @@ import AnchorHeading from "./AnchorHeading.astro";
 import Details from "./Details.astro";
 
 const schema = baseSchema({
-	// @ts-expect-error Normally passed in by Astro but we are using the schema standalone.
-	image: () => z.function(),
+	// This component renders the schema documentation, so we don't need Astro's real `image()`
+	// schema helper here—any Zod type is sufficient to populate `.shape`.
+	image: () => z.any(),
 }).shape;
 
 const getInnerType = ({ _def }: z.ZodTypeAny | z.ZodEffects<any>) => {
@@ -58,11 +59,12 @@ const getInnerType = ({ _def }: z.ZodTypeAny | z.ZodEffects<any>) => {
 								<ul>
 									{inner.options
 										.filter(
-											(option: any) => option._def.typeName === "ZodLiteral",
+											(option: unknown) =>
+												(option as z.ZodTypeAny)._def?.typeName === "ZodLiteral",
 										)
-										.map((option: any) => (
+										.map((option: unknown) => (
 											<li>
-												<code>{option._def.value}</code>
+												<code>{(option as z.ZodTypeAny)._def?.value}</code>
 											</li>
 										))}
 								</ul>
