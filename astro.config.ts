@@ -192,6 +192,32 @@ export default defineConfig({
 		react(),
 	],
 	vite: {
+		build: {
+			rollupOptions: {
+				onwarn(warning, warn) {
+					// Silence known-noise warnings coming from vendored dependencies.
+					// - `EMPTY_BUNDLE`: style-only showcase components emit empty JS chunks.
+					// - `UNUSED_EXTERNAL_IMPORT`: Astro's internal helper exports are tree-shaken.
+					if (
+						warning.code === "EMPTY_BUNDLE" &&
+						typeof warning.message === "string" &&
+						/Generated an empty chunk: "(Showcase|Tweet)/.test(warning.message)
+					) {
+						return;
+					}
+
+					if (
+						warning.code === "UNUSED_EXTERNAL_IMPORT" &&
+						typeof warning.message === "string" &&
+						warning.message.includes("@astrojs/internal-helpers/remote")
+					) {
+						return;
+					}
+
+					warn(warning);
+				},
+			},
+		},
 		resolve: {
 			alias: {
 				"./Page.astro": fileURLToPath(
