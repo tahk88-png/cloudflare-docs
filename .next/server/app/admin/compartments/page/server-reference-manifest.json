@@ -1,0 +1,65 @@
+{
+  "node": {
+    "40cf6b6f247c008ba9ced826ea89549e9ac6629919": {
+      "workers": {
+        "app/admin/compartments/page": {
+          "moduleId": 69279,
+          "async": false,
+          "exportedName": "clearCompartmentMaintenanceAction",
+          "filename": "lib/admin/compartments.actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/compartments/page": "action-browser"
+      },
+      "exportedName": "clearCompartmentMaintenanceAction",
+      "filename": "lib/admin/compartments.actions.ts"
+    },
+    "404987fdee09a485b2c7440359c861b46b85b4f96f": {
+      "workers": {
+        "app/admin/compartments/page": {
+          "moduleId": 69279,
+          "async": false,
+          "exportedName": "createCompartmentAction",
+          "filename": "lib/admin/compartments.actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/compartments/page": "action-browser"
+      },
+      "exportedName": "createCompartmentAction",
+      "filename": "lib/admin/compartments.actions.ts"
+    },
+    "40523ef5c546e9b15a2659329aa3b5d32d6b19e1e3": {
+      "workers": {
+        "app/admin/compartments/page": {
+          "moduleId": 69279,
+          "async": false,
+          "exportedName": "setCompartmentMaintenanceAction",
+          "filename": "lib/admin/compartments.actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/compartments/page": "action-browser"
+      },
+      "exportedName": "setCompartmentMaintenanceAction",
+      "filename": "lib/admin/compartments.actions.ts"
+    },
+    "40e4efd3201986453a901f454a0a366324e1142bda": {
+      "workers": {
+        "app/admin/compartments/page": {
+          "moduleId": 69279,
+          "async": false,
+          "exportedName": "updateCompartmentAction",
+          "filename": "lib/admin/compartments.actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/compartments/page": "action-browser"
+      },
+      "exportedName": "updateCompartmentAction",
+      "filename": "lib/admin/compartments.actions.ts"
+    }
+  },
+  "edge": {}
+}

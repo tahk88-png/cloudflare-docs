@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "functions": {
+    "/admin": {},
+    "/admin/audit": {},
+    "/admin/bookings": {},
+    "/admin/categories": {},
+    "/admin/compartments": {},
+    "/admin/lockers": {},
+    "/admin/login": {},
+    "/admin/products": {},
+    "/admin/settings": {},
+    "/admin/users": {}
+  }
+}

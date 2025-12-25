@@ -1,0 +1,15 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/admin/audit/page": "app/admin/audit/page.js",
+  "/admin/bookings/page": "app/admin/bookings/page.js",
+  "/admin/categories/page": "app/admin/categories/page.js",
+  "/admin/compartments/page": "app/admin/compartments/page.js",
+  "/admin/lockers/page": "app/admin/lockers/page.js",
+  "/admin/login/page": "app/admin/login/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/products/page": "app/admin/products/page.js",
+  "/admin/settings/page": "app/admin/settings/page.js",
+  "/admin/users/page": "app/admin/users/page.js",
+  "/page": "app/page.js"
+}

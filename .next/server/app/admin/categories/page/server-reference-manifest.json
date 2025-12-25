@@ -1,0 +1,65 @@
+{
+  "node": {
+    "40d2ed3a79afb15de81c756fc471e9c38649190629": {
+      "workers": {
+        "app/admin/categories/page": {
+          "moduleId": 59271,
+          "async": false,
+          "exportedName": "createCategoryAction",
+          "filename": "lib/admin/categories.actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/categories/page": "action-browser"
+      },
+      "exportedName": "createCategoryAction",
+      "filename": "lib/admin/categories.actions.ts"
+    },
+    "40e85f3b9ba866a720d56e284886f4fcfa56f85cf6": {
+      "workers": {
+        "app/admin/categories/page": {
+          "moduleId": 59271,
+          "async": false,
+          "exportedName": "deleteCategoryAction",
+          "filename": "lib/admin/categories.actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/categories/page": "action-browser"
+      },
+      "exportedName": "deleteCategoryAction",
+      "filename": "lib/admin/categories.actions.ts"
+    },
+    "4050cf18493b3911268234f8211624831194f53d43": {
+      "workers": {
+        "app/admin/categories/page": {
+          "moduleId": 59271,
+          "async": false,
+          "exportedName": "moveCategoryAction",
+          "filename": "lib/admin/categories.actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/categories/page": "action-browser"
+      },
+      "exportedName": "moveCategoryAction",
+      "filename": "lib/admin/categories.actions.ts"
+    },
+    "4017098f533588e594e0afb976041f9a00ec79a09f": {
+      "workers": {
+        "app/admin/categories/page": {
+          "moduleId": 59271,
+          "async": false,
+          "exportedName": "updateCategoryAction",
+          "filename": "lib/admin/categories.actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/categories/page": "action-browser"
+      },
+      "exportedName": "updateCategoryAction",
+      "filename": "lib/admin/categories.actions.ts"
+    }
+  },
+  "edge": {}
+}

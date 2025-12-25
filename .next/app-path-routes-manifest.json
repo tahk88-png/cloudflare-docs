@@ -1,0 +1,15 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/admin/audit/page": "/admin/audit",
+  "/admin/bookings/page": "/admin/bookings",
+  "/admin/categories/page": "/admin/categories",
+  "/admin/compartments/page": "/admin/compartments",
+  "/admin/lockers/page": "/admin/lockers",
+  "/admin/login/page": "/admin/login",
+  "/admin/page": "/admin",
+  "/admin/products/page": "/admin/products",
+  "/admin/settings/page": "/admin/settings",
+  "/admin/users/page": "/admin/users",
+  "/page": "/"
+}

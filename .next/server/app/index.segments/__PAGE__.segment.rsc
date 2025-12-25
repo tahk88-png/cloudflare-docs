@@ -1,0 +1,6 @@
+1:"$Sreact.fragment"
+2:I[22016,["/_next/static/chunks/44838f11011a9f2d.js"],""]
+3:I[97367,["/_next/static/chunks/ff1a16fafef87110.js","/_next/static/chunks/0b082245f106d665.js"],"OutletBoundary"]
+4:"$Sreact.suspense"
+0:{"buildId":"SKJO85FDsuSHjkATlTGYk","rsc":["$","$1","c",{"children":[["$","main",null,{"className":"min-h-dvh bg-[var(--rb-bg)] p-6 text-[var(--rb-text)]","children":["$","div",null,{"className":"mx-auto w-full max-w-xl rounded-2xl border border-[var(--rb-border)] bg-[var(--rb-card)] p-6","children":[["$","h1",null,{"className":"text-xl font-semibold","children":"Rentbox Admin"}],["$","p",null,{"className":"mt-2 text-sm text-[var(--rb-muted)]","children":"Admin Panel is served by Next.js on port 3001."}],["$","div",null,{"className":"mt-4","children":["$","$L2",null,{"href":"/admin","className":"inline-flex h-10 items-center justify-center rounded-lg bg-[var(--rb-primary)] px-4 text-sm font-medium text-white hover:bg-[var(--rb-primary-hover)]","children":"Go to /admin"}]}]]}]}],[["$","script","script-0",{"src":"/_next/static/chunks/44838f11011a9f2d.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"loading":null,"isPartial":false}
+5:null

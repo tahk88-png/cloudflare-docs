@@ -1,0 +1,20 @@
+{
+  "node": {
+    "4064795e670ffbd6e21406bc27189ade3fdd31e2ad": {
+      "workers": {
+        "app/admin/settings/page": {
+          "moduleId": 32550,
+          "async": false,
+          "exportedName": "updateSettingsAction",
+          "filename": "lib/admin/settings.actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/settings/page": "action-browser"
+      },
+      "exportedName": "updateSettingsAction",
+      "filename": "lib/admin/settings.actions.ts"
+    }
+  },
+  "edge": {}
+}

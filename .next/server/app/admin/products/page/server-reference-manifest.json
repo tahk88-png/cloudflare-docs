@@ -1,0 +1,50 @@
+{
+  "node": {
+    "4040624e7d68c4f11f46a51dc22cec73a7964cfbdc": {
+      "workers": {
+        "app/admin/products/page": {
+          "moduleId": 26406,
+          "async": false,
+          "exportedName": "createProductAction",
+          "filename": "lib/admin/products.actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/products/page": "action-browser"
+      },
+      "exportedName": "createProductAction",
+      "filename": "lib/admin/products.actions.ts"
+    },
+    "4045c034aff8e999a01dd4a9a83d973972831e5bb1": {
+      "workers": {
+        "app/admin/products/page": {
+          "moduleId": 26406,
+          "async": false,
+          "exportedName": "deleteProductAction",
+          "filename": "lib/admin/products.actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/products/page": "action-browser"
+      },
+      "exportedName": "deleteProductAction",
+      "filename": "lib/admin/products.actions.ts"
+    },
+    "402dca3ba6a5d9ef174b784dee1c420519ffdaed01": {
+      "workers": {
+        "app/admin/products/page": {
+          "moduleId": 26406,
+          "async": false,
+          "exportedName": "updateProductAction",
+          "filename": "lib/admin/products.actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/products/page": "action-browser"
+      },
+      "exportedName": "updateProductAction",
+      "filename": "lib/admin/products.actions.ts"
+    }
+  },
+  "edge": {}
+}

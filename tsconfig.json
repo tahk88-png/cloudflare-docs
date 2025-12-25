@@ -4,6 +4,7 @@
 		"baseUrl": ".",
 		"target": "ESNext",
 		"paths": {
+			"@/*": ["./*"],
 			"~/*": ["src/*"]
 		},
 		"jsx": "react-jsx",

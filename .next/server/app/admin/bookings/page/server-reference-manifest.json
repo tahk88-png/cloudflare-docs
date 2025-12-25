@@ -1,0 +1,35 @@
+{
+  "node": {
+    "406abfdcc019aca63878e879c9f8904873644b1f3b": {
+      "workers": {
+        "app/admin/bookings/page": {
+          "moduleId": 22735,
+          "async": false,
+          "exportedName": "createBookingAction",
+          "filename": "lib/admin/bookings.actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/bookings/page": "action-browser"
+      },
+      "exportedName": "createBookingAction",
+      "filename": "lib/admin/bookings.actions.ts"
+    },
+    "40c0d504c2619c0057db7e669173dbaad470dc085b": {
+      "workers": {
+        "app/admin/bookings/page": {
+          "moduleId": 22735,
+          "async": false,
+          "exportedName": "setBookingStatusAction",
+          "filename": "lib/admin/bookings.actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/bookings/page": "action-browser"
+      },
+      "exportedName": "setBookingStatusAction",
+      "filename": "lib/admin/bookings.actions.ts"
+    }
+  },
+  "edge": {}
+}

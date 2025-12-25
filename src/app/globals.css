@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+/*
+  Rentbox Admin brand tokens (STRICT):
+  Use CSS vars everywhere; do not hardcode colors in components.
+*/
+:root {
+	--rb-primary: #1db954;
+	--rb-primary-hover: #159a46;
+	--rb-bg: #f7f9f8;
+	--rb-card: #ffffff;
+	--rb-border: #e2e8e4;
+	--rb-text: #0f172a;
+	--rb-muted: #6b7280;
+	--rb-disabled: #cbd5cf;
+	--rb-error: #dc2626;
+
+	/*
+	  shadcn/ui-compatible semantic tokens (mapped to Rentbox vars).
+	  We still keep the Rentbox tokens as the source of truth.
+	*/
+	--background: 150 20% 98%;
+	--foreground: 222 47% 11%;
+
+	--card: 0 0% 100%;
+	--card-foreground: 222 47% 11%;
+
+	--popover: 0 0% 100%;
+	--popover-foreground: 222 47% 11%;
+
+	--primary: 142 67% 40%;
+	--primary-foreground: 0 0% 100%;
+
+	--secondary: 150 20% 96%;
+	--secondary-foreground: 222 47% 11%;
+
+	--muted: 150 18% 95%;
+	--muted-foreground: 215 16% 47%;
+
+	--accent: 150 20% 96%;
+	--accent-foreground: 222 47% 11%;
+
+	--destructive: 0 84% 45%;
+	--destructive-foreground: 0 0% 100%;
+
+	--border: 150 12% 90%;
+	--input: 150 12% 90%;
+	--ring: 142 67% 40%;
+
+	--radius: 12px;
+}
+
+@source "./**/*.{ts,tsx}";
+@source "../components/**/*.{ts,tsx}";
+@source "../lib/**/*.{ts,tsx}";
+@source "../../components/**/*.{ts,tsx}";
+@source "../../lib/**/*.{ts,tsx}";
+
+@layer base {
+	* {
+		border-color: hsl(var(--border));
+	}
+	html,
+	body {
+		height: 100%;
+	}
+	body {
+		background: var(--rb-bg);
+		color: var(--rb-text);
+	}
+
+	:focus-visible {
+		outline: none;
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--rb-primary) 40%, transparent);
+	}
+}
+

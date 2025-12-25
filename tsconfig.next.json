@@ -1,0 +1,17 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"noEmit": true
+	},
+	"include": [
+		"next-env.d.ts",
+		"next.config.ts",
+		"types/**/*",
+		"src/app/**/*",
+		"components/**/*",
+		"lib/**/*",
+		"prisma/**/*"
+	],
+	"exclude": ["dist", "worker", "src/pages", "src/content"]
+}
+

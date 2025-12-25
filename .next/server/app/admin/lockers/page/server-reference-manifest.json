@@ -1,0 +1,50 @@
+{
+  "node": {
+    "40190dc476b95f35da15dbd9a903bf3482df49c84a": {
+      "workers": {
+        "app/admin/lockers/page": {
+          "moduleId": 1812,
+          "async": false,
+          "exportedName": "createLockerAction",
+          "filename": "lib/admin/lockers.actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/lockers/page": "action-browser"
+      },
+      "exportedName": "createLockerAction",
+      "filename": "lib/admin/lockers.actions.ts"
+    },
+    "40ccf5f475c16c92c2ba02b876ad87ebd71b47731b": {
+      "workers": {
+        "app/admin/lockers/page": {
+          "moduleId": 1812,
+          "async": false,
+          "exportedName": "deleteLockerAction",
+          "filename": "lib/admin/lockers.actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/lockers/page": "action-browser"
+      },
+      "exportedName": "deleteLockerAction",
+      "filename": "lib/admin/lockers.actions.ts"
+    },
+    "409311302487859c52ae6cf7fe924f1b5895b18f8a": {
+      "workers": {
+        "app/admin/lockers/page": {
+          "moduleId": 1812,
+          "async": false,
+          "exportedName": "updateLockerAction",
+          "filename": "lib/admin/lockers.actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/lockers/page": "action-browser"
+      },
+      "exportedName": "updateLockerAction",
+      "filename": "lib/admin/lockers.actions.ts"
+    }
+  },
+  "edge": {}
+}
