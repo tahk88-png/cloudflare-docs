@@ -98,6 +98,12 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 				contract_hash: contractHash,
 				signature_ref: null,
 				status: 'pending',
+				payment_intent_id: null,
+				payment_status: 'pending',
+				payment_amount: null,
+				payment_currency: 'EUR',
+				payment_method: null,
+				payment_completed_at: null,
 			});
 		}
 

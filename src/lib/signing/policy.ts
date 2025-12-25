@@ -22,7 +22,7 @@ const DEFAULT_POLICY: SigningPolicy = {
  */
 export function requiresStrongSignature(
 	cart: CartInfo,
-	policy: SigningPolicy = DEFAULT_POLICY,
+	_policy: SigningPolicy = DEFAULT_POLICY,
 ): boolean {
 	if (cart.total_amount >= 250) {
 		return true;

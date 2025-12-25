@@ -3,7 +3,7 @@ import type { D1Database } from '@cloudflare/workers-types';
 import { getCheckoutConsent, updateCheckoutConsent } from '~/lib/db/queries';
 import { confirmPaymentIntent } from '~/lib/payments/stripe';
 
-export const POST: APIRoute = async ({ params, request, locals }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
 	try {
 		const body = await request.json();
 		const { payment_intent_id, cart_id } = body;

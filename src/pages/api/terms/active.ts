@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import type { D1Database } from '@cloudflare/workers-types';
 import { getActiveTermsVersion } from '~/lib/db/queries';
 
-export const GET: APIRoute = async ({ request, locals }) => {
+export const GET: APIRoute = async ({ locals }) => {
 	try {
 		// Access D1 database from Cloudflare runtime
 		// In Astro with Cloudflare adapter, locals.runtime.env contains bindings

@@ -5,7 +5,7 @@ import { updateCheckoutConsent } from '~/lib/db/queries';
 import { createPaymentIntent } from '~/lib/payments/stripe';
 import { canProceedToPayment } from '~/lib/checkout/payment-gating';
 
-export const POST: APIRoute = async ({ params, request, locals }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
 	try {
 		const body = await request.json();
 		const { cart_id, total_amount, rental_duration_hours, is_b2b } = body;

@@ -53,8 +53,10 @@ export async function createCheckoutConsent(
         id, cart_id, terms_version_id, consent_1, consent_2,
         signature_method, signer_name, signer_identifier_masked,
         signed_at, ip, user_agent, contract_hash, signature_ref, status,
+        payment_intent_id, payment_status, payment_amount, payment_currency,
+        payment_method, payment_completed_at,
         created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		)
 		.bind(
 			id,
@@ -71,6 +73,12 @@ export async function createCheckoutConsent(
 			consent.contract_hash,
 			consent.signature_ref,
 			consent.status,
+			consent.payment_intent_id || null,
+			consent.payment_status || 'pending',
+			consent.payment_amount || null,
+			consent.payment_currency || 'EUR',
+			consent.payment_method || null,
+			consent.payment_completed_at || null,
 			now,
 			now,
 		)

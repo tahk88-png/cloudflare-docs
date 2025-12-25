@@ -4,7 +4,7 @@ import { getCheckoutConsent } from '~/lib/db/queries';
 import { getActiveTermsVersion } from '~/lib/db/queries';
 import { computeContractHash } from '~/lib/signing/policy';
 
-export const POST: APIRoute = async ({ params, request, locals }) => {
+export const POST: APIRoute = async ({ params, locals }) => {
 	try {
 		const cartId = params.cart_id;
 		if (!cartId) {

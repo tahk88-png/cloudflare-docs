@@ -30,7 +30,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 		}
 
 		const body = await request.json();
-		const { payment_id, payment_status } = body;
+		const { payment_status } = body;
 
 		if (payment_status !== 'completed') {
 			return new Response(

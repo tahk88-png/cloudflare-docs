@@ -19,9 +19,9 @@ export interface PaymentSession {
  * In production, this would call Stripe API
  */
 export async function createPaymentIntent(
-	cartId: string,
+	_cartId: string,
 	cartInfo: CartInfo,
-	stripeSecretKey: string,
+	_stripeSecretKey: string,
 ): Promise<PaymentIntent> {
 	const amountInCents = Math.round(cartInfo.total_amount * 100);
 
@@ -52,8 +52,8 @@ export async function createPaymentIntent(
  * Confirms a Stripe Payment Intent
  */
 export async function confirmPaymentIntent(
-	paymentIntentId: string,
-	stripeSecretKey: string,
+	_paymentIntentId: string,
+	_stripeSecretKey: string,
 ): Promise<{ status: string; succeeded: boolean }> {
 	// In production:
 	// const stripe = new Stripe(stripeSecretKey);
@@ -84,7 +84,7 @@ export async function handleStripeWebhook(
 			};
 		};
 	},
-	stripeSecretKey: string,
+	_stripeSecretKey: string,
 ): Promise<{ cartId?: string; paymentIntentId: string; status: string } | null> {
 	// In production, verify webhook signature:
 	// const stripe = new Stripe(stripeSecretKey);
