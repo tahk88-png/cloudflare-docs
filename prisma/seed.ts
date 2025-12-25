@@ -20,25 +20,70 @@ async function main() {
 
 	console.log('Created owner user:', owner.email);
 
-	// Create default categories
+	// Create locked Estonian categories (as per requirements)
 	const categories = [
 		{
-			name: 'Power Tools',
-			slug: 'power-tools',
-			description: 'Electric and battery-powered tools',
+			name: 'Aiatöö',
+			slug: 'aiatoo',
+			description: 'Aiatööriistad ja -tarvikud',
 			order: 1,
+			icon: '🌱',
 		},
 		{
-			name: 'Hand Tools',
-			slug: 'hand-tools',
-			description: 'Manual tools',
+			name: 'Puurimine & kinnitamine',
+			slug: 'puurimine-kinnitamine',
+			description: 'Puurid, kruvikeerajad, kinnitustööriistad',
 			order: 2,
+			icon: '🔩',
 		},
 		{
-			name: 'Garden Tools',
-			slug: 'garden-tools',
-			description: 'Gardening and landscaping tools',
+			name: 'Lõikamine & saagimine',
+			slug: 'loikamine-saagimine',
+			description: 'Saed, lõikurid, lõiketööriistad',
 			order: 3,
+			icon: '✂️',
+		},
+		{
+			name: 'Lihvimine & viimistlus',
+			slug: 'lihvimine-viimistlus',
+			description: 'Lihvijad, viimistlustööriistad',
+			order: 4,
+			icon: '✨',
+		},
+		{
+			name: 'Puhastus',
+			slug: 'puhastus',
+			description: 'Puhastustööriistad ja seadmed',
+			order: 5,
+			icon: '🧹',
+		},
+		{
+			name: 'Betoon & kivi',
+			slug: 'betoon-kivi',
+			description: 'Betooni- ja kivitööriistad',
+			order: 6,
+			icon: '🧱',
+		},
+		{
+			name: 'Mõõdistamine & märkimine',
+			slug: 'moodistamine-markimine',
+			description: 'Mõõdulint, tasemed, märgistustööriistad',
+			order: 7,
+			icon: '📏',
+		},
+		{
+			name: 'Tõstmine & transport',
+			slug: 'tostmine-transport',
+			description: 'Tõsteseadmed, käru, transport',
+			order: 8,
+			icon: '🚚',
+		},
+		{
+			name: 'Tarvikud & kulumaterjal',
+			slug: 'tarvikud-kulumaterjal',
+			description: 'Tarvikud, kulumaterjalid, varuosad',
+			order: 9,
+			icon: '📦',
 		},
 	];
 
