@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root {
+		/* Rentbox Brand Tokens */
+		--rentbox-primary: #1db954;
+		--rentbox-primary-hover: #159a46;
+		--rentbox-background: #f7f9f8;
+		--rentbox-card: #ffffff;
+		--rentbox-border: #e2e8e4;
+		--rentbox-text: #0f172a;
+		--rentbox-muted: #6b7280;
+		--rentbox-disabled: #cbd5cf;
+		--rentbox-error: #dc2626;
+
+		/* Tailwind CSS variables */
+		--background: var(--rentbox-background);
+		--foreground: var(--rentbox-text);
+		--card: var(--rentbox-card);
+		--card-foreground: var(--rentbox-text);
+		--border: var(--rentbox-border);
+		--input: var(--rentbox-border);
+		--ring: var(--rentbox-primary);
+		--primary: var(--rentbox-primary);
+		--primary-foreground: #ffffff;
+		--secondary: var(--rentbox-border);
+		--secondary-foreground: var(--rentbox-text);
+		--muted: var(--rentbox-muted);
+		--muted-foreground: var(--rentbox-muted);
+		--accent: var(--rentbox-primary);
+		--accent-foreground: #ffffff;
+		--destructive: var(--rentbox-error);
+		--destructive-foreground: #ffffff;
+		--disabled: var(--rentbox-disabled);
+		--popover: var(--rentbox-card);
+		--popover-foreground: var(--rentbox-text);
+		--radius: 0.5rem;
+	}
+
+	* {
+		@apply border-border;
+	}
+
+	body {
+		@apply bg-background text-foreground;
+		font-feature-settings: 'rlig' 1, 'calt' 1;
+	}
+}

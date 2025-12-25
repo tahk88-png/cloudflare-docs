@@ -1,0 +1,173 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+	provider = "prisma-client-js"
+}
+
+datasource db {
+	provider = "postgresql"
+	url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+	owner
+	admin
+	operator
+	viewer
+}
+
+enum BookingStatus {
+	pending
+	confirmed
+	cancelled
+	completed
+}
+
+enum PaymentStatus {
+	pending
+	paid
+	failed
+	refunded
+}
+
+model User {
+	id        String   @id @default(cuid())
+	email     String   @unique
+	name      String?
+	role      UserRole @default(viewer)
+	active    Boolean  @default(true)
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+
+	bookings      Booking[]
+	auditLogs     AuditLog[]
+	createdBookings Booking[] @relation("CreatedBy")
+
+	@@index([email])
+	@@index([role])
+	@@index([active])
+}
+
+model Category {
+	id          String    @id @default(cuid())
+	slug        String    @unique
+	name        String
+	description String?
+	icon        String?
+	order       Int       @default(0)
+	active      Boolean   @default(true)
+	createdAt   DateTime  @default(now())
+	updatedAt   DateTime  @updatedAt
+
+	products Product[]
+
+	@@index([slug])
+	@@index([active])
+	@@index([order])
+}
+
+model Product {
+	id                 String    @id @default(cuid())
+	slug               String    @unique
+	name               String
+	shortDescription   String?   @db.Text
+	description        String?   @db.Text
+	categoryId         String?
+	basePrice          Decimal   @db.Decimal(10, 2)
+	priceUnit          String    @default("hour") // 'hour' | 'day'
+	slotMinutes        Int       @default(15)
+	minRentalMinutes   Int       @default(60)
+	maxRentalMinutes   Int?
+	images             String[]  @default([])
+	tags               String[]  @default([])
+	active             Boolean   @default(true)
+	createdAt          DateTime  @default(now())
+	updatedAt          DateTime  @updatedAt
+
+	category     Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+	bookings     Booking[]
+	compartments Compartment[]
+
+	@@index([slug])
+	@@index([categoryId])
+	@@index([active])
+}
+
+model Locker {
+	id           String    @id @default(cuid())
+	name         String
+	locationText String
+	timezone     String    @default("Europe/Tallinn")
+	active       Boolean   @default(true)
+	createdAt    DateTime  @default(now())
+	updatedAt    DateTime  @updatedAt
+
+	compartments Compartment[]
+
+	@@index([active])
+}
+
+model Compartment {
+	id         String    @id @default(cuid())
+	lockerId   String
+	label      String // e.g., "A1"
+	productId  String?
+	active     Boolean   @default(true)
+	notes      String?   @db.Text
+	createdAt  DateTime  @default(now())
+	updatedAt  DateTime  @updatedAt
+
+	locker   Locker   @relation(fields: [lockerId], references: [id], onDelete: Cascade)
+	product  Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+	bookings Booking[]
+
+	@@unique([lockerId, label])
+	@@index([lockerId])
+	@@index([productId])
+	@@index([active])
+}
+
+model Booking {
+	id            String        @id @default(cuid())
+	userId        String?
+	productId     String
+	compartmentId String
+	startsAt      DateTime      @db.Timestamptz(6)
+	endsAt        DateTime      @db.Timestamptz(6)
+	status        BookingStatus @default(pending)
+	paymentStatus PaymentStatus? @default(pending)
+	createdAt     DateTime      @default(now())
+	updatedAt     DateTime      @updatedAt
+
+	user       User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+	product    Product     @relation(fields: [productId], references: [id], onDelete: Restrict)
+	compartment Compartment @relation(fields: [compartmentId], references: [id], onDelete: Restrict)
+	createdBy  User?       @relation("CreatedBy", fields: [userId], references: [id], onDelete: SetNull)
+
+	@@index([compartmentId, status])
+	@@index([startsAt, endsAt])
+	@@index([status])
+	@@index([userId])
+	@@index([productId])
+	@@index([createdAt])
+}
+
+model AuditLog {
+	id          String   @id @default(cuid())
+	actorUserId String
+	action      String   // 'create' | 'update' | 'delete' | 'status_change'
+	entityType  String   // 'category' | 'product' | 'locker' | 'compartment' | 'booking' | 'user'
+	entityId    String
+	beforeJson  Json?
+	afterJson   Json?
+	ip          String?
+	createdAt   DateTime @default(now())
+
+	actor User @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+
+	@@index([actorUserId])
+	@@index([entityType, entityId])
+	@@index([createdAt])
+	@@index([action])
+}
