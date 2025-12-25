@@ -1,0 +1,37 @@
+# Invoicing System Worker Configuration
+
+name = "invoicing-system"
+account_id = "b54f07a6c269ecca2fa60f1ae4920c99"
+compatibility_date = "2025-06-02"
+compatibility_flags = ["nodejs_compat"]
+main = "./index.ts"
+
+workers_dev = true
+
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "invoicing-db"
+database_id = "" # Will be created when deploying
+
+# Queue for email processing
+[[queues]]
+producers = [{ queue = "email-queue" }]
+consumers = [{ queue = "email-queue", max_batch_size = 10, max_batch_timeout = 30 }]
+
+# R2 Bucket for PDF storage
+[[r2_buckets]]
+binding = "R2_PDFS"
+bucket_name = "invoicing-pdfs"
+
+# Environment variables (set via wrangler secret put)
+# EMAIL_FROM=no-reply@yourdomain.com
+# EMAIL_REPLY_TO=support@yourdomain.com
+# DOMAIN=yourdomain.com
+# JWT_SECRET=your-secret-key
+# STRIPE_SECRET_KEY=sk_...
+# MONTONIO_SECRET_KEY=...
+
+# Scheduled triggers (cron for reminders and overdue checks)
+[triggers]
+crons = ["0 * * * *"] # Every hour

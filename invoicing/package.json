@@ -1,0 +1,17 @@
+{
+	"name": "invoicing-system",
+	"version": "1.0.0",
+	"description": "Production-grade invoicing system with PDF generation and email delivery",
+	"type": "module",
+	"scripts": {
+		"dev": "wrangler dev",
+		"deploy": "wrangler deploy",
+		"migrate": "wrangler d1 execute invoicing-db --file=./migrations/0001_initial.sql",
+		"migrate:local": "wrangler d1 execute invoicing-db --local --file=./migrations/0001_initial.sql"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20250813.0",
+		"typescript": "^5.8.3",
+		"wrangler": "^4.26.1"
+	}
+}
