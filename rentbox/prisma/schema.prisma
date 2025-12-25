@@ -235,13 +235,19 @@ model LockerOpenAttempt {
   lockerId      String
   compartmentId String
   correlationId String   @unique
+  requestedBy   String   @default("unknown")
+  reason        String   @default("unknown")
   status        String   // PENDING, SUCCESS, FAILURE, TIMEOUT
   attemptedAt   DateTime @default(now())
   resultAt      DateTime?
+  errorCode     String?
   errorDetails  String?
   isOverride    Boolean  @default(false)
 
   booking       Booking     @relation(fields: [bookingId], references: [id])
   locker        Locker      @relation(fields: [lockerId], references: [id])
   compartment   Compartment @relation(fields: [compartmentId], references: [id])
+  
+  @@index([bookingId])
+  @@index([attemptedAt])
 }
