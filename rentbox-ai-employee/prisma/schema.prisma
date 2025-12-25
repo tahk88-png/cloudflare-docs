@@ -1,0 +1,535 @@
+// Rentbox AI Employee v1.0 - Database Schema
+// PostgreSQL with Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// CORE ENTITIES
+// ============================================
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  phone       String?
+  name        String
+  role        UserRole @default(CUSTOMER)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  bookings      Booking[]
+  conversations Conversation[]
+  messages      Message[]
+  tickets       Ticket[]        @relation("TicketCreator")
+  assignedTickets Ticket[]      @relation("TicketAssignee")
+  
+  // Rate limiting for outbound messages
+  lastMessageAt DateTime?
+  messageCount  Int       @default(0)
+  messageCountResetAt DateTime?
+
+  @@index([email])
+  @@index([phone])
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+  SUPPORT
+  OPS
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  pricePerDay Decimal  @db.Decimal(10, 2)
+  category    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  bookings Booking[]
+  
+  @@index([category])
+  @@index([isActive])
+}
+
+model Locker {
+  id          String   @id @default(uuid())
+  name        String
+  location    String
+  address     String?
+  latitude    Decimal? @db.Decimal(10, 8)
+  longitude   Decimal? @db.Decimal(11, 8)
+  isActive    Boolean  @default(true)
+  apiType     LockerApiType @default(HTTP)
+  apiEndpoint String?
+  apiKey      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  compartments Compartment[]
+
+  @@index([location])
+  @@index([isActive])
+}
+
+enum LockerApiType {
+  HTTP
+  MQTT
+}
+
+model Compartment {
+  id          String   @id @default(uuid())
+  lockerId    String
+  number      String   // e.g., "A1", "B2"
+  size        CompartmentSize @default(MEDIUM)
+  isAvailable Boolean  @default(true)
+  isOperational Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  locker   Locker    @relation(fields: [lockerId], references: [id])
+  bookings Booking[]
+
+  @@unique([lockerId, number])
+  @@index([lockerId])
+  @@index([isAvailable])
+}
+
+enum CompartmentSize {
+  SMALL
+  MEDIUM
+  LARGE
+  XLARGE
+}
+
+// ============================================
+// BOOKING & PAYMENT
+// ============================================
+
+model Booking {
+  id              String        @id @default(uuid())
+  userId          String
+  productId       String
+  compartmentId   String        // Always required as per spec
+  status          BookingStatus @default(PENDING)
+  
+  // Timing
+  startDate       DateTime
+  endDate         DateTime
+  actualPickupAt  DateTime?
+  actualReturnAt  DateTime?
+  
+  // Pricing
+  totalAmount     Decimal       @db.Decimal(10, 2)
+  depositAmount   Decimal       @db.Decimal(10, 2) @default(0)
+  
+  // Access control
+  accessCode      String?       // Generated code for locker access
+  accessExpiresAt DateTime?
+  
+  // Metadata
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  user        User         @relation(fields: [userId], references: [id])
+  product     Product      @relation(fields: [productId], references: [id])
+  compartment Compartment  @relation(fields: [compartmentId], references: [id])
+  payments    Payment[]
+  events      Event[]
+  aiActions   AiAction[]
+  tickets     Ticket[]
+
+  @@index([userId])
+  @@index([compartmentId])
+  @@index([status])
+  @@index([startDate, endDate])
+}
+
+enum BookingStatus {
+  PENDING           // Created, awaiting payment
+  CONFIRMED         // Paid, ready for pickup
+  ACTIVE            // Item picked up, rental in progress
+  COMPLETED         // Item returned successfully
+  OVERDUE           // Past end date, not returned
+  CANCELLED         // Cancelled by user or system
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  bookingId     String
+  amount        Decimal       @db.Decimal(10, 2)
+  currency      String        @default("EUR")
+  status        PaymentStatus @default(PENDING)
+  paymentMethod String?       // "card", "bank_transfer", etc.
+  
+  // External payment provider data
+  externalId    String?       // Payment provider transaction ID
+  externalData  Json?         // Raw response from payment provider
+  
+  // Timestamps
+  paidAt        DateTime?
+  failedAt      DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  booking Booking @relation(fields: [bookingId], references: [id])
+  events  Event[]
+
+  @@index([bookingId])
+  @@index([status])
+  @@index([externalId])
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+// ============================================
+// EVENTS & AUTOMATION
+// ============================================
+
+model Event {
+  id          String    @id @default(uuid())
+  type        EventType
+  source      String    // "webhook", "system", "user", "cron"
+  
+  // Related entities (optional, depending on event type)
+  bookingId   String?
+  paymentId   String?
+  
+  // Event data
+  payload     Json      // Raw event data
+  processed   Boolean   @default(false)
+  processedAt DateTime?
+  error       String?   // Error message if processing failed
+  
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  booking  Booking?  @relation(fields: [bookingId], references: [id])
+  payment  Payment?  @relation(fields: [paymentId], references: [id])
+  aiActions AiAction[]
+
+  @@index([type])
+  @@index([processed])
+  @@index([createdAt])
+  @@index([bookingId])
+}
+
+enum EventType {
+  // Payment events
+  PAYMENT_PENDING
+  PAYMENT_COMPLETED
+  PAYMENT_FAILED
+  
+  // Locker events
+  LOCKER_OPEN_SUCCESS
+  LOCKER_OPEN_FAILED
+  LOCKER_CLOSE
+  LOCKER_ERROR
+  
+  // Booking events
+  BOOKING_CREATED
+  BOOKING_CONFIRMED
+  BOOKING_PICKUP
+  BOOKING_RETURN
+  BOOKING_OVERDUE
+  BOOKING_CANCELLED
+  
+  // Scheduled events
+  REMINDER_PICKUP
+  REMINDER_RETURN
+  REMINDER_OVERDUE
+  
+  // System events
+  SYSTEM_ERROR
+  MANUAL_TRIGGER
+}
+
+model Rule {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  
+  // Trigger conditions
+  triggerType RuleTriggerType
+  triggerEvent EventType?     // For event-based triggers
+  cronSchedule String?        // For time-based triggers (cron expression)
+  
+  // Conditions (JSON for flexibility)
+  conditions  Json?     // e.g., {"booking.status": "OVERDUE", "daysOverdue": 3}
+  
+  // Actions
+  actions     Json      // Array of actions to perform
+  templateId  String?   // Optional template for message actions
+  
+  // Status
+  isActive    Boolean   @default(true)
+  priority    Int       @default(0)
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  template    Template? @relation(fields: [templateId], references: [id])
+
+  @@index([triggerType])
+  @@index([isActive])
+}
+
+enum RuleTriggerType {
+  EVENT     // Triggered by an event
+  SCHEDULE  // Triggered by cron schedule
+  MANUAL    // Triggered manually
+}
+
+// ============================================
+// COMMUNICATION
+// ============================================
+
+model Conversation {
+  id          String   @id @default(uuid())
+  userId      String
+  bookingId   String?  // Optional link to a booking
+  channel     ConversationChannel @default(CHAT)
+  status      ConversationStatus @default(OPEN)
+  
+  // Context from deep link or session
+  contextData Json?    // Additional context like booking_id from URL
+  
+  // AI routing
+  currentAgent AgentRole @default(SUPPORT)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  closedAt    DateTime?
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id])
+  messages Message[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([bookingId])
+}
+
+enum ConversationChannel {
+  CHAT
+  EMAIL
+  SMS
+}
+
+enum ConversationStatus {
+  OPEN
+  WAITING_USER
+  WAITING_AGENT
+  RESOLVED
+  CLOSED
+}
+
+enum AgentRole {
+  SUPPORT   // Customer support queries
+  OPS       // Operations (locker issues, etc.)
+  SALES     // Sales and upselling
+}
+
+model Message {
+  id             String      @id @default(uuid())
+  conversationId String
+  userId         String?     // Null for system/AI messages
+  
+  role           MessageRole
+  content        String      @db.Text
+  
+  // AI-specific fields
+  agentRole      AgentRole?  // Which AI agent generated this
+  toolCalls      Json?       // Tool calls made by AI
+  
+  // Delivery status (for outbound)
+  deliveryStatus DeliveryStatus @default(PENDING)
+  deliveredAt    DateTime?
+  
+  createdAt      DateTime    @default(now())
+
+  // Relations
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  user         User?        @relation(fields: [userId], references: [id])
+
+  @@index([conversationId])
+  @@index([createdAt])
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum DeliveryStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+}
+
+model Template {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  description String?
+  type        TemplateType
+  channel     ConversationChannel @default(EMAIL)
+  
+  // Template content
+  subject     String?      // For email
+  body        String       @db.Text
+  
+  // Variables available in this template
+  variables   Json?        // Array of variable names like ["customerName", "bookingId"]
+  
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  rules Rule[]
+
+  @@index([type])
+  @@index([isActive])
+}
+
+enum TemplateType {
+  PICKUP_INSTRUCTIONS
+  RETURN_REMINDER
+  OVERDUE_NOTICE
+  PAYMENT_CONFIRMATION
+  BOOKING_CONFIRMATION
+  TICKET_UPDATE
+  WELCOME
+  CUSTOM
+}
+
+// ============================================
+// AI ACTIONS & TICKETS
+// ============================================
+
+model AiAction {
+  id          String   @id @default(uuid())
+  
+  // Action details
+  action      String   // e.g., "send_email", "create_ticket", "open_locker"
+  reason      String   @db.Text
+  outcome     AiActionOutcome @default(PENDING)
+  
+  // Related entities
+  bookingId   String?
+  eventId     String?
+  ticketId    String?
+  
+  // Input and output
+  input       Json?    // Input parameters
+  output      Json?    // Result/response
+  error       String?  // Error message if failed
+  
+  // Metadata
+  agentRole   AgentRole?
+  triggeredBy String   // "rule:xyz", "chat:conversation_id", "manual"
+  
+  createdAt   DateTime @default(now())
+  completedAt DateTime?
+
+  // Relations
+  booking Booking? @relation(fields: [bookingId], references: [id])
+  event   Event?   @relation(fields: [eventId], references: [id])
+  ticket  Ticket?  @relation(fields: [ticketId], references: [id])
+
+  @@index([action])
+  @@index([outcome])
+  @@index([createdAt])
+  @@index([bookingId])
+}
+
+enum AiActionOutcome {
+  PENDING
+  SUCCESS
+  FAILED
+  SKIPPED
+}
+
+model Ticket {
+  id          String       @id @default(uuid())
+  
+  // Ticket info
+  title       String
+  description String       @db.Text
+  priority    TicketPriority @default(MEDIUM)
+  status      TicketStatus @default(OPEN)
+  category    TicketCategory @default(GENERAL)
+  
+  // Related entities
+  bookingId   String?
+  createdById String       // User who created (or system user)
+  assignedToId String?     // Assigned agent
+  
+  // Resolution
+  resolution  String?      @db.Text
+  resolvedAt  DateTime?
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  booking    Booking?   @relation(fields: [bookingId], references: [id])
+  createdBy  User       @relation("TicketCreator", fields: [createdById], references: [id])
+  assignedTo User?      @relation("TicketAssignee", fields: [assignedToId], references: [id])
+  aiActions  AiAction[]
+
+  @@index([status])
+  @@index([priority])
+  @@index([bookingId])
+  @@index([assignedToId])
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+
+enum TicketCategory {
+  GENERAL
+  LOCKER_ISSUE
+  PAYMENT_ISSUE
+  BOOKING_ISSUE
+  RETURN_ISSUE
+  DAMAGE_REPORT
+  OTHER
+}
