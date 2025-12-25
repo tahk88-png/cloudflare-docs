@@ -132,6 +132,25 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
           <Separator />
 
+          {/* What's Included */}
+          <div>
+            <h2 className="mb-3 text-xl font-semibold tracking-tight">Mis komplektis</h2>
+            <ul className="space-y-2 text-[var(--muted)]">
+              <li className="flex items-start">
+                <span className="mr-2">•</span>
+                <span>Tööriist koos vajalike lisadega</span>
+              </li>
+              <li className="flex items-start">
+                <span className="mr-2">•</span>
+                <span>Kasutusjuhend</span>
+              </li>
+              <li className="flex items-start">
+                <span className="mr-2">•</span>
+                <span>24/7 kättesaamine</span>
+              </li>
+            </ul>
+          </div>
+
           {/* Specs */}
           {product.description && (
             <div>

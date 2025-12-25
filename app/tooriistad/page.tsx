@@ -49,7 +49,7 @@ export default async function CatalogPage() {
 
       {/* Featured Products */}
       {featuredProducts.length > 0 && (
-        <section>
+        <section className="mt-20">
           <h2 className="mb-8 text-3xl font-semibold tracking-tight">Enim kasutatud tööriistad</h2>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {featuredProducts.map((product) => {

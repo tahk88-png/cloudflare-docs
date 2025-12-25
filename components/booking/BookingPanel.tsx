@@ -377,19 +377,21 @@ export function BookingPanel({ product, compartments, lockers, existingBookings 
           </Alert>
         )}
         
-        {/* Submit Button */}
-        <Button
-          onClick={handleSubmit}
-          disabled={!selectedDate || !selectedStartTime || !selectedEndTime || isSubmitting || (needsCompartmentSelection && !selectedCompartment)}
-          className="w-full"
-          size="lg"
-        >
-          {isSubmitting ? 'Broneerin...' : 'Kinnita broneering'}
-        </Button>
-        
-        <p className="text-xs text-[var(--muted)] text-center">
-          Võta kapist. Kasuta. Tagasta.
-        </p>
+        {/* Submit Button - Sticky on mobile */}
+        <div className="sticky bottom-0 bg-[var(--card)] pt-4 pb-2 md:static md:pt-0 md:pb-0">
+          <Button
+            onClick={handleSubmit}
+            disabled={!selectedDate || !selectedStartTime || !selectedEndTime || isSubmitting || (needsCompartmentSelection && !selectedCompartment)}
+            className="w-full"
+            size="lg"
+          >
+            {isSubmitting ? 'Broneerin...' : 'Kinnita broneering'}
+          </Button>
+          
+          <p className="mt-3 text-xs text-[var(--muted)] text-center">
+            Võta kapist. Kasuta. Tagasta.
+          </p>
+        </div>
       </CardContent>
     </Card>
   )

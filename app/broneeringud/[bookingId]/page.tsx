@@ -21,21 +21,57 @@ export async function generateMetadata({
   }
 }
 
+async function getBookingById(bookingId: string) {
+  // Production: Replace with Prisma query when database is connected
+  // const prisma = new PrismaClient()
+  // return await prisma.booking.findUnique({
+  //   where: { id: bookingId },
+  //   include: {
+  //     product: true,
+  //     compartment: { include: { locker: true } }
+  //   }
+  // })
+  
+  // Development: Return null to show error state (will be replaced with DB query)
+  return null
+}
+
 export default async function BookingConfirmationPage({ params }: BookingConfirmationPageProps) {
   const { bookingId } = await params
   
-  // TODO: Fetch booking from database
-  // const booking = await getBookingById(bookingId)
+  const booking = await getBookingById(bookingId)
   
-  // Mock data for now
-  const booking = {
-    id: bookingId,
-    productName: 'Makita akupuur',
-    startsAt: new Date(),
-    endsAt: new Date(Date.now() + 2 * 60 * 60 * 1000),
-    status: 'confirmed' as const,
-    compartmentLabel: 'Kapp 1',
-    lockerLocation: 'Tallinn, Kesklinna',
+  if (!booking) {
+    return (
+      <div className="container mx-auto px-4 py-12">
+        <div className="mx-auto max-w-2xl">
+          <Card className="border-[var(--border)] bg-[var(--card)]">
+            <CardContent className="p-8 text-center">
+              <h1 className="mb-4 text-2xl font-semibold">Broneeringut ei leitud</h1>
+              <p className="mb-6 text-[var(--muted)]">
+                Broneering ID-ga {bookingId} ei leitud.
+              </p>
+              <Button asChild>
+                <Link href="/tooriistad">Tagasi kataloogi</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+  
+  // Type-safe booking data structure
+  const bookingData = {
+    id: booking.id || bookingId,
+    productName: (booking as any).product?.name || 'Tööriist',
+    startsAt: (booking as any).startsAt ? new Date((booking as any).startsAt) : new Date(),
+    endsAt: (booking as any).endsAt ? new Date((booking as any).endsAt) : new Date(Date.now() + 2 * 60 * 60 * 1000),
+    status: (booking as any).status || 'confirmed',
+    compartmentLabel: (booking as any).compartment?.label || 'Kapp',
+    lockerLocation: (booking as any).compartment?.locker?.locationText || 
+                   (booking as any).compartment?.locker?.name || 
+                   'Asukoht',
   }
   
   return (
@@ -51,7 +87,7 @@ export default async function BookingConfirmationPage({ params }: BookingConfirm
               <div className="space-y-4">
                 <div>
                   <div className="text-sm font-medium text-[var(--muted)]">Tööriist</div>
-                  <div className="text-lg font-semibold">{booking.productName}</div>
+                  <div className="text-lg font-semibold">{bookingData.productName}</div>
                 </div>
                 
                 <Separator />
@@ -59,14 +95,14 @@ export default async function BookingConfirmationPage({ params }: BookingConfirm
                 <div>
                   <div className="text-sm font-medium text-[var(--muted)]">Algus</div>
                   <div className="text-lg">
-                    {format(booking.startsAt, 'EEEE, d. MMMM yyyy HH:mm', { locale: et })}
+                    {format(bookingData.startsAt, 'EEEE, d. MMMM yyyy HH:mm', { locale: et })}
                   </div>
                 </div>
                 
                 <div>
                   <div className="text-sm font-medium text-[var(--muted)]">Lõpp</div>
                   <div className="text-lg">
-                    {format(booking.endsAt, 'EEEE, d. MMMM yyyy HH:mm', { locale: et })}
+                    {format(bookingData.endsAt, 'EEEE, d. MMMM yyyy HH:mm', { locale: et })}
                   </div>
                 </div>
                 
@@ -74,12 +110,15 @@ export default async function BookingConfirmationPage({ params }: BookingConfirm
                 
                 <div>
                   <div className="text-sm font-medium text-[var(--muted)]">Asukoht</div>
-                  <div className="text-lg">{booking.lockerLocation}</div>
-                  <div className="text-sm text-[var(--muted)]">{booking.compartmentLabel}</div>
+                  <div className="text-lg">{bookingData.lockerLocation}</div>
+                  <div className="text-sm text-[var(--muted)]">{bookingData.compartmentLabel}</div>
                 </div>
                 
                 <div>
-                  <Badge variant="success">Kinnitatud</Badge>
+                  <Badge variant={bookingData.status === 'confirmed' ? 'success' : 'secondary'}>
+                    {bookingData.status === 'confirmed' ? 'Kinnitatud' : 
+                     bookingData.status === 'pending' ? 'Ootel' : bookingData.status}
+                  </Badge>
                 </div>
               </div>
             </div>

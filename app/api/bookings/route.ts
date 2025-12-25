@@ -72,10 +72,41 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
     
-    // TODO: Implement GET endpoint for fetching bookings
-    // This would be used to check availability in real-time
+    if (!productId || !startDate || !endDate) {
+      return NextResponse.json(
+        { error: 'Puuduvad nõutud parameetrid' },
+        { status: 400 }
+      )
+    }
     
-    return NextResponse.json({ bookings: [] })
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+    
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return NextResponse.json(
+        { error: 'Vigased kuupäevad' },
+        { status: 400 }
+      )
+    }
+    
+    // Fetch bookings for availability checking
+    const { getBookingsForProduct } = await import('@/lib/booking/data')
+    const bookings = await getBookingsForProduct(productId, start, end)
+    
+    // Filter by compartment if specified
+    const filteredBookings = compartmentId
+      ? bookings.filter(b => b.compartmentId === compartmentId)
+      : bookings
+    
+    return NextResponse.json({ 
+      bookings: filteredBookings.map(b => ({
+        id: b.id,
+        compartmentId: b.compartmentId,
+        startsAt: b.startsAt.toISOString(),
+        endsAt: b.endsAt.toISOString(),
+        status: b.status,
+      }))
+    })
   } catch (error) {
     console.error('Booking fetch error:', error)
     return NextResponse.json(
