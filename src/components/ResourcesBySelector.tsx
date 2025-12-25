@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
 import ReactSelect from "./ReactSelect";
-import type { CollectionEntry } from "astro:content";
 import { formatDistance } from "date-fns";
 
-type DocsData = keyof CollectionEntry<"docs">["data"];
-type VideosData = keyof CollectionEntry<"stream">["data"];
+type ResourcesData = string;
 
-type ResourcesData = DocsData | VideosData;
+type Resource = {
+	id: string;
+	href: string;
+	title: string;
+	description?: string;
+	updated?: string;
+	filterableValues?: string[];
+};
 
 interface Props {
-	resources: Array<CollectionEntry<"docs"> | CollectionEntry<"stream">>;
+	resources: Resource[];
 	facets: Record<string, string[]>;
 	filters?: ResourcesData[];
 	columns: number;
@@ -46,20 +51,7 @@ export default function ResourcesBySelector({
 
 	const visibleResources = resources.filter((resource) => {
 		if (!selectedFilter || !filters) return true;
-
-		const filterableValues: string[] = [];
-		for (const filter of filters) {
-			const val = resource.data[filter as keyof typeof resource.data];
-			if (val) {
-				if (Array.isArray(val) && val.every((v) => typeof v === "string")) {
-					filterableValues.push(...val);
-				} else if (typeof val === "string") {
-					filterableValues.push(val);
-				}
-			}
-		}
-
-		return filterableValues.includes(selectedFilter);
+		return (resource.filterableValues ?? []).includes(selectedFilter);
 	});
 
 	useEffect(() => {
@@ -94,40 +86,24 @@ export default function ResourcesBySelector({
 				className={`grid ${columns === 2 ? "md:grid-cols-2" : "md:grid-cols-3"} grid-cols-1 gap-4`}
 			>
 				{visibleResources.map((page) => {
-					const href =
-						page.collection === "stream"
-							? `/videos/${page.data.url}/`
-							: `/${page.id}/`;
-
-					// title can either be set directly in title or added as a meta.title property when we want something different for sidebar and SEO titles
-					let title;
-
-					if (page.collection === "docs") {
-						const titleItem = page.data.head.find(
-							(item) => item.tag === "title",
-						);
-						title = titleItem ? titleItem.content : page.data.title;
-					} else {
-						title = page.data.title;
-					}
-
 					return (
 						<a
 							key={page.id}
-							href={href}
+							href={page.href}
 							className="flex flex-col gap-2 rounded-sm border border-solid border-gray-200 p-6 text-black no-underline hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
 						>
 							<p className="decoration-accent underline decoration-2 underline-offset-4">
-								{title}
+								{page.title}
 							</p>
 							{showDescriptions && (
-								<span className="line-clamp-3" title={page.data.description}>
-									{page.data.description}
+								<span className="line-clamp-3" title={page.description}>
+									{page.description}
 								</span>
 							)}
 							{showLastUpdated && (
-								<span className="line-clamp-3" title={page.data.description}>
-									Updated {timeAgo(page.data.updated)}
+								<span className="line-clamp-3" title={page.description}>
+									Updated{" "}
+									{timeAgo(page.updated ? new Date(page.updated) : undefined)}
 								</span>
 							)}
 						</a>

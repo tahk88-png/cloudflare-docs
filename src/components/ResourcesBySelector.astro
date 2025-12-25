@@ -21,6 +21,15 @@ const props = z.object({
 	showLastUpdated: z.boolean().default(false),
 });
 
+type MinimalResource = {
+	id: string;
+	href: string;
+	title: string;
+	description?: string;
+	updated?: string;
+	filterableValues?: string[];
+};
+
 const {
 	tags,
 	types,
@@ -35,7 +44,7 @@ const {
 const docs = await getCollection("docs");
 const videos = await getCollection("stream");
 
-const resources: Array<CollectionEntry<"docs"> | CollectionEntry<"stream">> = [
+const matchingEntries: Array<CollectionEntry<"docs"> | CollectionEntry<"stream">> = [
 	...docs,
 	...videos,
 ].filter(({ id, collection, data }) => {
@@ -52,7 +61,7 @@ const resources: Array<CollectionEntry<"docs"> | CollectionEntry<"stream">> = [
 	);
 });
 
-const facets = resources.reduce(
+const facets = matchingEntries.reduce(
 	(acc, page) => {
 		if (!filterables) return acc;
 
@@ -71,6 +80,48 @@ const facets = resources.reduce(
 	},
 	{} as Record<string, string[]>,
 );
+
+function getDocsTitle(entry: CollectionEntry<"docs">): string {
+	const titleItem = entry.data.head.find((item) => item.tag === "title");
+	return titleItem?.content ?? entry.data.title ?? entry.id;
+}
+
+function getHref(entry: CollectionEntry<"docs"> | CollectionEntry<"stream">): string {
+	return entry.collection === "stream"
+		? `/videos/${entry.data.url}/`
+		: `/${entry.id}/`;
+}
+
+function getFilterableValues(
+	entry: CollectionEntry<"docs"> | CollectionEntry<"stream">,
+): string[] | undefined {
+	if (!filterables) return undefined;
+
+	const values: string[] = [];
+	for (const filter of filterables) {
+		const val = entry.data[filter as keyof typeof entry.data];
+		if (!val) continue;
+
+		if (Array.isArray(val) && val.every((v) => typeof v === "string")) {
+			values.push(...val);
+		} else if (typeof val === "string") {
+			values.push(val);
+		}
+	}
+
+	// De-dup to avoid bloating serialized props.
+	return [...new Set(values)];
+}
+
+const resources: MinimalResource[] = matchingEntries.map((entry) => ({
+	id: entry.id,
+	href: getHref(entry),
+	title: entry.collection === "docs" ? getDocsTitle(entry) : entry.data.title,
+	description: entry.data.description,
+	updated:
+		entry.data.updated instanceof Date ? entry.data.updated.toISOString() : undefined,
+	filterableValues: getFilterableValues(entry),
+}));
 ---
 
 <div>
@@ -81,6 +132,6 @@ const facets = resources.reduce(
 		columns={columns}
 		showDescriptions={showDescriptions}
 		showLastUpdated={showLastUpdated}
-		client:load
+		client:visible
 	/>
 </div>
