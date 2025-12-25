@@ -8,6 +8,7 @@ const workspace = defineWorkspace([
 		test: {
 			name: "Workers",
 			include: ["**/*.worker.test.ts"],
+			globalSetup: ["./worker/vitest.global-setup.ts"],
 			deps: {
 				optimizer: {
 					ssr: {
