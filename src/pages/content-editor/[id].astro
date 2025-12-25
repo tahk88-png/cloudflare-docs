@@ -1,0 +1,19 @@
+---
+/**
+ * Content Editor Page
+ * 
+ * Main page for editing documents
+ */
+import ContentEditorClient from "~/components/content-editor/ContentEditorClient";
+---
+
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Content Editor</title>
+	</head>
+	<body>
+		<ContentEditorClient client:load documentId={Astro.params.id || ""} />
+	</body>
+</html>

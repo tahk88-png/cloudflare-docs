@@ -1,0 +1,68 @@
+/**
+ * Preview Panel Styles
+ */
+
+.preview-panel {
+	width: 500px;
+	background: white;
+	border-left: 1px solid #ddd;
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
+}
+
+.preview-panel-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem;
+	border-bottom: 1px solid #ddd;
+}
+
+.preview-panel-header h3 {
+	margin: 0;
+	font-size: 1.1rem;
+}
+
+.preview-warnings {
+	padding: 1rem;
+	background: #fff3cd;
+	border-bottom: 1px solid #ffc107;
+}
+
+.preview-warnings h4 {
+	margin: 0 0 0.5rem 0;
+	font-size: 0.9rem;
+}
+
+.preview-warnings ul {
+	margin: 0;
+	padding-left: 1.5rem;
+	font-size: 0.85rem;
+}
+
+.preview-content {
+	padding: 2rem;
+	flex: 1;
+}
+
+.preview-web {
+	max-width: 800px;
+	margin: 0 auto;
+}
+
+.preview-email {
+	max-width: 600px;
+	margin: 0 auto;
+}
+
+.preview-mobile {
+	max-width: 375px;
+	margin: 0 auto;
+}
+
+.loading {
+	padding: 2rem;
+	text-align: center;
+	color: #666;
+}

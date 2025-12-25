@@ -1,0 +1,32 @@
+/**
+ * Block List Styles
+ */
+
+.block-list {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.block-wrapper {
+	position: relative;
+}
+
+.drop-zone {
+	height: 4px;
+	margin: 0.5rem 0;
+	background: transparent;
+	border-radius: 2px;
+	transition: background 0.2s;
+}
+
+.drop-zone.active {
+	background: #0066cc;
+	height: 8px;
+}
+
+.empty-state {
+	text-align: center;
+	padding: 4rem 2rem;
+	color: #666;
+}

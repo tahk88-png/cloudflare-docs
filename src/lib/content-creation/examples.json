@@ -1,0 +1,138 @@
+{
+	"documentExample": {
+		"id": "doc-123",
+		"title": "Product Launch Announcement",
+		"language": "et",
+		"createdAt": "2024-01-15T10:00:00Z",
+		"updatedAt": "2024-01-15T14:30:00Z"
+	},
+	"blocksExample": [
+		{
+			"id": "block-1",
+			"documentId": "doc-123",
+			"type": "heading",
+			"content": {
+				"type": "heading",
+				"level": 1,
+				"text": "Tere tulemast meie uude tootesse"
+			},
+			"order": 0,
+			"createdAt": "2024-01-15T10:00:00Z",
+			"updatedAt": "2024-01-15T10:00:00Z"
+		},
+		{
+			"id": "block-2",
+			"documentId": "doc-123",
+			"type": "paragraph",
+			"content": {
+				"type": "paragraph",
+				"text": "See on lühike kirjeldus meie uuest tootest. See aitab klientidel mõista, mida me pakume.",
+				"links": []
+			},
+			"order": 1,
+			"createdAt": "2024-01-15T10:00:00Z",
+			"updatedAt": "2024-01-15T10:00:00Z"
+		},
+		{
+			"id": "block-3",
+			"documentId": "doc-123",
+			"type": "bullet-list",
+			"content": {
+				"type": "bullet-list",
+				"items": [
+					"Kiire ja lihtne kasutamine",
+					"Turvaline ja usaldusväärne",
+					"24/7 klienditugi"
+				]
+			},
+			"order": 2,
+			"createdAt": "2024-01-15T10:00:00Z",
+			"updatedAt": "2024-01-15T10:00:00Z"
+		},
+		{
+			"id": "block-4",
+			"documentId": "doc-123",
+			"type": "image",
+			"content": {
+				"type": "image",
+				"mediaId": "media-456",
+				"altText": "Toote ekraanipilt",
+				"caption": "Meie uus kasutajaliides",
+				"layout": "centered"
+			},
+			"order": 3,
+			"createdAt": "2024-01-15T10:00:00Z",
+			"updatedAt": "2024-01-15T10:00:00Z"
+		},
+		{
+			"id": "block-5",
+			"documentId": "doc-123",
+			"type": "video",
+			"content": {
+				"type": "video",
+				"mediaId": "media-789",
+				"source": "youtube",
+				"videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+				"thumbnailUrl": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+				"title": "Toote tutvustusvideo",
+				"layout": "centered"
+			},
+			"order": 4,
+			"createdAt": "2024-01-15T10:00:00Z",
+			"updatedAt": "2024-01-15T10:00:00Z"
+		},
+		{
+			"id": "block-6",
+			"documentId": "doc-123",
+			"type": "cta",
+			"content": {
+				"type": "cta",
+				"text": "Proovi tasuta",
+				"url": "https://example.com/signup",
+				"style": "button"
+			},
+			"order": 5,
+			"createdAt": "2024-01-15T10:00:00Z",
+			"updatedAt": "2024-01-15T10:00:00Z"
+		}
+	],
+	"improveTextRequestExample": {
+		"blockId": "block-2",
+		"text": "See on lühike kirjeldus meie uuest tootest. See aitab klientidel mõista, mida me pakume.",
+		"action": "improve-clarity",
+		"tone": "professional",
+		"length": "same",
+		"targetAudience": "business-customer",
+		"language": "et"
+	},
+	"improveTextResponseExample": {
+		"improvedText": "See on selge ja lühike kirjeldus meie uuest tootest. See aitab äriklientidel kiiresti mõista, millist väärtust me pakume.",
+		"changeSummary": "Muutsin 'klientidel' -> 'äriklientidel' ja lisasin 'kiiresti' ning 'millist väärtust' täpsustamiseks."
+	},
+	"mediaAssetExample": {
+		"id": "media-456",
+		"type": "image",
+		"url": "/media/images/product-screenshot.jpg",
+		"thumbnailUrl": null,
+		"altText": "Toote ekraanipilt",
+		"createdAt": "2024-01-15T10:00:00Z"
+	},
+	"documentVersionExample": {
+		"id": "version-1",
+		"documentId": "doc-123",
+		"snapshotJson": "[{\"id\":\"block-1\",\"content\":{\"type\":\"heading\",\"level\":1,\"text\":\"Original Title\"}}]",
+		"createdAt": "2024-01-15T10:00:00Z"
+	},
+	"aiEditLogExample": {
+		"id": "log-1",
+		"documentId": "doc-123",
+		"blockId": "block-2",
+		"action": "improve-clarity",
+		"tone": "professional",
+		"language": "et",
+		"originalText": "See on lühike kirjeldus.",
+		"improvedText": "See on selge ja lühike kirjeldus.",
+		"changeSummary": "Lisasin 'selge' täpsustamiseks.",
+		"createdAt": "2024-01-15T14:30:00Z"
+	}
+}

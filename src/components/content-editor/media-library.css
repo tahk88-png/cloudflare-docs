@@ -1,0 +1,143 @@
+/**
+ * Media Library Styles
+ */
+
+.media-library {
+	width: 400px;
+	background: white;
+	border-left: 1px solid #ddd;
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
+}
+
+.media-library-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem;
+	border-bottom: 1px solid #ddd;
+}
+
+.media-library-header h3 {
+	margin: 0;
+	font-size: 1.1rem;
+}
+
+.media-library-controls {
+	padding: 1rem;
+	border-bottom: 1px solid #ddd;
+}
+
+.filter-tabs {
+	display: flex;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+}
+
+.filter-tabs button {
+	background: white;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 0.5rem 1rem;
+	cursor: pointer;
+	font-size: 0.9rem;
+}
+
+.filter-tabs button.active {
+	background: #0066cc;
+	color: white;
+	border-color: #0066cc;
+}
+
+.upload-controls {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.file-input {
+	display: none;
+}
+
+.upload-btn {
+	background: #0066cc;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	padding: 0.5rem 1rem;
+	cursor: pointer;
+	font-size: 0.9rem;
+	display: inline-block;
+}
+
+.upload-btn:hover {
+	background: #0052a3;
+}
+
+.media-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 1rem;
+	padding: 1rem;
+}
+
+.media-item {
+	cursor: pointer;
+	border: 2px solid transparent;
+	border-radius: 4px;
+	overflow: hidden;
+	transition: border-color 0.2s;
+}
+
+.media-item:hover {
+	border-color: #0066cc;
+}
+
+.media-item img {
+	width: 100%;
+	height: auto;
+	display: block;
+}
+
+.video-thumbnail {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	background: #f5f5f5;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.video-placeholder {
+	color: #999;
+}
+
+.play-icon {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 2rem;
+	color: white;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.media-item-info {
+	padding: 0.5rem;
+	font-size: 0.8rem;
+	color: #666;
+}
+
+.loading {
+	padding: 2rem;
+	text-align: center;
+	color: #666;
+}
+
+.empty-state {
+	padding: 2rem;
+	text-align: center;
+	color: #666;
+}
