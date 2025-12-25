@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     openGraph: {
       title: `${product.name} | Rentbox.ee`,
       description: product.shortDescription,
-      type: 'product',
+      type: 'website',
       images: product.images.length > 0 ? [{ url: product.images[0] }] : [],
     },
   }
