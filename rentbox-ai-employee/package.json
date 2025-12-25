@@ -1,0 +1,46 @@
+{
+  "name": "rentbox-ai-employee",
+  "version": "1.0.0",
+  "description": "Rentbox AI Employee v1.0 - Customer Support Chat Widget and Event-driven Automation",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "migrate": "node-pg-migrate",
+    "migrate:up": "node-pg-migrate up",
+    "migrate:down": "node-pg-migrate down",
+    "migrate:create": "node-pg-migrate create",
+    "seed": "tsx scripts/seed.ts",
+    "worker": "tsx scripts/worker.ts"
+  },
+  "dependencies": {
+    "@types/mqtt": "^0.0.34",
+    "@types/node": "^22.10.2",
+    "@types/node-cron": "^3.0.11",
+    "@types/nodemailer": "^6.4.17",
+    "@types/pg": "^8.11.10",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.4",
+    "autoprefixer": "^10.4.20",
+    "dotenv": "^16.4.7",
+    "mqtt": "^5.14.1",
+    "next": "^15.1.6",
+    "node-cron": "^3.0.3",
+    "node-pg-migrate": "^6.2.2",
+    "nodemailer": "^6.9.16",
+    "openai": "^4.68.3",
+    "pg": "^8.13.1",
+    "postcss": "^8.4.49",
+    "react": "^19.0.1",
+    "react-dom": "^19.0.1",
+    "tailwindcss": "^3.4.17",
+    "twilio": "^5.3.5",
+    "typescript": "^5.7.2",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "defaultEnv": "development",
+  "development": {
+    "driver": "pg",
+    "host": "localhost",
+    "port": 5432,
+    "database": "rentbox_ai",
+    "user": "postgres",
+    "password": "postgres"
+  }
+}
