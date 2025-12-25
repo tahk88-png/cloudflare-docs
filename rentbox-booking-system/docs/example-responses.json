@@ -1,0 +1,266 @@
+{
+  "// RENTBOX BOOKING SYSTEM - EXAMPLE API RESPONSES": "",
+
+  "POST /api/cart - Create Cart": {
+    "success": true,
+    "data": {
+      "id": "cart_01HQGF7D8X5Z2A3B4C5D6E7F8G",
+      "status": "active",
+      "expires_at": "2025-01-15T14:30:00.000Z",
+      "expires_in_seconds": 900,
+      "items": [],
+      "summary": {
+        "items_count": 0,
+        "subtotal": 0,
+        "total_deposit": 0,
+        "total": 0,
+        "currency": "EUR"
+      },
+      "created_at": "2025-01-15T14:15:00.000Z"
+    }
+  },
+
+  "POST /api/cart/:id/items - Add Item": {
+    "success": true,
+    "data": {
+      "id": "cart_01HQGF7D8X5Z2A3B4C5D6E7F8G",
+      "status": "active",
+      "expires_at": "2025-01-15T14:45:00.000Z",
+      "expires_in_seconds": 900,
+      "items": [
+        {
+          "id": "item_01HQGF8N9Y6W3A4B5C6D7E8F9H",
+          "product": {
+            "id": "prod_hammer_drill_001",
+            "name": "Bosch Professional Hammer Drill",
+            "category": "power-tools",
+            "image_url": "/images/products/hammer-drill.jpg"
+          },
+          "start_at": "2025-01-16T10:00:00.000Z",
+          "end_at": "2025-01-18T10:00:00.000Z",
+          "duration_hours": 48,
+          "price": 30.00,
+          "deposit": 50.00,
+          "price_breakdown": {
+            "base_price": 30.00,
+            "hours": 0,
+            "days": 2,
+            "hourly_rate": 3.50,
+            "daily_rate": 15.00,
+            "subtotal": 30.00,
+            "adjustments": [],
+            "deposit": 50.00,
+            "total": 80.00,
+            "currency": "EUR"
+          },
+          "lock_status": "locked"
+        }
+      ],
+      "summary": {
+        "items_count": 1,
+        "subtotal": 30.00,
+        "total_deposit": 50.00,
+        "total": 80.00,
+        "currency": "EUR"
+      },
+      "created_at": "2025-01-15T14:15:00.000Z"
+    }
+  },
+
+  "POST /api/cart/:id/validate - Validate Cart": {
+    "success": true,
+    "data": {
+      "valid": true,
+      "errors": [],
+      "warnings": [
+        {
+          "item_id": "item_01HQGF8N9Y6W3A4B5C6D7E8F9H",
+          "code": "PRICE_CHANGED",
+          "message": "Price for Bosch Professional Hammer Drill has changed"
+        }
+      ],
+      "recalculated_items": [
+        {
+          "id": "item_01HQGF8N9Y6W3A4B5C6D7E8F9H",
+          "product": {
+            "id": "prod_hammer_drill_001",
+            "name": "Bosch Professional Hammer Drill",
+            "category": "power-tools",
+            "image_url": "/images/products/hammer-drill.jpg"
+          },
+          "start_at": "2025-01-16T10:00:00.000Z",
+          "end_at": "2025-01-18T10:00:00.000Z",
+          "duration_hours": 48,
+          "price": 34.50,
+          "deposit": 50.00,
+          "price_breakdown": {
+            "base_price": 30.00,
+            "hours": 0,
+            "days": 2,
+            "hourly_rate": 3.50,
+            "daily_rate": 15.00,
+            "subtotal": 34.50,
+            "adjustments": [
+              {
+                "name": "Weekend Rate",
+                "type": "multiplier",
+                "value": 1.15,
+                "amount": 4.50,
+                "description": "Weekend rental surcharge"
+              }
+            ],
+            "deposit": 50.00,
+            "total": 84.50,
+            "currency": "EUR"
+          },
+          "lock_status": "locked"
+        }
+      ]
+    }
+  },
+
+  "POST /api/cart/:id/checkout - Initiate Checkout": {
+    "success": true,
+    "data": {
+      "payment_intent_id": "pi_3OxYZ1ABC2defGHI3jklMNO4",
+      "client_secret": "pi_3OxYZ1ABC2defGHI3jklMNO4_secret_pqr5STU6vwx7YZabc8def9",
+      "payment_url": "https://rentbox.ee/checkout?payment_intent=pi_3OxYZ1ABC2defGHI3jklMNO4",
+      "expires_at": "2025-01-15T15:00:00.000Z"
+    }
+  },
+
+  "POST /api/cart/:id/confirm-payment - Confirm Payment": {
+    "success": true,
+    "data": {
+      "success": true,
+      "bookings": [
+        {
+          "id": "booking_01HQGK9P0Z7V8A9B0C1D2E3F4G",
+          "product": {
+            "id": "prod_hammer_drill_001",
+            "name": "Bosch Professional Hammer Drill",
+            "category": "power-tools",
+            "image_url": "/images/products/hammer-drill.jpg"
+          },
+          "compartment": {
+            "id": "comp_A1_001",
+            "locker_name": "Rentbox Tallinn Center",
+            "locker_location": "Viru Keskus",
+            "compartment_number": "A1-1"
+          },
+          "start_at": "2025-01-16T10:00:00.000Z",
+          "end_at": "2025-01-18T10:00:00.000Z",
+          "status": "confirmed",
+          "total_price": 34.50,
+          "deposit_amount": 50.00,
+          "pickup_code": "847293",
+          "pickup_instructions": "Visit Rentbox Tallinn Center at Viru Keskus. Go to compartment A1-1. Enter your pickup code on the keypad to unlock. Take the tool and close the door securely.",
+          "created_at": "2025-01-15T14:35:00.000Z"
+        }
+      ],
+      "message": "Payment confirmed and bookings created"
+    }
+  },
+
+  "POST /api/bookings/:id/extend - Extend Rental": {
+    "success": true,
+    "data": {
+      "success": true,
+      "payment_required": true,
+      "payment_intent_id": "pi_3OxYZ2DEF3ghiJKL4mnoPQR5",
+      "client_secret": "pi_3OxYZ2DEF3ghiJKL4mnoPQR5_secret_stu6VWX7yza8BCdef9ghi0",
+      "additional_cost": 15.00
+    }
+  },
+
+  "POST /api/bookings/:id/extend - Extend Denied": {
+    "success": true,
+    "data": {
+      "success": false,
+      "error": "Another booking starts before your requested extension time",
+      "alternative_suggestion": {
+        "available_until": "2025-01-19T14:00:00.000Z",
+        "reason": "Compartment is reserved for another customer starting at 2:00 PM"
+      }
+    }
+  },
+
+  "GET /api/admin/stats - System Stats": {
+    "success": true,
+    "data": {
+      "carts_24h": {
+        "active": 12,
+        "locked": 3,
+        "completed": 47,
+        "expired": 8
+      },
+      "bookings": {
+        "confirmed": 23,
+        "active": 18,
+        "completed": 156,
+        "overdue": 2
+      },
+      "payments_24h": {
+        "total_revenue": 1247.50,
+        "pending_payments": 84.50
+      },
+      "active_locks": 15
+    }
+  },
+
+  "Error Response - Availability Error": {
+    "success": false,
+    "error": {
+      "code": "AVAILABILITY_ERROR",
+      "message": "No compartments available for the selected time range",
+      "details": {
+        "alternatives": [
+          {
+            "start_at": "2025-01-19T10:00:00.000Z",
+            "end_at": "2025-01-21T10:00:00.000Z",
+            "compartment_id": "comp_A1_002"
+          }
+        ]
+      }
+    }
+  },
+
+  "Error Response - Validation Error": {
+    "success": false,
+    "error": {
+      "code": "VALIDATION_ERROR",
+      "message": "Invalid request data",
+      "details": [
+        {
+          "path": "end_at",
+          "message": "End time must be after start time"
+        }
+      ]
+    }
+  },
+
+  "Error Response - Cart Expired": {
+    "success": false,
+    "error": {
+      "code": "VALIDATION_ERROR",
+      "message": "Cart has expired"
+    }
+  },
+
+  "Webhook Event - payment_intent.succeeded": {
+    "id": "evt_1OxYZ3GHI4jklMNO5pqrSTU6",
+    "type": "payment_intent.succeeded",
+    "data": {
+      "object": {
+        "id": "pi_3OxYZ1ABC2defGHI3jklMNO4",
+        "amount": 8450,
+        "currency": "eur",
+        "status": "succeeded",
+        "metadata": {
+          "cart_id": "cart_01HQGF7D8X5Z2A3B4C5D6E7F8G",
+          "items_count": "1"
+        }
+      }
+    }
+  }
+}
