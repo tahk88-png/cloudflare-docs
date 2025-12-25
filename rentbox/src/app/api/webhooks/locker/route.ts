@@ -15,7 +15,11 @@ export async function POST(req: NextRequest) {
             .update(rawBody)
             .digest('hex');
         
-        if (expected !== signature) {
+        // Use timingSafeEqual to prevent timing attacks
+        const signatureBuffer = Buffer.from(signature);
+        const expectedBuffer = Buffer.from(expected);
+
+        if (signatureBuffer.length !== expectedBuffer.length || !crypto.timingSafeEqual(signatureBuffer, expectedBuffer)) {
             console.error("Invalid Signature");
             return NextResponse.json({ accepted: false }, { status: 401 });
         }
