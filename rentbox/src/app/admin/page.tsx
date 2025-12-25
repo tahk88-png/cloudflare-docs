@@ -13,6 +13,7 @@ export default function AdminPage() {
   const [ownerQueryKey, setOwnerQueryKey] = useState("");
   const [ownerResponse, setOwnerResponse] = useState("");
   const [loading, setLoading] = useState(false);
+  const [overrideBookingId, setOverrideBookingId] = useState("");
 
   useEffect(() => {
     fetch('/api/admin/dashboard')
@@ -37,6 +38,23 @@ export default function AdminPage() {
       }
   };
 
+  const handleOverrideOpen = async () => {
+      if(!overrideBookingId) return;
+      if(!confirm(`Force open locker for booking ${overrideBookingId}?`)) return;
+
+      try {
+          const res = await fetch('/api/admin/locker/override', {
+              method: 'POST',
+              body: JSON.stringify({ bookingId: overrideBookingId })
+          });
+          const json = await res.json();
+          if(json.success) alert("Locker open command sent.");
+          else alert("Error: " + json.error);
+      } catch(e) {
+          alert("Network error");
+      }
+  };
+
   if (!data) return <div className="p-8">Loading...</div>;
 
   return (
@@ -56,7 +74,7 @@ export default function AdminPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* LEFT COL: OWNER AI */}
+        {/* LEFT COL: OWNER AI & OPS */}
         <div className="space-y-8">
             <div className="bg-white p-6 rounded-lg shadow">
                 <h2 className="text-xl font-bold mb-4 text-purple-700">Indrek AI Assistant</h2>
@@ -78,6 +96,25 @@ export default function AdminPage() {
                     </div>
                 )}
                 {loading && <div className="text-xs text-gray-400">Thinking...</div>}
+            </div>
+
+            {/* OPS: LOCKER OVERRIDE */}
+            <div className="bg-white p-6 rounded-lg shadow border-l-4 border-gray-500">
+                <h2 className="text-xl font-bold mb-4 text-gray-700">Locker Ops Override</h2>
+                <div className="flex gap-2">
+                    <input 
+                        className="border p-2 rounded text-sm flex-1" 
+                        placeholder="Booking ID"
+                        value={overrideBookingId}
+                        onChange={e => setOverrideBookingId(e.target.value)}
+                    />
+                    <button onClick={handleOverrideOpen} className="bg-gray-800 text-white px-3 py-1 rounded text-sm hover:bg-gray-700">
+                        Force Open
+                    </button>
+                </div>
+                <p className="text-[10px] text-gray-400 mt-2">
+                    Warning: Bypasses all policy checks (payment, risk, time). Logs action.
+                </p>
             </div>
 
             {/* HIGH RISK */}

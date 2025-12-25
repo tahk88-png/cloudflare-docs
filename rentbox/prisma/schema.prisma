@@ -97,6 +97,7 @@ model Locker {
   reliability  Int           @default(100) // 0-100 score
   externalId   String?       @unique
   compartments Compartment[]
+  lockerOpenAttempts LockerOpenAttempt[]
 }
 
 model Compartment {
@@ -109,6 +110,7 @@ model Compartment {
   locker          Locker   @relation(fields: [lockerId], references: [id])
   bookings        Booking[]
   maintenanceLogs MaintenanceLog[]
+  lockerOpenAttempts LockerOpenAttempt[]
 }
 
 model Booking {
@@ -137,6 +139,7 @@ model Booking {
   events      Event[]
   aiActions   AiAction[]
   feedback    Feedback?
+  lockerOpenAttempts LockerOpenAttempt[]
 }
 
 model Payment {
@@ -224,4 +227,21 @@ model Feedback {
 
   booking Booking @relation(fields: [bookingId], references: [id])
   user    User    @relation(fields: [userId], references: [id])
+}
+
+model LockerOpenAttempt {
+  id            String   @id @default(uuid())
+  bookingId     String
+  lockerId      String
+  compartmentId String
+  correlationId String   @unique
+  status        String   // PENDING, SUCCESS, FAILURE, TIMEOUT
+  attemptedAt   DateTime @default(now())
+  resultAt      DateTime?
+  errorDetails  String?
+  isOverride    Boolean  @default(false)
+
+  booking       Booking     @relation(fields: [bookingId], references: [id])
+  locker        Locker      @relation(fields: [lockerId], references: [id])
+  compartment   Compartment @relation(fields: [compartmentId], references: [id])
 }
