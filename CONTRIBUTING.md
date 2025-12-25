@@ -28,6 +28,48 @@ If we require more information to address your pull request, the `more-informati
   - Use bullet points to summarize the changes in the commits
   - Add any other information you think is helpful or needs to be addressed. If your PR fixes an open issue, indicate that your PR is addressing the issue and provide a link to the issue.
 
+## Testing your changes
+
+Before submitting a pull request, ensure your changes pass all local checks:
+
+### Run the test suite
+
+```sh
+npm test
+```
+
+### Check types
+
+```sh
+npm run check
+```
+
+### Check formatting
+
+```sh
+npm run format:core:check
+```
+
+If formatting issues are found, fix them with:
+
+```sh
+npm run format:core:fix
+```
+
+### Test locally
+
+Start the development server and verify your changes work as expected:
+
+```sh
+npm run dev
+```
+
+Visit `http://localhost:1111` to preview your changes.
+
+### Full testing guide
+
+For comprehensive testing information, including CI pipeline details and troubleshooting, see [TESTING.md](./TESTING.md).
+
 ## Package manager
 
 - [npm](https://nodejs.org/en/learn/getting-started/an-introduction-to-the-npm-package-manager#introduction-to-npm) is the recommended package manager that must be used in installing dependencies.

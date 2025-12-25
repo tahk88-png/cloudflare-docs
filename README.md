@@ -33,9 +33,96 @@ $ npm run dev
 
 This spawns a server that will be accessible via `http://localhost:1111` in your browser. Additionally, any changes made within the project – including `content/**` changes – will automatically reload your browser tab(s), allowing you to instantly preview your changes.
 
+## Testing
+
+This repository uses [Vitest](https://vitest.dev/) for testing. Tests are split into two categories:
+
+- **Node tests** (`*.node.test.ts`): Standard Node.js tests
+- **Workers tests** (`*.worker.test.ts`): Tests that run in a Cloudflare Workers environment
+
+### Running tests
+
+Run all tests:
+
+```sh
+$ npm test
+```
+
+Run tests in watch mode during development:
+
+```sh
+$ npm test -- --watch
+```
+
+### Type checking
+
+Check TypeScript types for the main project and worker:
+
+```sh
+$ npm run check
+```
+
+This runs both `check:astro` and `check:worker`.
+
+### Linting and formatting
+
+Check code formatting:
+
+```sh
+$ npm run format:core:check
+```
+
+Fix code formatting:
+
+```sh
+$ npm run format:core:fix
+```
+
+Run ESLint:
+
+```sh
+$ npm run lint
+```
+
 ## Deployment
 
-Our docs are deployed using [Cloudflare Pages](https://pages.cloudflare.com). Every commit pushed to production will automatically deploy to [developers.cloudflare.com](https://developers.cloudflare.com), and any pull requests opened will have a corresponding staging URL available in the pull request comments.
+Our docs are deployed using [Cloudflare Pages](https://pages.cloudflare.com) and Cloudflare Workers.
+
+### Production deployment
+
+Every commit pushed to the `production` branch automatically triggers:
+
+1. Build of the Astro site
+2. Deployment to Cloudflare Workers
+3. Upload of vendored Markdown to S3-compatible storage
+
+The production site is available at [developers.cloudflare.com](https://developers.cloudflare.com).
+
+### Preview deployments
+
+Every commit pushed to non-production branches automatically creates a preview deployment:
+
+1. Build of the Astro site
+2. Deployment to Cloudflare Workers preview namespace
+3. Preview URLs are posted as comments on pull requests
+
+Preview deployments use namespacing based on the commit SHA and branch name.
+
+### CI pipeline
+
+Pull requests to the `production` branch run through a comprehensive CI pipeline that includes:
+
+- TypeScript type checking (`npm run check`)
+- ESLint checks
+- Code formatting checks
+- Build validation
+- Link checking
+- Redirect validation
+- Test suite execution
+
+All checks must pass before a pull request can be merged.
+
+For detailed information about deployments, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ## For Cloudflare employees
 
