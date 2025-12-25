@@ -18,9 +18,10 @@ export async function openCompartmentGateway(
     lockerId: string, 
     compartmentId: string, 
     correlationId: string,
+    doorNumber: number,
     options?: OpenCommandOptions
 ): Promise<GatewayResponse> {
-  const compartmentNumber = 1; // TODO: Fetch from DB using compartmentId -> doorNumber
+  const compartmentNumber = doorNumber;
 
   const payload = {
       correlation_id: correlationId,

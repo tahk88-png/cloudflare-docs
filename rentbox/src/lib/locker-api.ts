@@ -79,11 +79,17 @@ export async function openLocker(
 
   // 4. Call Gateway
   try {
-      const gatewayRes = await openCompartmentGateway(lockerId, compartmentId, correlationId, {
-          requestedBy,
-          reason,
-          bookingExternalId: booking.externalId || undefined
-      });
+      const gatewayRes = await openCompartmentGateway(
+          lockerId, 
+          compartmentId, 
+          correlationId, 
+          booking.compartment.doorNumber || 1, 
+          {
+            requestedBy,
+            reason,
+            bookingExternalId: booking.externalId || undefined
+          }
+      );
 
       if (!gatewayRes.success) {
           await prisma.lockerOpenAttempt.update({
