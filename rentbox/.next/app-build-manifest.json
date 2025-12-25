@@ -15,6 +15,13 @@
       "static/css/eefdd146404866c3.css",
       "static/chunks/app/layout-35edd650fb73be2b.js"
     ],
+    "/admin/page": [
+      "static/chunks/webpack-0954c5d36ad957a9.js",
+      "static/chunks/fd9d1056-9f91b5e418130764.js",
+      "static/chunks/117-6d3152f80147ba9e.js",
+      "static/chunks/main-app-c7cd158d95a56e27.js",
+      "static/chunks/app/admin/page-9ae2f4db4e7dfc1a.js"
+    ],
     "/chat/page": [
       "static/chunks/webpack-0954c5d36ad957a9.js",
       "static/chunks/fd9d1056-9f91b5e418130764.js",
@@ -29,13 +36,6 @@
       "static/chunks/main-app-c7cd158d95a56e27.js",
       "static/chunks/972-17ea62b17795b286.js",
       "static/chunks/app/page-4936a477ea8f625b.js"
-    ],
-    "/admin/page": [
-      "static/chunks/webpack-0954c5d36ad957a9.js",
-      "static/chunks/fd9d1056-9f91b5e418130764.js",
-      "static/chunks/117-6d3152f80147ba9e.js",
-      "static/chunks/main-app-c7cd158d95a56e27.js",
-      "static/chunks/app/admin/page-9ae2f4db4e7dfc1a.js"
     ]
   }
 }
