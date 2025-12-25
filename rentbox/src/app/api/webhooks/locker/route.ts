@@ -1,23 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { sendSms } from '@/lib/notifications';
+import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { event_type, payload } = body;
+    const rawBody = await req.text();
+    const signature = req.headers.get('x-gateway-signature');
 
-    // 1. Store Event
+    // 1. Signature Verification
+    if (process.env.RENTBOX_HMAC_SECRET && signature) {
+        const expected = crypto
+            .createHmac('sha256', process.env.RENTBOX_HMAC_SECRET)
+            .update(rawBody)
+            .digest('hex');
+        
+        if (expected !== signature) {
+            console.error("Invalid Signature");
+            return NextResponse.json({ accepted: false }, { status: 401 });
+        }
+    }
+
+    const body = JSON.parse(rawBody);
+    const { event_type, data } = body; // Gateway sends 'data', not 'payload'
+
+    // 2. Store Event
     const event = await prisma.event.create({
       data: {
         type: event_type,
-        payload: payload,
+        payload: data || {}, // Gateway uses 'data'
         status: 'pending'
       }
     });
 
     if (event_type === 'locker.open_result') {
-        const { correlation_id, success, error } = payload;
+        // Gateway payload: { result: "success"|"fail", error_code, message, correlation_id }
+        const { correlation_id, result, error_code, message } = data;
+        const success = (result === 'success');
         
         // Find Attempt
         const attempt = await prisma.lockerOpenAttempt.findUnique({
@@ -33,7 +52,8 @@ export async function POST(req: NextRequest) {
                 data: {
                     status,
                     resultAt: new Date(),
-                    errorDetails: error
+                    errorCode: error_code,
+                    errorDetails: message
                 }
             });
 
@@ -47,10 +67,10 @@ export async function POST(req: NextRequest) {
             if (!success) {
                 console.log(`[LOCKER] Open failed for ${correlation_id}`);
                 
-                // 1. Decrement Locker Reliability (Simple mock logic)
+                // 1. Decrement Locker Reliability
                 await prisma.locker.update({
                     where: { id: attempt.lockerId },
-                    data: { reliability: { decrement: 5 } } // Penalize
+                    data: { reliability: { decrement: 5 } }
                 });
 
                 // 2. Increment Compartment Failure Count
@@ -67,7 +87,7 @@ export async function POST(req: NextRequest) {
                         status: 'OPEN',
                         priority: 'URGENT',
                         assignedTo: 'OPS',
-                        description: `Locker Open Failed. Error: ${error || 'Unknown'}`
+                        description: `Locker Open Failed. Code: ${error_code}. Message: ${message}`
                     }
                 });
 
@@ -77,7 +97,7 @@ export async function POST(req: NextRequest) {
                     "Rentbox: Vabandame! Kapi avamine ebaõnnestus. Oleme loonud automaatse tugipileti ja võtame kohe ühendust."
                 );
             } else {
-                // Success - Reset failure count?
+                // Success - Reset failure count
                 await prisma.compartment.update({
                     where: { id: attempt.compartmentId },
                     data: { openFailedCount: 0 }
@@ -85,15 +105,15 @@ export async function POST(req: NextRequest) {
             }
         }
     } else if (event_type === 'locker.status') {
-        // Update locker status
-        const { locker_id, status } = payload;
-        // Mock update
-        console.log(`Locker ${locker_id} status: ${status}`);
+        // Update locker status (Gateway sends online status)
+        const { locker_id, online } = data;
+        // Mock update logic
+        console.log(`Locker ${locker_id} online: ${online}`);
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ accepted: true });
   } catch (error) {
     console.error('Webhook error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ accepted: false, error: 'Internal Server Error' }, { status: 500 });
   }
 }

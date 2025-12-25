@@ -104,6 +104,7 @@ model Compartment {
   id              String   @id @default(uuid())
   lockerId        String
   size            String   // S, M, L
+  doorNumber      Int      @default(0) // Mapped to gateway compartment number
   status          String   // available, occupied, maintenance
   openFailedCount Int      @default(0)
   

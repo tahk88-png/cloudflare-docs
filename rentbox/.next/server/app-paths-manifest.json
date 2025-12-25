@@ -7,7 +7,7 @@
   "/api/events/route": "app/api/events/route.js",
   "/api/owner-ai/route": "app/api/owner-ai/route.js",
   "/api/owner/query/route": "app/api/owner/query/route.js",
+  "/chat/page": "app/chat/page.js",
   "/api/webhooks/locker/route": "app/api/webhooks/locker/route.js",
-  "/page": "app/page.js",
-  "/chat/page": "app/chat/page.js"
+  "/page": "app/page.js"
 }
