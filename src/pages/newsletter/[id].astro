@@ -1,0 +1,18 @@
+---
+import { NewsletterEditor } from "~/components/newsletter/NewsletterEditor";
+import "../../styles/newsletter-editor.css";
+
+const { id } = Astro.params;
+const newsletterId = id ? parseInt(id) : undefined;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Newsletter Editor</title>
+	</head>
+	<body class="newsletter-editor">
+		<NewsletterEditor newsletterId={newsletterId} client:load />
+	</body>
+</html>
