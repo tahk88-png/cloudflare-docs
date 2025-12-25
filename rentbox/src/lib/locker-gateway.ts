@@ -8,10 +8,26 @@ export interface GatewayResponse {
   message?: string;
 }
 
-export async function openCompartmentGateway(lockerId: string, compartmentId: string, correlationId: string): Promise<GatewayResponse> {
-  // In v2, compartmentId needs to be mapped to a Number if possible, or we assume externalId is the number string.
-  // For now, let's mock the number as '1' or derive it.
+export interface OpenCommandOptions {
+    requestedBy: string;
+    reason: string;
+    bookingExternalId?: string;
+}
+
+export async function openCompartmentGateway(
+    lockerId: string, 
+    compartmentId: string, 
+    correlationId: string,
+    options?: OpenCommandOptions
+): Promise<GatewayResponse> {
   const compartmentNumber = 1; // TODO: Fetch from DB using compartmentId -> doorNumber
+
+  const payload = {
+      correlation_id: correlationId,
+      booking_external_id: options?.bookingExternalId,
+      requested_by: options?.requestedBy,
+      reason: options?.reason
+  };
 
   try {
       const res = await fetch(`${GATEWAY_URL}/lockers/${lockerId}/compartments/${compartmentNumber}/open`, {
@@ -20,7 +36,7 @@ export async function openCompartmentGateway(lockerId: string, compartmentId: st
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${GATEWAY_TOKEN}`
         },
-        body: JSON.stringify({ correlation_id: correlationId })
+        body: JSON.stringify(payload)
       });
 
       if (!res.ok) {
@@ -35,7 +51,6 @@ export async function openCompartmentGateway(lockerId: string, compartmentId: st
       return { success: true, message: "Command Accepted" };
   } catch(e) {
       console.error("Gateway Network Error", e);
-      // Fallback for demo if gateway not running
       if (GATEWAY_URL.includes("mock.rentbox.ee")) {
            return { success: true, message: "Mock Accepted" };
       }

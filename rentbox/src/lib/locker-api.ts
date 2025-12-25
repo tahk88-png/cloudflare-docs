@@ -61,6 +61,9 @@ export async function openLocker(
 
   // 3. Create Attempt Record
   const correlationId = randomUUID();
+  const requestedBy = isOverride ? 'admin' : 'rentbox_ai';
+  const reason = isOverride ? 'manual_override' : 'user_request';
+
   await prisma.lockerOpenAttempt.create({
       data: {
           bookingId,
@@ -69,14 +72,19 @@ export async function openLocker(
           correlationId,
           status: 'PENDING',
           isOverride,
-          requestedBy: isOverride ? 'admin' : 'user', // Basic assumption
-          reason: isOverride ? 'manual_override' : 'user_request'
+          requestedBy,
+          reason
       }
   });
 
   // 4. Call Gateway
   try {
-      const gatewayRes = await openCompartmentGateway(lockerId, compartmentId, correlationId);
+      const gatewayRes = await openCompartmentGateway(lockerId, compartmentId, correlationId, {
+          requestedBy,
+          reason,
+          bookingExternalId: booking.externalId || undefined
+      });
+
       if (!gatewayRes.success) {
           await prisma.lockerOpenAttempt.update({
               where: { correlationId },
