@@ -1,0 +1,213 @@
+# Invoicing System API Examples
+# Use with REST Client extension in VS Code or similar tools
+
+@baseUrl = https://invoicing-system.your-workers.dev
+@token = your-auth-token-here
+
+### Health Check
+GET {{baseUrl}}/api/health
+
+### Create Invoice
+POST {{baseUrl}}/api/invoices
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "customer_id": "cust_123",
+  "issue_date": "2025-01-15",
+  "due_date": "2025-02-15",
+  "items": [
+    {
+      "description": "Web Development Services - Frontend",
+      "quantity": 20,
+      "unit_price": 100.00,
+      "vat_rate": 22
+    },
+    {
+      "description": "Web Development Services - Backend",
+      "quantity": 15,
+      "unit_price": 120.00,
+      "vat_rate": 22
+    },
+    {
+      "description": "Hosting Services (VAT exempt)",
+      "quantity": 1,
+      "unit_price": 50.00,
+      "vat_rate": 0
+    }
+  ],
+  "notes": "Thank you for your business! Payment due within 30 days.",
+  "terms_and_conditions": "Payment terms: Net 30. Late payment fee: 1.5% per month.",
+  "footer_text": "Questions? Contact us at support@example.com",
+  "reminder_settings": {
+    "enabled": true,
+    "days_before": [7, 3, 1],
+    "days_after": [1, 7, 14, 30]
+  }
+}
+
+### Get Invoice
+GET {{baseUrl}}/api/invoices/inv_abc123
+Authorization: Bearer {{token}}
+
+### Update Invoice (Draft Only)
+PUT {{baseUrl}}/api/invoices/inv_abc123
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "due_date": "2025-02-28",
+  "notes": "Updated payment terms - 45 days",
+  "items": [
+    {
+      "description": "Web Development Services - Complete Package",
+      "quantity": 40,
+      "unit_price": 110.00,
+      "vat_rate": 22
+    }
+  ]
+}
+
+### Generate Draft PDF
+POST {{baseUrl}}/api/invoices/inv_abc123/generate-pdf
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "mode": "draft"
+}
+
+### Generate Final PDF
+POST {{baseUrl}}/api/invoices/inv_abc123/generate-pdf
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "mode": "final"
+}
+
+### Send Invoice Email
+POST {{baseUrl}}/api/invoices/inv_abc123/send-email
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "recipient_email": "customer@example.com",
+  "include_pdf": true
+}
+
+### Send Invoice Email with Custom Message
+POST {{baseUrl}}/api/invoices/inv_abc123/send-email
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "recipient_email": "customer@example.com",
+  "subject": "Invoice #2025-000001 - Payment Due",
+  "body": "<h1>Invoice Attached</h1><p>Dear Customer, please find your invoice attached. Payment is due by February 15, 2025.</p>",
+  "include_pdf": true
+}
+
+### Create Credit Note
+POST {{baseUrl}}/api/invoices/inv_abc123/credit-note
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "description": "Refund - Cancelled Services",
+      "quantity": 10,
+      "unit_price": 100.00,
+      "vat_rate": 22
+    }
+  ],
+  "notes": "Credit note for partial cancellation of services"
+}
+
+### View Invoice (Public - No Auth Required)
+GET {{baseUrl}}/invoice-view/secure-token-here
+
+### Stripe Payment Webhook
+POST {{baseUrl}}/webhooks/payments
+Content-Type: application/json
+
+{
+  "provider": "stripe",
+  "event_type": "payment_intent.succeeded",
+  "event_id": "evt_1234567890",
+  "invoice_id": "inv_abc123",
+  "amount": 1220.00,
+  "payment_reference": "pi_1234567890",
+  "metadata": {
+    "customer_email": "customer@example.com"
+  }
+}
+
+### Montonio Payment Webhook
+POST {{baseUrl}}/webhooks/payments
+Content-Type: application/json
+
+{
+  "provider": "montonio",
+  "event_type": "payment.completed",
+  "event_id": "mon_1234567890",
+  "invoice_id": "inv_abc123",
+  "amount": 1220.00,
+  "payment_reference": "pay_1234567890",
+  "status": "completed"
+}
+
+### Complete Invoice Workflow
+# 1. Create invoice
+# 2. Generate final PDF
+# 3. Send email
+# 4. Handle payment webhook
+
+### Step 1: Create Invoice
+POST {{baseUrl}}/api/invoices
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "customer_id": "cust_123",
+  "issue_date": "2025-01-15",
+  "items": [
+    {
+      "description": "Consulting Services",
+      "quantity": 10,
+      "unit_price": 150.00,
+      "vat_rate": 22
+    }
+  ]
+}
+
+### Step 2: Generate Final PDF (use invoice_id from step 1)
+POST {{baseUrl}}/api/invoices/INVOICE_ID_HERE/generate-pdf
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "mode": "final"
+}
+
+### Step 3: Send Invoice Email
+POST {{baseUrl}}/api/invoices/INVOICE_ID_HERE/send-email
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "include_pdf": true
+}
+
+### Step 4: Payment Webhook (simulated)
+POST {{baseUrl}}/webhooks/payments
+Content-Type: application/json
+
+{
+  "provider": "stripe",
+  "event_type": "payment_intent.succeeded",
+  "event_id": "evt_test_123",
+  "invoice_id": "INVOICE_ID_HERE",
+  "amount": 1830.00
+}

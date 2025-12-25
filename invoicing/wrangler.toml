@@ -1,0 +1,47 @@
+# Cloudflare Workers configuration for invoicing system
+
+name = "invoicing-system"
+main = "worker.ts"
+compatibility_date = "2024-01-01"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "invoicing"
+database_id = "your-database-id"
+
+# R2 Storage binding
+[[r2_buckets]]
+binding = "INVOICES_BUCKET"
+bucket_name = "invoices"
+
+# Environment variables
+[vars]
+EMAIL_PROVIDER = "console" # Change to 'sendgrid', 'mailgun', or 'resend' in production
+ENABLE_SCHEDULED_TASKS = "true"
+
+# Secrets (set with: wrangler secret put SECRET_NAME)
+# EMAIL_API_KEY
+# STRIPE_API_KEY
+# STRIPE_WEBHOOK_SECRET
+# MONTONIO_API_KEY
+# MONTONIO_WEBHOOK_SECRET
+
+# Cron triggers for scheduled tasks
+[triggers]
+crons = ["*/5 * * * *"] # Every 5 minutes
+
+# Production environment
+[env.production]
+name = "invoicing-system-production"
+vars = { EMAIL_PROVIDER = "sendgrid", ENABLE_SCHEDULED_TASKS = "true" }
+
+# Staging environment
+[env.staging]
+name = "invoicing-system-staging"
+vars = { EMAIL_PROVIDER = "console", ENABLE_SCHEDULED_TASKS = "true" }
+
+# Development environment
+[env.dev]
+name = "invoicing-system-dev"
+vars = { EMAIL_PROVIDER = "console", ENABLE_SCHEDULED_TASKS = "false" }

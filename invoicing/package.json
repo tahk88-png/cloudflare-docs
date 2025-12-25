@@ -1,0 +1,41 @@
+{
+  "name": "invoicing-system",
+  "version": "1.0.0",
+  "description": "Production-grade invoicing system with PDF generation and reliable email delivery",
+  "main": "worker.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:production": "wrangler deploy --env production",
+    "deploy:staging": "wrangler deploy --env staging",
+    "db:init": "wrangler d1 execute invoicing --file=./schema.sql",
+    "db:migrations:apply": "wrangler d1 migrations apply invoicing",
+    "db:console": "wrangler d1 execute invoicing --command",
+    "tail": "wrangler tail",
+    "test": "vitest",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "invoicing",
+    "billing",
+    "pdf",
+    "email",
+    "cloudflare",
+    "workers",
+    "accounting"
+  ],
+  "author": "Your Company",
+  "license": "MIT",
+  "dependencies": {
+    "@cloudflare/workers-types": "^4.20250813.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vitest": "^2.1.6",
+    "wrangler": "^4.26.1"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
