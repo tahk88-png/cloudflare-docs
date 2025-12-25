@@ -1,7 +1,12 @@
 ---
 import { z } from "astro:schema";
 import { marked } from "marked";
-import { indexPlans } from "~/util/plans";
+import {
+	getPlanCategoryFeatures,
+	type PlanFeature,
+	type PlanFeatureProperty,
+	indexPlans,
+} from "~/util/plans";
 
 type Props = z.infer<typeof props>;
 
@@ -16,24 +21,27 @@ const { id, additional_descriptions } = props.parse(Astro.props);
 
 const plan = await indexPlans(id);
 
-const entries = Object.entries(plan);
+const entries = getPlanCategoryFeatures(plan);
+
+if (entries.length === 0) {
+	throw new Error(`[ProductFeatures] No features found for plans id "${id}".`);
+}
 ---
 
 {
-	// TODO: improve product features types
-	entries.map(([key, value]: [string, any]) => {
-		if (key === "title" || key === "link") return;
+	entries.map(([, feature]: [string, PlanFeature]) => {
+		const properties = Object.values(feature.properties) as PlanFeatureProperty[];
 
 		return (
 			<div>
-				<h3>{value.title}</h3>
-				{value.link && (
+				<h3>{feature.title}</h3>
+				{feature.link && (
 					<p>
 						<!-- prettier-ignore -->
-						<strong>Link:</strong>{" "}<a href={value.link}>{value.title}</a>
+						<strong>Link:</strong>{" "}<a href={feature.link}>{feature.title}</a>
 					</p>
 				)}
-				{Object.values(value.properties).map((value: any) => (
+				{properties.map((value) => (
 					<div>
 						<strong
 							set:html={marked.parseInline(
