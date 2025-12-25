@@ -4,6 +4,7 @@
 import type { APIRoute } from "astro";
 import { getDBFromContext } from "~/lib/db/client";
 import type { SenderProfile } from "~/lib/db/types";
+import { validateEmail } from "~/lib/newsletter/validation";
 
 export const GET: APIRoute = async (context) => {
 	try {
@@ -42,10 +43,10 @@ export const POST: APIRoute = async (context) => {
 		}
 
 		// Validate email format
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		if (!emailRegex.test(email)) {
+		const emailValidation = validateEmail(email);
+		if (!emailValidation.valid) {
 			return new Response(
-				JSON.stringify({ error: "Invalid email format" }),
+				JSON.stringify({ error: emailValidation.error }),
 				{ status: 400, headers: { "Content-Type": "application/json" } },
 			);
 		}

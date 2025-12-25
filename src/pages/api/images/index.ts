@@ -4,6 +4,7 @@
 import type { APIRoute } from "astro";
 import { getDBFromContext } from "~/lib/db/client";
 import type { NewsletterImage } from "~/lib/db/types";
+import { validateImageFile } from "~/lib/newsletter/validation";
 
 export const GET: APIRoute = async (context) => {
 	try {
@@ -40,22 +41,11 @@ export const POST: APIRoute = async (context) => {
 			});
 		}
 
-		// Validate file type
-		const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-		if (!allowedTypes.includes(file.type)) {
+		// Validate file
+		const validation = validateImageFile(file);
+		if (!validation.valid) {
 			return new Response(
-				JSON.stringify({
-					error: "Invalid file type. Only JPG, PNG, and WEBP are allowed.",
-				}),
-				{ status: 400, headers: { "Content-Type": "application/json" } },
-			);
-		}
-
-		// Validate file size (max 5MB)
-		const maxSize = 5 * 1024 * 1024; // 5MB
-		if (file.size > maxSize) {
-			return new Response(
-				JSON.stringify({ error: "File size exceeds 5MB limit" }),
+				JSON.stringify({ error: validation.error }),
 				{ status: 400, headers: { "Content-Type": "application/json" } },
 			);
 		}

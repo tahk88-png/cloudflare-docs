@@ -3,6 +3,7 @@
 import type { APIRoute } from "astro";
 import { getDBFromContext } from "~/lib/db/client";
 import type { NewsletterBlock } from "~/lib/db/types";
+import { buildAIPrompt, callAI } from "~/lib/ai/prompts";
 
 interface AIImprovementRequest {
 	action:
@@ -35,6 +36,8 @@ export const POST: APIRoute = async (context) => {
 
 		// Fetch blocks to improve
 		let blocksStmt;
+		let blocks: NewsletterBlock[];
+		
 		if (body.blockIds && body.blockIds.length > 0) {
 			const placeholders = body.blockIds.map(() => "?").join(",");
 			blocksStmt = db.prepare(
@@ -42,16 +45,15 @@ export const POST: APIRoute = async (context) => {
 				 WHERE newsletter_id = ? AND id IN (${placeholders}) 
 				 ORDER BY order_index`,
 			);
-			blocksStmt = blocksStmt.bind(id, ...body.blockIds);
+			const blocksResult = await blocksStmt.bind(id, ...body.blockIds).all<NewsletterBlock>();
+			blocks = blocksResult.results || [];
 		} else {
 			blocksStmt = db.prepare(
 				"SELECT * FROM newsletter_blocks WHERE newsletter_id = ? ORDER BY order_index",
 			);
-			blocksStmt = blocksStmt.bind(id);
+			const blocksResult = await blocksStmt.bind(id).all<NewsletterBlock>();
+			blocks = blocksResult.results || [];
 		}
-
-		const blocksResult = await blocksStmt.all<NewsletterBlock>();
-		const blocks = blocksResult.results || [];
 
 		if (blocks.length === 0) {
 			return new Response(
@@ -63,8 +65,14 @@ export const POST: APIRoute = async (context) => {
 			);
 		}
 
+		// Get environment for AI API keys
+		const env = 
+			(context.runtime as any)?.env ||
+			((context.locals as any)?.runtime as any)?.env ||
+			{};
+
 		// Call AI improvement service
-		const improvedBlocks = await improveTextWithAI(blocks, body);
+		const improvedBlocks = await improveTextWithAI(blocks, body, env);
 
 		// Log AI action
 		const logStmt = db.prepare(
@@ -111,19 +119,18 @@ export const POST: APIRoute = async (context) => {
 async function improveTextWithAI(
 	blocks: NewsletterBlock[],
 	options: AIImprovementRequest,
+	env?: { OPENAI_API_KEY?: string; ANTHROPIC_API_KEY?: string },
 ): Promise<NewsletterBlock[]> {
-	// TODO: Replace with actual AI integration
-	// See SETUP_NEWSLETTER.md for integration examples
-	
-	// Extract text from blocks
+	// Extract text blocks
 	const textBlocks = blocks.filter(
 		(b) => b.type === "paragraph" || b.type === "heading",
 	);
-	
+
 	if (textBlocks.length === 0) {
 		return blocks;
 	}
 
+	// Build text to improve
 	const textToImprove = textBlocks
 		.map((b) => {
 			const content = JSON.parse(b.content);
@@ -131,74 +138,58 @@ async function improveTextWithAI(
 		})
 		.join("\n\n");
 
-	const prompt = buildAIPrompt(textBlocks, options);
+	if (!textToImprove.trim()) {
+		return blocks;
+	}
 
-	// Mock AI response - replace with actual AI API call
-	// Example: const improvedText = await callOpenAI(prompt, apiKey);
-	console.log("AI Prompt:", prompt);
+	// Build AI prompt
+	const prompt = buildAIPrompt(textToImprove, {
+		action: options.action,
+		tone: options.tone,
+		targetAudience: options.targetAudience,
+		locale: "en", // Could be detected or passed as option
+	});
 
-	// Simulate AI improvement
-	// In production, parse the AI response and update blocks accordingly
+	// Call AI service
+	let improvedText: string;
+	try {
+		const apiKey = env?.OPENAI_API_KEY || env?.ANTHROPIC_API_KEY;
+		if (apiKey) {
+			improvedText = await callAI(prompt, apiKey, env);
+		} else {
+			// Fallback to mock if no API key
+			console.warn("No AI API key found, using mock improvement");
+			improvedText = textToImprove; // Will be improved below
+		}
+	} catch (error) {
+		console.error("AI call failed:", error);
+		// Fallback: return original blocks
+		throw new Error("AI improvement failed. Please try again.");
+	}
+
+	// Parse improved text back into blocks
+	// Split by double newlines to maintain block structure
+	const improvedLines = improvedText.split(/\n\n+/).filter((line) => line.trim());
+	
+	// Map improved text back to blocks
 	const improvedBlocks = blocks.map((block) => {
 		const content = JSON.parse(block.content);
+		
 		if (block.type === "paragraph" || block.type === "heading") {
-			// Mock improvement - add "[AI Improved]" prefix
-			// In production, replace with actual AI-improved text
-			return {
-				...block,
-				content: JSON.stringify({
-					...content,
-					text: `[AI Improved] ${content.text}`,
-				}),
-			};
+			// Find corresponding improved text
+			const blockIndex = textBlocks.findIndex((b) => b.id === block.id);
+			if (blockIndex >= 0 && improvedLines[blockIndex]) {
+				return {
+					...block,
+					content: JSON.stringify({
+						...content,
+						text: improvedLines[blockIndex].trim(),
+					}),
+				};
+			}
 		}
 		return block;
 	});
 
 	return improvedBlocks;
-}
-
-function buildAIPrompt(
-	blocks: NewsletterBlock[],
-	options: AIImprovementRequest,
-): string {
-	const textBlocks = blocks
-		.filter((b) => b.type === "paragraph" || b.type === "heading")
-		.map((b) => {
-			const content = JSON.parse(b.content);
-			return content.text || "";
-		})
-		.join("\n\n");
-
-	const actionPrompts: Record<string, string> = {
-		"improve-clarity": "Improve clarity and readability",
-		shorten: "Make it more concise while preserving key information",
-		"make-persuasive": "Make it more persuasive and compelling",
-		"make-friendly": "Make it more friendly and approachable",
-		"make-professional": "Make it more professional and formal",
-		"fix-grammar": "Fix grammar and spelling errors",
-		"improve-cta": "Improve call-to-action effectiveness",
-		"highlight-offer": "Better highlight the offer or value proposition",
-	};
-
-	const prompt = `
-You are a professional email copywriter. ${actionPrompts[options.action] || "Improve the text"}.
-
-${options.tone ? `Tone: ${options.tone}` : ""}
-${options.targetAudience ? `Target audience: ${options.targetAudience}` : ""}
-
-Rules:
-- Preserve the original meaning
-- Avoid spam language
-- Avoid false promises
-- Keep it professional
-- Maintain Estonian language if the text is in Estonian
-
-Text to improve:
-${textBlocks}
-
-Return the improved text in the same format.
-`;
-
-	return prompt;
 }

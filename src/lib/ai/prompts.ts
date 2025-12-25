@@ -19,6 +19,9 @@ export function buildAIPrompt(
 	text: string,
 	options: AIImprovementOptions,
 ): string {
+	if (!text || !text.trim()) {
+		throw new Error("Text to improve cannot be empty");
+	}
 	const actionPrompts: Record<string, string> = {
 		"improve-clarity":
 			"Improve clarity and readability while preserving the original meaning.",
@@ -65,26 +68,52 @@ Return only the improved text, maintaining the same structure and format.
 	return prompt;
 }
 
-// Example usage with OpenAI (replace with your AI provider)
+// AI service integration
 export async function callAI(
 	prompt: string,
-	apiKey?: string,
+	apiKey: string,
+	env?: { OPENAI_API_KEY?: string; ANTHROPIC_API_KEY?: string },
 ): Promise<string> {
-	// This is a placeholder - replace with actual AI API call
-	// Example with OpenAI:
-	/*
+	// Try OpenAI first if key is available
+	if (env?.OPENAI_API_KEY || apiKey === env?.OPENAI_API_KEY) {
+		try {
+			return await callOpenAI(prompt, env?.OPENAI_API_KEY || apiKey);
+		} catch (error) {
+			console.error("OpenAI call failed:", error);
+			// Fall through to Anthropic or mock
+		}
+	}
+
+	// Try Anthropic if key is available
+	if (env?.ANTHROPIC_API_KEY || apiKey === env?.ANTHROPIC_API_KEY) {
+		try {
+			return await callAnthropic(prompt, env?.ANTHROPIC_API_KEY || apiKey);
+		} catch (error) {
+			console.error("Anthropic call failed:", error);
+			// Fall through to mock
+		}
+	}
+
+	// Fallback: return improved version of input text
+	// This is a simple mock - in production, always use a real AI service
+	const textToImprove = prompt.split("\n\nText to improve:\n")[1] || prompt;
+	return improveTextMock(textToImprove);
+}
+
+async function callOpenAI(prompt: string, apiKey: string): Promise<string> {
 	const response = await fetch("https://api.openai.com/v1/chat/completions", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
-			"Authorization": `Bearer ${apiKey}`,
+			Authorization: `Bearer ${apiKey}`,
 		},
 		body: JSON.stringify({
-			model: "gpt-4",
+			model: "gpt-4o-mini", // Using cheaper model, can be changed to gpt-4
 			messages: [
 				{
 					role: "system",
-					content: "You are a professional email copywriter.",
+					content:
+						"You are a professional email copywriter. Return only the improved text, maintaining the same structure.",
 				},
 				{
 					role: "user",
@@ -92,13 +121,64 @@ export async function callAI(
 				},
 			],
 			temperature: 0.7,
+			max_tokens: 2000,
 		}),
 	});
 
-	const data = await response.json();
-	return data.choices[0].message.content;
-	*/
+	if (!response.ok) {
+		const error = await response.text();
+		throw new Error(`OpenAI API error: ${error}`);
+	}
 
-	// Mock response for development
-	return `[AI Improved] ${prompt.split("\n\nText to improve:\n")[1] || ""}`;
+	const data = await response.json();
+	return data.choices[0]?.message?.content || "";
+}
+
+async function callAnthropic(prompt: string, apiKey: string): Promise<string> {
+	const response = await fetch("https://api.anthropic.com/v1/messages", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			"x-api-key": apiKey,
+			"anthropic-version": "2023-06-01",
+		},
+		body: JSON.stringify({
+			model: "claude-3-5-sonnet-20241022",
+			max_tokens: 2000,
+			messages: [
+				{
+					role: "user",
+					content: prompt,
+				},
+			],
+		}),
+	});
+
+	if (!response.ok) {
+		const error = await response.text();
+		throw new Error(`Anthropic API error: ${error}`);
+	}
+
+	const data = await response.json();
+	return data.content[0]?.text || "";
+}
+
+// Simple mock improvement for development/testing
+function improveTextMock(text: string): string {
+	// Basic improvements without AI
+	return text
+		.split("\n\n")
+		.map((paragraph) => {
+			// Capitalize first letter
+			if (paragraph.length > 0) {
+				paragraph =
+					paragraph.charAt(0).toUpperCase() + paragraph.slice(1);
+			}
+			// Ensure proper punctuation
+			if (paragraph.length > 0 && !paragraph.match(/[.!?]$/)) {
+				paragraph += ".";
+			}
+			return paragraph;
+		})
+		.join("\n\n");
 }

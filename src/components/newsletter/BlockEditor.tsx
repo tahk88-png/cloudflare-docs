@@ -13,7 +13,7 @@ export function BlockEditor({ blocks, onChange, images }: BlockEditorProps) {
 
 	const addBlock = (type: NewsletterBlock["type"]) => {
 		const newBlock: NewsletterBlock = {
-			id: Date.now(), // Temporary ID
+			id: Date.now() + Math.random(), // Temporary ID
 			newsletter_id: 0,
 			type,
 			content: getDefaultContent(type),

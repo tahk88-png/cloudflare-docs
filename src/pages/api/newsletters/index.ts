@@ -8,7 +8,7 @@ import type { Newsletter } from "~/lib/db/types";
 export const GET: APIRoute = async (context) => {
 	try {
 		const db = getDBFromContext(context);
-		const url = new URL(request.url);
+		const url = new URL(context.request.url);
 		const status = url.searchParams.get("status") || "draft";
 
 		const stmt = db.prepare(
@@ -31,14 +31,24 @@ export const GET: APIRoute = async (context) => {
 export const POST: APIRoute = async (context) => {
 	try {
 		const db = getDBFromContext(context);
-		const { request } = context;
-		const body = await request.json();
+		const body = await context.request.json();
 
 		const { subject, preheader, sender_id } = body;
 
-		if (!subject) {
+		// Validate subject
+		const subjectValidation = validateSubject(subject || "");
+		if (!subjectValidation.valid) {
 			return new Response(
-				JSON.stringify({ error: "Subject is required" }),
+				JSON.stringify({ error: subjectValidation.error }),
+				{ status: 400, headers: { "Content-Type": "application/json" } },
+			);
+		}
+
+		// Validate preheader
+		const preheaderValidation = validatePreheader(preheader || null);
+		if (!preheaderValidation.valid) {
+			return new Response(
+				JSON.stringify({ error: preheaderValidation.error }),
 				{ status: 400, headers: { "Content-Type": "application/json" } },
 			);
 		}

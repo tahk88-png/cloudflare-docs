@@ -33,6 +33,7 @@ export function NewsletterEditor({ newsletterId }: NewsletterEditorProps) {
 		}
 		loadSenders();
 		loadImages();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [newsletterId]);
 
 	const loadNewsletter = async (id: number) => {

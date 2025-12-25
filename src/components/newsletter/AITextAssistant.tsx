@@ -57,14 +57,21 @@ export function AITextAssistant({
 			);
 
 			if (!response.ok) {
-				throw new Error("Failed to improve text");
+				const errorData = await response.json().catch(() => ({}));
+				throw new Error(errorData.error || "Failed to improve text");
 			}
 
 			const data = await response.json();
-			setImprovedBlocks(data.blocks);
+			if (data.blocks) {
+				setImprovedBlocks(data.blocks);
+			} else {
+				throw new Error("Invalid response from server");
+			}
 		} catch (error) {
 			console.error("Failed to improve text:", error);
-			alert("Failed to improve text. Please try again.");
+			const errorMessage =
+				error instanceof Error ? error.message : "Failed to improve text. Please try again.";
+			alert(errorMessage);
 		} finally {
 			setLoading(false);
 		}
