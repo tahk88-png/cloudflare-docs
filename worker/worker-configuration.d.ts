@@ -3,6 +3,17 @@
 interface Env {
 	ASSETS: Fetcher;
 	VENDORED_MARKDOWN: R2Bucket;
+	INVOICING_DB: D1Database;
+	INVOICE_PDFS: R2Bucket;
+	EMAIL_FROM?: string;
+	EMAIL_REPLY_TO?: string;
+	EMAIL_PROVIDER?: string;
+	EMAIL_MAX_ATTEMPTS?: string;
+	VIEW_TOKEN_TTL_SECONDS?: string;
+	APP_BASE_URL?: string;
+	BOOTSTRAP_TOKEN?: string;
+	PAYMENT_WEBHOOK_SECRET?: string;
+	EMAIL_WEBHOOK_SECRET?: string;
 }
 declare module "*/__redirects" {
 	const value: string;

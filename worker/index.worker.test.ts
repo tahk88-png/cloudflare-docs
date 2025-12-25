@@ -126,6 +126,15 @@ describe("Cloudflare Docs", () => {
 			expect(v2NodeJs.default).toBe("18.17.1");
 			expect(v2NodeJs.file).toContain(".nvmrc");
 		});
+
+		it("invoicing health endpoint", async () => {
+			const request = new Request("http://fakehost/api/health");
+			const response = await SELF.fetch(request);
+			expect(response.status).toBe(200);
+			const body: any = await response.json();
+			expect(body.ok).toBe(true);
+			expect(body.service).toBe("invoicing");
+		});
 	});
 
 	describe("rss endpoints", () => {

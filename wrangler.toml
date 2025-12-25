@@ -21,3 +21,29 @@ run_worker_first = true
 [[r2_buckets]]
 binding = "VENDORED_MARKDOWN"
 bucket_name = "vendored-markdown"
+
+[[r2_buckets]]
+binding = "INVOICE_PDFS"
+bucket_name = "invoice-pdfs"
+
+[[d1_databases]]
+binding = "INVOICING_DB"
+database_name = "invoicing"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "./worker/invoicing/migrations"
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[vars]
+# Required email headers (hard requirement: From and Reply-To)
+EMAIL_FROM = "no-reply@domain"
+EMAIL_REPLY_TO = "support@domain"
+
+# Controls (provider defaults to stub unless set to 'mailchannels')
+EMAIL_PROVIDER = "stub"
+EMAIL_MAX_ATTEMPTS = "8"
+VIEW_TOKEN_TTL_SECONDS = "604800"
+
+# Base URL used for reminder emails (invoices use the request origin)
+APP_BASE_URL = "https://example.invalid"

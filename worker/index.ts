@@ -3,6 +3,9 @@ import { generateRedirectsEvaluator } from "redirects-in-workers";
 import redirectsFileContents from "../dist/__redirects";
 
 import { htmlToMarkdown } from "../src/util/markdown";
+import { handleInvoicing } from "./invoicing/router";
+import { processEmailQueue } from "./invoicing/email";
+import { processReminders } from "./invoicing/reminders";
 
 const redirectsEvaluator = generateRedirectsEvaluator(redirectsFileContents, {
 	maxLineLength: 10_000, // Usually 2_000
@@ -12,6 +15,9 @@ const redirectsEvaluator = generateRedirectsEvaluator(redirectsFileContents, {
 
 export default class extends WorkerEntrypoint<Env> {
 	override async fetch(request: Request) {
+		const invoicing = await handleInvoicing(request, this.env);
+		if (invoicing) return invoicing;
+
 		if (request.url.endsWith("/markdown.zip")) {
 			const res = await this.env.VENDORED_MARKDOWN.get("markdown.zip");
 
@@ -127,5 +133,20 @@ export default class extends WorkerEntrypoint<Env> {
 		}
 
 		return response;
+	}
+
+	override async scheduled() {
+		// Best-effort background processors (email retries + reminders).
+		// This is safe even if the invoicing module is unused in a given deployment.
+		try {
+			await processReminders(this.env, 50);
+		} catch (error) {
+			console.error("Reminder processor failed", error);
+		}
+		try {
+			await processEmailQueue(this.env, 50);
+		} catch (error) {
+			console.error("Email processor failed", error);
+		}
 	}
 }
