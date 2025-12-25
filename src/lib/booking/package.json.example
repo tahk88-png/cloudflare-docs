@@ -1,0 +1,11 @@
+{
+  "name": "booking-system-dependencies",
+  "version": "1.0.0",
+  "description": "Additional dependencies needed for the booking system",
+  "dependencies": {
+    "pg": "^8.11.3",
+    "@types/pg": "^8.10.9",
+    "@stripe/stripe-js": "^2.4.0",
+    "@stripe/react-stripe-js": "^2.4.0"
+  }
+}
