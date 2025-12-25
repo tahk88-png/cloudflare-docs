@@ -1,0 +1,92 @@
+---
+import { SigningConsent } from '~/components/checkout/SigningConsent';
+import { Button } from '~/components/ui/button';
+
+interface Props {
+	cart_id: string;
+}
+
+const { cart_id } = Astro.params;
+
+// In production, fetch cart info from your backend
+// For now, using mock data
+const cartInfo = {
+	cart_id: cart_id || '',
+	total_amount: 150, // EUR
+	rental_duration_hours: 48,
+	is_b2b: false,
+	customer_email: 'customer@example.com',
+	customer_phone: '+372 12345678',
+};
+---
+
+<html lang="et">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Rentbox.ee - Kassa</title>
+		<style>
+			body {
+				font-family: system-ui, -apple-system, sans-serif;
+				max-width: 800px;
+				margin: 0 auto;
+				padding: 2rem;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="checkout-root">
+			<h1>Tellimuse kokkuvõte</h1>
+			<div class="order-summary">
+				<p>Tellimuse ID: {cart_id}</p>
+				<p>Kogusumma: {cartInfo.total_amount} EUR</p>
+				<p>Rendiperiood: {cartInfo.rental_duration_hours} tundi</p>
+			</div>
+
+			<SigningConsent
+				client:load
+				cartId={cart_id || ''}
+				cartInfo={cartInfo}
+				onSigningComplete={async (consent) => {
+					// Verify checkout can proceed
+					try {
+						const res = await fetch(`/api/cart/${cart_id}/checkout`, {
+							method: 'POST',
+						});
+						const data = await res.json();
+						
+						const payButton = document.getElementById('pay-button') as HTMLButtonElement;
+						if (payButton && data.success) {
+							payButton.disabled = false;
+							payButton.classList.remove('opacity-50', 'cursor-not-allowed');
+						} else if (payButton) {
+							payButton.disabled = true;
+							payButton.classList.add('opacity-50', 'cursor-not-allowed');
+						}
+					} catch (err) {
+						console.error('Error checking checkout status:', err);
+					}
+				}}
+			/>
+
+			<div class="payment-section" style="margin-top: 2rem;">
+				<button
+					id="pay-button"
+					disabled
+					class="bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+					onclick="handlePayment()"
+				>
+					Maksa
+				</button>
+			</div>
+		</div>
+
+		<script>
+			async function handlePayment() {
+				const cartId = '{cart_id}';
+				// In production, redirect to payment provider or call payment API
+				alert('Payment flow would start here for cart: ' + cartId);
+			}
+		</script>
+	</body>
+</html>

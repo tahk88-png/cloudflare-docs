@@ -3,6 +3,7 @@
 interface Env {
 	ASSETS: Fetcher;
 	VENDORED_MARKDOWN: R2Bucket;
+	DB: D1Database;
 }
 declare module "*/__redirects" {
 	const value: string;
