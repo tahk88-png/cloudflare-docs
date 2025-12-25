@@ -1,0 +1,186 @@
+// Rentbox Admin Panel Database Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  OPERATOR
+  VIEWER
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PriceUnit {
+  HOUR
+  DAY
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String
+  password  String
+  role      UserRole  @default(VIEWER)
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  bookings       Booking[]
+  auditLogsActor AuditLog[]
+
+  @@index([email])
+  @@index([role, active])
+  @@map("users")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  icon        String?
+  order       Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products Product[]
+
+  @@index([active, order])
+  @@map("categories")
+}
+
+model Product {
+  id                String    @id @default(cuid())
+  slug              String    @unique
+  name              String
+  shortDescription  String?   @map("short_description")
+  description       String?
+  categoryId        String    @map("category_id")
+  tags              String[]  @default([])
+  basePrice         Decimal   @map("base_price") @db.Decimal(10, 2)
+  priceUnit         PriceUnit @default(DAY) @map("price_unit")
+  slotMinutes       Int       @default(15) @map("slot_minutes")
+  minRentalMinutes  Int       @default(60) @map("min_rental_minutes")
+  maxRentalMinutes  Int?      @map("max_rental_minutes")
+  images            String[]  @default([])
+  active            Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  bookings     Booking[]
+  compartments Compartment[]
+
+  @@index([categoryId, active])
+  @@index([slug])
+  @@map("products")
+}
+
+model Locker {
+  id           String   @id @default(cuid())
+  name         String
+  locationText String   @map("location_text")
+  timezone     String   @default("Europe/Tallinn")
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  compartments Compartment[]
+
+  @@index([active])
+  @@map("lockers")
+}
+
+model Compartment {
+  id        String   @id @default(cuid())
+  lockerId  String   @map("locker_id")
+  label     String
+  productId String?  @map("product_id")
+  active    Boolean  @default(true)
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  locker   Locker   @relation(fields: [lockerId], references: [id], onDelete: Cascade)
+  product  Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  bookings Booking[]
+
+  @@unique([lockerId, label])
+  @@index([lockerId, active])
+  @@index([productId])
+  @@map("compartments")
+}
+
+model Booking {
+  id            String         @id @default(cuid())
+  userId        String?        @map("user_id")
+  productId     String         @map("product_id")
+  compartmentId String         @map("compartment_id")
+  startsAt      DateTime       @map("starts_at")
+  endsAt        DateTime       @map("ends_at")
+  status        BookingStatus  @default(PENDING)
+  paymentStatus PaymentStatus? @default(PENDING) @map("payment_status")
+  cancelReason  String?        @map("cancel_reason")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  product     Product     @relation(fields: [productId], references: [id], onDelete: Restrict)
+  compartment Compartment @relation(fields: [compartmentId], references: [id], onDelete: Restrict)
+
+  @@index([compartmentId, status, startsAt, endsAt])
+  @@index([userId])
+  @@index([productId])
+  @@index([status, startsAt])
+  @@map("bookings")
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  actorUserId  String   @map("actor_user_id")
+  action       String
+  entityType   String   @map("entity_type")
+  entityId     String   @map("entity_id")
+  beforeJson   Json?    @map("before_json")
+  afterJson    Json?    @map("after_json")
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent")
+  createdAt    DateTime @default(now())
+
+  actorUser User @relation(fields: [actorUserId], references: [id], onDelete: Cascade)
+
+  @@index([actorUserId, createdAt])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model Settings {
+  id                    String   @id @default(cuid())
+  key                   String   @unique
+  value                 String
+  description           String?
+  updatedAt             DateTime @updatedAt
+
+  @@map("settings")
+}

@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Rentbox Brand Colors */
+    --rentbox-primary: #1DB954;
+    --rentbox-primary-hover: #159A46;
+    --rentbox-background: #F7F9F8;
+    --rentbox-card: #FFFFFF;
+    --rentbox-border: #E2E8E4;
+    --rentbox-text: #0F172A;
+    --rentbox-muted: #6B7280;
+    --rentbox-disabled: #CBD5CF;
+    --rentbox-error: #DC2626;
+
+    /* Shadcn theme variables mapped to Rentbox */
+    --background: 150 11% 97%; /* #F7F9F8 */
+    --foreground: 222 47% 11%; /* #0F172A */
+    
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 222 47% 11%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    
+    --primary: 145 79% 46%; /* #1DB954 */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 150 9% 87%; /* #E2E8E4 */
+    --secondary-foreground: 222 47% 11%;
+    
+    --muted: 220 9% 46%; /* #6B7280 */
+    --muted-foreground: 220 9% 46%;
+    
+    --accent: 145 79% 46%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%; /* #DC2626 */
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 150 13% 89%; /* #E2E8E4 */
+    --input: 150 13% 89%;
+    --ring: 145 79% 46%;
+    
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
