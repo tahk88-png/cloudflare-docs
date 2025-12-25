@@ -296,6 +296,66 @@ async function main() {
 
   console.log(`✅ Created ${compartments.length} compartments`)
 
+  // Create sample bookings
+  const now = new Date()
+  const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+  const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+
+  const sampleBookings = [
+    // Past booking (completed)
+    {
+      id: `booking_${Date.now()}_past`,
+      productId: products[0].id,
+      compartmentId: compartments[0].id,
+      userEmail: 'test@example.com',
+      userName: 'Test User',
+      startAt: new Date(now.getTime() - 48 * 60 * 60 * 1000),
+      endAt: new Date(now.getTime() - 24 * 60 * 60 * 1000),
+      totalPrice: products[0].basePrice * 24,
+      status: 'completed',
+      accessCode: '123456',
+      paidAt: new Date(now.getTime() - 48 * 60 * 60 * 1000),
+    },
+    // Active booking
+    {
+      id: `booking_${Date.now()}_active`,
+      productId: products[1].id,
+      compartmentId: compartments[3].id,
+      userEmail: 'active@example.com',
+      userName: 'Active User',
+      startAt: new Date(now.getTime() - 2 * 60 * 60 * 1000),
+      endAt: new Date(now.getTime() + 4 * 60 * 60 * 1000),
+      totalPrice: products[1].basePrice * 6,
+      status: 'active',
+      accessCode: '789012',
+      paidAt: new Date(now.getTime() - 2 * 60 * 60 * 1000),
+    },
+    // Future booking
+    {
+      id: `booking_${Date.now()}_future`,
+      productId: products[2].id,
+      compartmentId: compartments[6].id,
+      userEmail: 'future@example.com',
+      userName: 'Future User',
+      startAt: tomorrow,
+      endAt: new Date(tomorrow.getTime() + 24 * 60 * 60 * 1000),
+      totalPrice: products[2].basePrice * 24,
+      status: 'paid',
+      accessCode: '345678',
+      paidAt: now,
+    },
+  ]
+
+  const bookings = await Promise.all(
+    sampleBookings.map((booking) =>
+      prisma.booking.create({
+        data: booking,
+      })
+    )
+  )
+
+  console.log(`✅ Created ${bookings.length} sample bookings`)
+
   console.log('🎉 Seed completed successfully!')
 }
 

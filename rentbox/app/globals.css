@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    /* Rentbox Brand Colors */
+    /* Rentbox Brand Colors - Light Mode */
     --bg: #F7F9F8;
     --card: #FFFFFF;
     --text: #0F172A;
@@ -19,6 +19,27 @@
     /* Additional UI vars */
     --radius: 0.5rem;
     --input: #E2E8E4;
+    --ring: #1DB954;
+    --background: #F7F9F8;
+    --foreground: #0F172A;
+  }
+
+  /* Dark theme for product pages */
+  .dark,
+  [data-theme="dark"] {
+    --bg: #0a0a0a;
+    --card: #171717;
+    --text: #FFFFFF;
+    --muted: #737373;
+    --border: #262626;
+    --accent: #1DB954;
+    --accent-hover: #159A46;
+    --accent-foreground: #FFFFFF;
+    --disabled: #404040;
+    --error: #DC2626;
+    --background: #0a0a0a;
+    --foreground: #FFFFFF;
+    --input: #262626;
     --ring: #1DB954;
   }
   
