@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #F7F9F8;
+    --card: #FFFFFF;
+    --text: #0F172A;
+    --muted: #6B7280;
+    --border: #E2E8E4;
+    --accent: #1DB954;
+    --accent-hover: #159A46;
+    --accent-foreground: #FFFFFF;
+    --disabled: #CBD5CF;
+    --error: #DC2626;
+
+    /* Shadcn/ui variables mapped to brand */
+    --background: 140 10% 97%; /* #F7F9F8 converted to HSL approx */
+    --foreground: 222 47% 11%; /* #0F172A */
+
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 142 72% 42%; /* #1DB954 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent-foreground-2: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border-hsl: 137 12% 90%; /* #E2E8E4 */
+    --input: 137 12% 90%;
+    --ring: 142 72% 42%;
+    --radius: 0.5rem;
+  }
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+}

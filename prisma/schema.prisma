@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  description String?
+  icon        String?
+  order       Int       @default(0)
+  active      Boolean   @default(true)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id                String        @id @default(cuid())
+  slug              String        @unique
+  name              String
+  short_description String?
+  description       String?
+  categoryId        String
+  category          Category      @relation(fields: [categoryId], references: [id])
+  tags              String        // Stored as comma-separated string or JSON since SQLite doesn't support scalar lists natively in Prisma easily without workaround, but let's use String for simplicity here or unsupported("text[]") if postgres. SQLite -> String.
+  base_price        Decimal
+  price_unit        String        // 'hour' | 'day'
+  images            String        // JSON string or comma separated
+  active            Boolean       @default(true)
+  compartments      Compartment[]
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}
+
+model Locker {
+  id            String        @id @default(cuid())
+  name          String
+  location_text String?
+  timezone      String        @default("Europe/Tallinn")
+  compartments  Compartment[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Compartment {
+  id        String   @id @default(cuid())
+  lockerId  String
+  locker    Locker   @relation(fields: [lockerId], references: [id])
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+  label     String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
