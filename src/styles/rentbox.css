@@ -1,0 +1,865 @@
+/**
+ * Rentbox.ee User Dashboard Styles
+ * Clean, calm, mobile-first design
+ */
+
+/* ============================================
+   CSS Custom Properties (Design Tokens)
+   ============================================ */
+:root {
+	/* Brand Colors */
+	--rentbox-primary: #2563eb;
+	--rentbox-primary-hover: #1d4ed8;
+	--rentbox-primary-light: #dbeafe;
+
+	/* Status Colors */
+	--rentbox-success: #16a34a;
+	--rentbox-success-bg: #dcfce7;
+	--rentbox-success-text: #166534;
+
+	--rentbox-warning: #d97706;
+	--rentbox-warning-bg: #fef3c7;
+	--rentbox-warning-text: #92400e;
+
+	--rentbox-danger: #dc2626;
+	--rentbox-danger-bg: #fee2e2;
+	--rentbox-danger-text: #991b1b;
+
+	--rentbox-info: #0891b2;
+	--rentbox-info-bg: #cffafe;
+	--rentbox-info-text: #155e75;
+
+	--rentbox-neutral: #6b7280;
+	--rentbox-neutral-bg: #f3f4f6;
+	--rentbox-neutral-text: #374151;
+
+	/* Background & Surface */
+	--rentbox-bg: #f8fafc;
+	--rentbox-surface: #ffffff;
+	--rentbox-surface-hover: #f1f5f9;
+	--rentbox-border: #e2e8f0;
+	--rentbox-border-focus: #2563eb;
+
+	/* Text Colors */
+	--rentbox-text: #1e293b;
+	--rentbox-text-secondary: #64748b;
+	--rentbox-text-muted: #94a3b8;
+
+	/* Spacing */
+	--rentbox-space-xs: 0.25rem;
+	--rentbox-space-sm: 0.5rem;
+	--rentbox-space-md: 1rem;
+	--rentbox-space-lg: 1.5rem;
+	--rentbox-space-xl: 2rem;
+	--rentbox-space-2xl: 3rem;
+
+	/* Border Radius */
+	--rentbox-radius-sm: 0.375rem;
+	--rentbox-radius-md: 0.5rem;
+	--rentbox-radius-lg: 0.75rem;
+	--rentbox-radius-full: 9999px;
+
+	/* Shadows */
+	--rentbox-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+	--rentbox-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+	--rentbox-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+		0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+	/* Transitions */
+	--rentbox-transition: 150ms ease-in-out;
+}
+
+/* Dark mode support */
+:root[data-theme="dark"] {
+	--rentbox-bg: #0f172a;
+	--rentbox-surface: #1e293b;
+	--rentbox-surface-hover: #334155;
+	--rentbox-border: #334155;
+	--rentbox-text: #f1f5f9;
+	--rentbox-text-secondary: #94a3b8;
+	--rentbox-text-muted: #64748b;
+
+	--rentbox-success-bg: #14532d;
+	--rentbox-success-text: #86efac;
+	--rentbox-warning-bg: #78350f;
+	--rentbox-warning-text: #fde047;
+	--rentbox-danger-bg: #7f1d1d;
+	--rentbox-danger-text: #fca5a5;
+	--rentbox-info-bg: #164e63;
+	--rentbox-info-text: #67e8f9;
+	--rentbox-neutral-bg: #374151;
+	--rentbox-neutral-text: #d1d5db;
+}
+
+/* ============================================
+   Base Dashboard Layout
+   ============================================ */
+.rentbox-dashboard {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: var(--rentbox-space-md);
+	background: var(--rentbox-bg);
+	min-height: 100vh;
+}
+
+.rentbox-dashboard--loading,
+.rentbox-dashboard--error {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 60vh;
+}
+
+.rentbox-dashboard__content {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rentbox-space-xl);
+}
+
+.rentbox-dashboard__main {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rentbox-space-xl);
+}
+
+.rentbox-dashboard__sidebar {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rentbox-space-xl);
+}
+
+/* Tablet and up: Side-by-side layout */
+@media (min-width: 768px) {
+	.rentbox-dashboard {
+		padding: var(--rentbox-space-lg);
+	}
+
+	.rentbox-dashboard__content {
+		flex-direction: row;
+	}
+
+	.rentbox-dashboard__main {
+		flex: 2;
+	}
+
+	.rentbox-dashboard__sidebar {
+		flex: 1;
+		min-width: 300px;
+		max-width: 380px;
+	}
+}
+
+@media (min-width: 1024px) {
+	.rentbox-dashboard {
+		padding: var(--rentbox-space-xl);
+	}
+}
+
+/* ============================================
+   Summary Section
+   ============================================ */
+.rentbox-summary {
+	margin-bottom: var(--rentbox-space-xl);
+}
+
+.rentbox-summary__greeting {
+	margin-bottom: var(--rentbox-space-lg);
+}
+
+.rentbox-summary__title {
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: var(--rentbox-text);
+	margin: 0 0 var(--rentbox-space-xs) 0;
+}
+
+.rentbox-summary__subtitle {
+	color: var(--rentbox-text-secondary);
+	margin: 0;
+}
+
+.rentbox-summary__stats {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: var(--rentbox-space-md);
+}
+
+@media (min-width: 768px) {
+	.rentbox-summary__stats {
+		grid-template-columns: repeat(4, 1fr);
+	}
+
+	.rentbox-summary__title {
+		font-size: 1.875rem;
+	}
+}
+
+/* Stat Cards */
+.rentbox-stat {
+	background: var(--rentbox-surface);
+	border: 1px solid var(--rentbox-border);
+	border-radius: var(--rentbox-radius-lg);
+	padding: var(--rentbox-space-md);
+	display: flex;
+	align-items: flex-start;
+	gap: var(--rentbox-space-sm);
+	box-shadow: var(--rentbox-shadow-sm);
+}
+
+.rentbox-stat__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	border-radius: var(--rentbox-radius-md);
+	flex-shrink: 0;
+}
+
+.rentbox-stat--active .rentbox-stat__icon {
+	background: var(--rentbox-success-bg);
+	color: var(--rentbox-success);
+}
+
+.rentbox-stat--upcoming .rentbox-stat__icon {
+	background: var(--rentbox-info-bg);
+	color: var(--rentbox-info);
+}
+
+.rentbox-stat--spent .rentbox-stat__icon {
+	background: var(--rentbox-warning-bg);
+	color: var(--rentbox-warning);
+}
+
+.rentbox-stat--member .rentbox-stat__icon {
+	background: var(--rentbox-neutral-bg);
+	color: var(--rentbox-neutral);
+}
+
+.rentbox-stat__content {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.rentbox-stat__value {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: var(--rentbox-text);
+	line-height: 1.2;
+}
+
+.rentbox-stat__label {
+	font-size: 0.75rem;
+	color: var(--rentbox-text-secondary);
+	margin-top: var(--rentbox-space-xs);
+}
+
+@media (min-width: 768px) {
+	.rentbox-stat {
+		padding: var(--rentbox-space-lg);
+	}
+
+	.rentbox-stat__value {
+		font-size: 1.5rem;
+	}
+
+	.rentbox-stat__label {
+		font-size: 0.875rem;
+	}
+}
+
+/* ============================================
+   Section Headers
+   ============================================ */
+.rentbox-section {
+	margin-bottom: var(--rentbox-space-lg);
+}
+
+.rentbox-section__header {
+	display: flex;
+	align-items: center;
+	gap: var(--rentbox-space-sm);
+	margin-bottom: var(--rentbox-space-md);
+}
+
+.rentbox-section__title {
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: var(--rentbox-text);
+	margin: 0;
+}
+
+.rentbox-section__count {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 24px;
+	height: 24px;
+	padding: 0 var(--rentbox-space-sm);
+	background: var(--rentbox-primary-light);
+	color: var(--rentbox-primary);
+	border-radius: var(--rentbox-radius-full);
+	font-size: 0.75rem;
+	font-weight: 600;
+}
+
+/* ============================================
+   Grid Layout for Cards
+   ============================================ */
+.rentbox-grid {
+	display: grid;
+	gap: var(--rentbox-space-md);
+}
+
+@media (min-width: 640px) {
+	.rentbox-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (min-width: 1024px) {
+	.rentbox-dashboard__main .rentbox-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+/* ============================================
+   Rental Cards
+   ============================================ */
+.rentbox-card {
+	background: var(--rentbox-surface);
+	border: 1px solid var(--rentbox-border);
+	border-radius: var(--rentbox-radius-lg);
+	padding: var(--rentbox-space-md);
+	box-shadow: var(--rentbox-shadow-sm);
+	transition: box-shadow var(--rentbox-transition);
+}
+
+.rentbox-card:hover {
+	box-shadow: var(--rentbox-shadow-md);
+}
+
+.rentbox-card--active {
+	border-left: 4px solid var(--rentbox-success);
+}
+
+.rentbox-card--upcoming {
+	border-left: 4px solid var(--rentbox-info);
+}
+
+.rentbox-card--past {
+	border-left: 4px solid var(--rentbox-neutral);
+}
+
+.rentbox-card__header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	margin-bottom: var(--rentbox-space-md);
+}
+
+.rentbox-card__locker-info {
+	display: flex;
+	align-items: center;
+	gap: var(--rentbox-space-sm);
+}
+
+.rentbox-card__locker-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	background: var(--rentbox-neutral-bg);
+	border-radius: var(--rentbox-radius-md);
+	position: relative;
+}
+
+.rentbox-card__locker-size {
+	position: absolute;
+	bottom: -4px;
+	right: -4px;
+	background: var(--rentbox-primary);
+	color: white;
+	font-size: 0.625rem;
+	font-weight: 700;
+	padding: 2px 4px;
+	border-radius: var(--rentbox-radius-sm);
+}
+
+.rentbox-card__locker-details {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rentbox-space-xs);
+}
+
+.rentbox-card__locker-number {
+	font-weight: 600;
+	color: var(--rentbox-text);
+}
+
+.rentbox-card__price {
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: var(--rentbox-text);
+}
+
+.rentbox-card__body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rentbox-space-sm);
+}
+
+.rentbox-card__location {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--rentbox-space-sm);
+}
+
+.rentbox-card__location-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.rentbox-card__location-name {
+	font-weight: 500;
+	color: var(--rentbox-text);
+	font-size: 0.875rem;
+}
+
+.rentbox-card__location-address {
+	font-size: 0.75rem;
+	color: var(--rentbox-text-secondary);
+}
+
+.rentbox-card__time-info {
+	display: flex;
+	align-items: center;
+	gap: var(--rentbox-space-sm);
+	padding: var(--rentbox-space-sm) var(--rentbox-space-md);
+	border-radius: var(--rentbox-radius-md);
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+
+.rentbox-card__time-info--active {
+	background: var(--rentbox-success-bg);
+	color: var(--rentbox-success-text);
+}
+
+.rentbox-card__time-info--upcoming {
+	background: var(--rentbox-info-bg);
+	color: var(--rentbox-info-text);
+}
+
+.rentbox-card__dates {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--rentbox-space-sm);
+	font-size: 0.813rem;
+	color: var(--rentbox-text-secondary);
+}
+
+.rentbox-card__duration {
+	color: var(--rentbox-text-muted);
+}
+
+.rentbox-card__footer {
+	margin-top: var(--rentbox-space-md);
+	padding-top: var(--rentbox-space-md);
+	border-top: 1px solid var(--rentbox-border);
+}
+
+.rentbox-card__error {
+	color: var(--rentbox-danger);
+	font-size: 0.75rem;
+	margin-top: var(--rentbox-space-sm);
+}
+
+/* ============================================
+   Status Badges
+   ============================================ */
+.rentbox-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: var(--rentbox-space-xs) var(--rentbox-space-sm);
+	border-radius: var(--rentbox-radius-full);
+	font-size: 0.75rem;
+	font-weight: 500;
+	line-height: 1;
+	white-space: nowrap;
+}
+
+.rentbox-badge--sm {
+	padding: 2px 6px;
+	font-size: 0.688rem;
+}
+
+.rentbox-badge--success {
+	background: var(--rentbox-success-bg);
+	color: var(--rentbox-success-text);
+}
+
+.rentbox-badge--warning {
+	background: var(--rentbox-warning-bg);
+	color: var(--rentbox-warning-text);
+}
+
+.rentbox-badge--danger {
+	background: var(--rentbox-danger-bg);
+	color: var(--rentbox-danger-text);
+}
+
+.rentbox-badge--info {
+	background: var(--rentbox-info-bg);
+	color: var(--rentbox-info-text);
+}
+
+.rentbox-badge--neutral {
+	background: var(--rentbox-neutral-bg);
+	color: var(--rentbox-neutral-text);
+}
+
+/* ============================================
+   Invoices Section
+   ============================================ */
+.rentbox-invoices__group {
+	margin-bottom: var(--rentbox-space-lg);
+}
+
+.rentbox-invoices__group:last-child {
+	margin-bottom: 0;
+}
+
+.rentbox-invoices__group-title {
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: var(--rentbox-text-secondary);
+	margin: 0 0 var(--rentbox-space-sm) 0;
+}
+
+.rentbox-invoices__list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rentbox-space-sm);
+}
+
+.rentbox-invoice {
+	display: flex;
+	align-items: center;
+	gap: var(--rentbox-space-sm);
+	background: var(--rentbox-surface);
+	border: 1px solid var(--rentbox-border);
+	border-radius: var(--rentbox-radius-md);
+	padding: var(--rentbox-space-md);
+}
+
+.rentbox-invoice__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	background: var(--rentbox-neutral-bg);
+	border-radius: var(--rentbox-radius-sm);
+	flex-shrink: 0;
+	color: var(--rentbox-text-secondary);
+}
+
+.rentbox-invoice__content {
+	flex: 1;
+	min-width: 0;
+}
+
+.rentbox-invoice__header {
+	display: flex;
+	align-items: center;
+	gap: var(--rentbox-space-sm);
+	margin-bottom: var(--rentbox-space-xs);
+}
+
+.rentbox-invoice__id {
+	font-weight: 500;
+	font-size: 0.875rem;
+	color: var(--rentbox-text);
+}
+
+.rentbox-invoice__details {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.rentbox-invoice__amount {
+	font-weight: 600;
+	color: var(--rentbox-text);
+	font-size: 0.875rem;
+}
+
+.rentbox-invoice__date,
+.rentbox-invoice__due,
+.rentbox-invoice__paid {
+	font-size: 0.75rem;
+	color: var(--rentbox-text-secondary);
+}
+
+/* ============================================
+   Agreements Section
+   ============================================ */
+.rentbox-agreements {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rentbox-space-sm);
+}
+
+.rentbox-agreement {
+	display: flex;
+	align-items: center;
+	gap: var(--rentbox-space-sm);
+	background: var(--rentbox-surface);
+	border: 1px solid var(--rentbox-border);
+	border-radius: var(--rentbox-radius-md);
+	padding: var(--rentbox-space-md);
+}
+
+.rentbox-agreement__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	background: var(--rentbox-info-bg);
+	border-radius: var(--rentbox-radius-sm);
+	flex-shrink: 0;
+	color: var(--rentbox-info);
+}
+
+.rentbox-agreement__content {
+	flex: 1;
+	min-width: 0;
+}
+
+.rentbox-agreement__header {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.rentbox-agreement__title {
+	font-weight: 500;
+	font-size: 0.875rem;
+	color: var(--rentbox-text);
+}
+
+.rentbox-agreement__locker {
+	font-size: 0.75rem;
+	color: var(--rentbox-text-secondary);
+}
+
+.rentbox-agreement__details {
+	margin-top: var(--rentbox-space-xs);
+}
+
+.rentbox-agreement__date {
+	font-size: 0.75rem;
+	color: var(--rentbox-text-muted);
+}
+
+.rentbox-agreement__actions {
+	display: flex;
+	gap: var(--rentbox-space-xs);
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+.rentbox-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--rentbox-space-sm);
+	padding: var(--rentbox-space-sm) var(--rentbox-space-md);
+	border-radius: var(--rentbox-radius-md);
+	font-size: 0.875rem;
+	font-weight: 500;
+	text-decoration: none;
+	border: none;
+	cursor: pointer;
+	transition: all var(--rentbox-transition);
+}
+
+.rentbox-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.rentbox-btn--primary {
+	background: var(--rentbox-primary);
+	color: white;
+}
+
+.rentbox-btn--primary:hover:not(:disabled) {
+	background: var(--rentbox-primary-hover);
+}
+
+.rentbox-btn--secondary {
+	background: var(--rentbox-surface);
+	color: var(--rentbox-text);
+	border: 1px solid var(--rentbox-border);
+}
+
+.rentbox-btn--secondary:hover:not(:disabled) {
+	background: var(--rentbox-surface-hover);
+}
+
+.rentbox-btn--icon {
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	background: var(--rentbox-surface);
+	color: var(--rentbox-text-secondary);
+	border: 1px solid var(--rentbox-border);
+}
+
+.rentbox-btn--icon:hover:not(:disabled) {
+	background: var(--rentbox-surface-hover);
+	color: var(--rentbox-text);
+}
+
+.rentbox-btn--full {
+	width: 100%;
+}
+
+/* ============================================
+   Quick Actions
+   ============================================ */
+.rentbox-quick-actions {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rentbox-space-sm);
+	margin-top: var(--rentbox-space-xl);
+	padding-top: var(--rentbox-space-xl);
+	border-top: 1px solid var(--rentbox-border);
+}
+
+@media (min-width: 640px) {
+	.rentbox-quick-actions {
+		flex-direction: row;
+		justify-content: center;
+	}
+}
+
+/* ============================================
+   Empty States
+   ============================================ */
+.rentbox-empty {
+	background: var(--rentbox-surface);
+	border: 1px dashed var(--rentbox-border);
+	border-radius: var(--rentbox-radius-lg);
+	padding: var(--rentbox-space-xl);
+	text-align: center;
+}
+
+.rentbox-empty__text {
+	color: var(--rentbox-text-secondary);
+	margin: 0;
+}
+
+/* ============================================
+   Loading Spinner
+   ============================================ */
+.rentbox-loading {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--rentbox-space-md);
+}
+
+.rentbox-loading__text {
+	color: var(--rentbox-text-secondary);
+	margin: 0;
+}
+
+.rentbox-spinner {
+	position: relative;
+}
+
+.rentbox-spinner--sm {
+	width: 20px;
+	height: 20px;
+}
+
+.rentbox-spinner--md {
+	width: 32px;
+	height: 32px;
+}
+
+.rentbox-spinner--lg {
+	width: 48px;
+	height: 48px;
+}
+
+.rentbox-spinner__ring {
+	width: 100%;
+	height: 100%;
+	border: 3px solid var(--rentbox-border);
+	border-top-color: var(--rentbox-primary);
+	border-radius: 50%;
+	animation: rentbox-spin 1s linear infinite;
+}
+
+@keyframes rentbox-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* ============================================
+   Error Message
+   ============================================ */
+.rentbox-error {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--rentbox-space-md);
+	padding: var(--rentbox-space-xl);
+	text-align: center;
+}
+
+.rentbox-error__icon {
+	width: 48px;
+	height: 48px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--rentbox-danger-bg);
+	color: var(--rentbox-danger);
+	border-radius: 50%;
+}
+
+.rentbox-error__title {
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: var(--rentbox-text);
+	margin: 0;
+}
+
+.rentbox-error__message {
+	color: var(--rentbox-text-secondary);
+	margin: 0;
+}
+
+/* ============================================
+   Icons
+   ============================================ */
+.rentbox-icon {
+	flex-shrink: 0;
+}
+
+.rentbox-icon--sm {
+	width: 16px;
+	height: 16px;
+	color: var(--rentbox-text-secondary);
+}
