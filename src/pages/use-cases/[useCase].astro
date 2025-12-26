@@ -1,0 +1,176 @@
+---
+import ProductSchema from "~/components/seo/ProductSchema.astro";
+import FAQSchema from "~/components/seo/FAQSchema.astro";
+import LocalTrustSignals from "~/components/conversion/LocalTrustSignals.astro";
+import PricingBlock from "~/components/conversion/PricingBlock.astro";
+import RentVsBuyCalculator from "~/components/conversion/RentVsBuyCalculator.tsx";
+
+interface Props {
+	params: Promise<{ useCase: string }>;
+}
+
+const { useCase } = await Astro.params;
+
+// Parse use case from slug (e.g., "web-application-firewall" -> "Web Application Firewall")
+const useCaseName = useCase
+	.split("-")
+	.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+	.join(" ");
+
+const title = `${useCaseName} Solutions | Cloudflare`;
+const description = `Learn how Cloudflare can help with ${useCaseName.toLowerCase()}. Enterprise-grade solutions for businesses of all sizes.`;
+
+const faqs = [
+	{
+		question: `What is ${useCaseName}?`,
+		answer: `${useCaseName} is a critical component of modern web infrastructure, helping protect and optimize your online presence.`,
+	},
+	{
+		question: `How does Cloudflare help with ${useCaseName}?`,
+		answer: `Cloudflare provides comprehensive ${useCaseName.toLowerCase()} solutions through our global edge network, offering both performance and security benefits.`,
+	},
+	{
+		question: `What are the benefits of Cloudflare's ${useCaseName} solution?`,
+		answer: `Cloudflare's ${useCaseName.toLowerCase()} solution offers improved performance, enhanced security, reduced costs, and simplified management.`,
+	},
+	{
+		question: `How do I get started with ${useCaseName} on Cloudflare?`,
+		answer: `Getting started is easy! Sign up for a free account and enable ${useCaseName.toLowerCase()} features in your dashboard.`,
+	},
+];
+---
+
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={Astro.url.href} />
+		<ProductSchema
+			name={`Cloudflare ${useCaseName}`}
+			description={description}
+			price="0"
+			rating={4.8}
+			reviewCount={10000}
+		/>
+		<FAQSchema faqs={faqs} />
+	</head>
+	<body>
+		<main class="container mx-auto px-4 py-12 max-w-6xl">
+			<article>
+				<header class="mb-8">
+					<h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+						{useCaseName} Solutions
+					</h1>
+					<p class="text-xl text-gray-600 dark:text-gray-400">{description}</p>
+				</header>
+
+				<div class="mb-12">
+					<LocalTrustSignals />
+				</div>
+
+				<section class="mb-12">
+					<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+						Why Choose Cloudflare for {useCaseName}?
+					</h2>
+					<div class="prose dark:prose-invert max-w-none">
+						<p class="text-lg text-gray-700 dark:text-gray-300 mb-4">
+							Cloudflare's {useCaseName.toLowerCase()} solution provides
+							enterprise-grade features designed to help businesses of all sizes
+							protect and optimize their online presence.
+						</p>
+						<ul class="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
+							<li>Global edge network for optimal performance</li>
+							<li>Advanced security features and threat protection</li>
+							<li>Easy-to-use dashboard and API</li>
+							<li>24/7 support and monitoring</li>
+							<li>Scalable solutions that grow with your business</li>
+						</ul>
+					</div>
+				</section>
+
+				<section class="mb-12">
+					<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+						Pricing Plans
+					</h2>
+					<PricingBlock
+						plans={[
+							{
+								name: "Free",
+								price: "$0",
+								period: "forever",
+								features: [
+									`Basic ${useCaseName} features`,
+									"Community support",
+									"Standard documentation",
+								],
+								cta: "Get Started Free",
+								ctaLink: "#",
+							},
+							{
+								name: "Pro",
+								price: "$20",
+								period: "per month",
+								features: [
+									`Advanced ${useCaseName} features`,
+									"Priority support",
+									"Enhanced analytics",
+									"Custom configurations",
+								],
+								popular: true,
+								cta: "Start Free Trial",
+								ctaLink: "#",
+							},
+							{
+								name: "Enterprise",
+								price: "Custom",
+								period: "",
+								features: [
+									`Everything in Pro`,
+									"Custom SLAs",
+									"Dedicated support",
+									"Custom integrations",
+								],
+								cta: "Contact Sales",
+								ctaLink: "#",
+							},
+						]}
+					/>
+				</section>
+
+				<section class="mb-12">
+					<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+						Rent vs Buy Calculator
+					</h2>
+					<div id="calculator-container">
+						<RentVsBuyCalculator
+							rentalPrice={100}
+							purchasePrice={10000}
+							maintenanceCost={200}
+							client:load
+						/>
+					</div>
+				</section>
+
+				<section class="mb-12">
+					<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+						Frequently Asked Questions
+					</h2>
+					<div class="space-y-4">
+						{faqs.map((faq) => (
+							<details class="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+								<summary class="font-semibold text-gray-900 dark:text-white cursor-pointer">
+									{faq.question}
+								</summary>
+								<p class="mt-2 text-gray-600 dark:text-gray-400">
+									{faq.answer}
+								</p>
+							</details>
+						))}
+					</div>
+				</section>
+			</article>
+		</main>
+	</body>
+</html>

@@ -1,0 +1,50 @@
+---
+interface Props {
+	name: string;
+	address: {
+		streetAddress?: string;
+		addressLocality: string;
+		addressRegion?: string;
+		postalCode?: string;
+		addressCountry: string;
+	};
+	telephone?: string;
+	geo?: {
+		latitude: string;
+		longitude: string;
+	};
+	url?: string;
+	priceRange?: string;
+}
+
+const {
+	name,
+	address,
+	telephone,
+	geo,
+	url = "https://developers.cloudflare.com",
+	priceRange = "$$",
+} = Astro.props;
+
+const schema = {
+	"@context": "https://schema.org",
+	"@type": "LocalBusiness",
+	name,
+	image: "https://developers.cloudflare.com/favicon.png",
+	address: {
+		"@type": "PostalAddress",
+		...address,
+	},
+	...(telephone && { telephone }),
+	...(geo && {
+		geo: {
+			"@type": "GeoCoordinates",
+			...geo,
+		},
+	}),
+	url,
+	priceRange,
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

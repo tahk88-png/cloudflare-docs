@@ -1,0 +1,50 @@
+---
+interface Props {
+	name: string;
+	description?: string;
+	price?: string;
+	priceCurrency?: string;
+	rating?: number;
+	reviewCount?: number;
+	brand?: string;
+	availability?: string;
+}
+
+const {
+	name,
+	description = "",
+	price = "0",
+	priceCurrency = "USD",
+	rating = 4.8,
+	reviewCount = 10000,
+	brand = "Cloudflare",
+	availability = "https://schema.org/InStock",
+} = Astro.props;
+
+const schema = {
+	"@context": "https://schema.org",
+	"@type": "Product",
+	name,
+	description,
+	brand: {
+		"@type": "Brand",
+		name: brand,
+	},
+	offers: {
+		"@type": "Offer",
+		availability,
+		priceCurrency,
+		price,
+		priceValidUntil: new Date(
+			new Date().setFullYear(new Date().getFullYear() + 1),
+		).toISOString(),
+	},
+	aggregateRating: {
+		"@type": "AggregateRating",
+		ratingValue: rating.toString(),
+		reviewCount: reviewCount.toString(),
+	},
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

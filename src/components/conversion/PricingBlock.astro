@@ -1,0 +1,130 @@
+---
+interface Props {
+	plans?: Array<{
+		name: string;
+		price: string;
+		period?: string;
+		features: string[];
+		popular?: boolean;
+		cta?: string;
+		ctaLink?: string;
+	}>;
+}
+
+const {
+	plans = [
+		{
+			name: "Free",
+			price: "$0",
+			period: "forever",
+			features: [
+				"Basic CDN",
+				"SSL/TLS encryption",
+				"Unlimited bandwidth",
+				"Community support",
+			],
+			cta: "Get Started",
+			ctaLink: "#",
+		},
+		{
+			name: "Pro",
+			price: "$20",
+			period: "per month",
+			features: [
+				"Everything in Free",
+				"Advanced analytics",
+				"Image optimization",
+				"Priority support",
+				"Custom SSL",
+			],
+			popular: true,
+			cta: "Start Free Trial",
+			ctaLink: "#",
+		},
+		{
+			name: "Business",
+			price: "$200",
+			period: "per month",
+			features: [
+				"Everything in Pro",
+				"Advanced security",
+				"Load balancing",
+				"24/7 phone support",
+				"Custom contracts",
+			],
+			cta: "Contact Sales",
+			ctaLink: "#",
+		},
+	],
+} = Astro.props;
+---
+
+<div class="pricing-block">
+	<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+		{plans.map((plan) => (
+			<div
+				class={`relative p-6 rounded-lg border-2 transition-all ${
+					plan.popular
+						? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg scale-105"
+						: "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+				}`}
+			>
+				{plan.popular && (
+					<div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+						<span class="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+							Most Popular
+						</span>
+					</div>
+				)}
+
+				<div class="text-center mb-6">
+					<h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+						{plan.name}
+					</h3>
+					<div class="mb-2">
+						<span class="text-4xl font-bold text-gray-900 dark:text-white">
+							{plan.price}
+						</span>
+						{plan.period && (
+							<span class="text-gray-600 dark:text-gray-400">
+								/{plan.period}
+							</span>
+						)}
+					</div>
+				</div>
+
+				<ul class="space-y-3 mb-6">
+					{plan.features.map((feature) => (
+						<li class="flex items-start gap-2">
+							<svg
+								class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M5 13l4 4L19 7"
+								/>
+							</svg>
+							<span class="text-gray-700 dark:text-gray-300">{feature}</span>
+						</li>
+					))}
+				</ul>
+
+				<a
+					href={plan.ctaLink || "#"}
+					class={`block w-full text-center py-3 px-4 rounded-lg font-semibold transition-colors ${
+						plan.popular
+							? "bg-blue-500 hover:bg-blue-600 text-white"
+							: "bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white"
+					}`}
+				>
+					{plan.cta || "Get Started"}
+				</a>
+			</div>
+		))}
+	</div>
+</div>

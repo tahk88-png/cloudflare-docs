@@ -1,0 +1,159 @@
+---
+import { getCollection } from "astro:content";
+import ProductSchema from "~/components/seo/ProductSchema.astro";
+import FAQSchema from "~/components/seo/FAQSchema.astro";
+import LocalTrustSignals from "~/components/conversion/LocalTrustSignals.astro";
+import PricingBlock from "~/components/conversion/PricingBlock.astro";
+import RentVsBuyCalculator from "~/components/conversion/RentVsBuyCalculator.tsx";
+
+interface Props {
+	params: Promise<{ tool: string }>;
+}
+
+const { tool } = await Astro.params;
+const products = await getCollection("products");
+const product = products.find((p) => p.id === tool || p.id.includes(tool));
+
+if (!product) {
+	return Astro.redirect("/404");
+}
+
+const title = product.data.product?.title || tool;
+const description =
+	product.data.product?.description ||
+	`Learn about ${title} - Cloudflare's powerful tool for developers and businesses.`;
+
+const faqs = [
+	{
+		question: `What is ${title}?`,
+		answer: description,
+	},
+	{
+		question: `How does ${title} work?`,
+		answer: `${title} is part of Cloudflare's suite of developer tools designed to help you build, deploy, and scale applications efficiently.`,
+	},
+	{
+		question: `Is ${title} free to use?`,
+		answer: `Cloudflare offers a free tier for ${title} with basic features. Advanced features are available on paid plans.`,
+	},
+	{
+		question: `What are the benefits of using ${title}?`,
+		answer: `${title} provides improved performance, security, and scalability for your applications, helping you deliver better user experiences.`,
+	},
+];
+---
+
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>{title} | Cloudflare</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={Astro.url.href} />
+		<ProductSchema
+			name={title}
+			description={description}
+			price="0"
+			rating={4.8}
+			reviewCount={10000}
+		/>
+		<FAQSchema faqs={faqs} />
+	</head>
+	<body>
+		<main class="container mx-auto px-4 py-12 max-w-6xl">
+			<article>
+				<header class="mb-8">
+					<h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+						{title}
+					</h1>
+					<p class="text-xl text-gray-600 dark:text-gray-400">{description}</p>
+				</header>
+
+				<div class="mb-12">
+					<LocalTrustSignals location="Global" />
+				</div>
+
+				<section class="mb-12">
+					<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+						Pricing Plans
+					</h2>
+					<PricingBlock
+						plans={[
+							{
+								name: "Free",
+								price: "$0",
+								period: "forever",
+								features: [
+									`Basic ${title} access`,
+									"Community support",
+									"Standard documentation",
+								],
+								cta: "Get Started Free",
+								ctaLink: "#",
+							},
+							{
+								name: "Pro",
+								price: "$20",
+								period: "per month",
+								features: [
+									`Full ${title} access`,
+									"Advanced features",
+									"Priority support",
+									"Enhanced analytics",
+								],
+								popular: true,
+								cta: "Start Free Trial",
+								ctaLink: "#",
+							},
+							{
+								name: "Enterprise",
+								price: "Custom",
+								period: "",
+								features: [
+									`Everything in Pro`,
+									"Custom SLAs",
+									"Dedicated support",
+									"Custom integrations",
+								],
+								cta: "Contact Sales",
+								ctaLink: "#",
+							},
+						]}
+					/>
+				</section>
+
+				<section class="mb-12">
+					<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+						Rent vs Buy Calculator
+					</h2>
+					<div id="calculator-container">
+						<RentVsBuyCalculator
+							rentalPrice={100}
+							purchasePrice={10000}
+							maintenanceCost={200}
+							client:load
+						/>
+					</div>
+				</section>
+
+				<section class="mb-12">
+					<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+						Frequently Asked Questions
+					</h2>
+					<div class="space-y-4">
+						{faqs.map((faq) => (
+							<details class="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+								<summary class="font-semibold text-gray-900 dark:text-white cursor-pointer">
+									{faq.question}
+								</summary>
+								<p class="mt-2 text-gray-600 dark:text-gray-400">
+									{faq.answer}
+								</p>
+							</details>
+						))}
+					</div>
+				</section>
+			</article>
+		</main>
+	</body>
+</html>

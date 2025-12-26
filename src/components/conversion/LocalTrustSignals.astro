@@ -1,0 +1,138 @@
+---
+interface Props {
+	location?: string;
+	reviewCount?: number;
+	rating?: number;
+	yearsInBusiness?: number;
+	customersServed?: number;
+}
+
+const {
+	location = "Your Area",
+	reviewCount = 10000,
+	rating = 4.8,
+	yearsInBusiness = 15,
+	customersServed = 20000000,
+} = Astro.props;
+---
+
+<div class="local-trust-signals space-y-4">
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+		<div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+			<div class="flex items-center gap-2 mb-2">
+				<svg
+					class="w-6 h-6 text-yellow-500"
+					fill="currentColor"
+					viewBox="0 0 20 20"
+				>
+					<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+				</svg>
+				<span class="text-2xl font-bold text-gray-900 dark:text-white">
+					{rating}
+				</span>
+			</div>
+			<p class="text-sm text-gray-600 dark:text-gray-400">
+				{reviewCount.toLocaleString()} reviews
+			</p>
+		</div>
+
+		<div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+			<div class="flex items-center gap-2 mb-2">
+				<svg
+					class="w-6 h-6 text-blue-500"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+					/>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+					/>
+				</svg>
+				<span class="text-2xl font-bold text-gray-900 dark:text-white">
+					{location}
+				</span>
+			</div>
+			<p class="text-sm text-gray-600 dark:text-gray-400">Local presence</p>
+		</div>
+
+		<div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+			<div class="flex items-center gap-2 mb-2">
+				<svg
+					class="w-6 h-6 text-green-500"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+					/>
+				</svg>
+				<span class="text-2xl font-bold text-gray-900 dark:text-white">
+					{yearsInBusiness}+
+				</span>
+			</div>
+			<p class="text-sm text-gray-600 dark:text-gray-400">Years in business</p>
+		</div>
+
+		<div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+			<div class="flex items-center gap-2 mb-2">
+				<svg
+					class="w-6 h-6 text-purple-500"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+					/>
+				</svg>
+				<span class="text-2xl font-bold text-gray-900 dark:text-white">
+					{(customersServed / 1000000).toFixed(1)}M+
+				</span>
+			</div>
+			<p class="text-sm text-gray-600 dark:text-gray-400">Customers served</p>
+		</div>
+	</div>
+
+	<div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+		<div class="flex items-start gap-3">
+			<svg
+				class="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5"
+				fill="none"
+				stroke="currentColor"
+				viewBox="0 0 24 24"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+				/>
+			</svg>
+			<div>
+				<h3 class="font-semibold text-gray-900 dark:text-white mb-1">
+					Trusted by businesses worldwide
+				</h3>
+				<p class="text-sm text-gray-600 dark:text-gray-400">
+					Join millions of customers who trust our platform for their critical
+					business needs. Enterprise-grade security and reliability.
+				</p>
+			</div>
+		</div>
+	</div>
+</div>
