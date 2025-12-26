@@ -79,8 +79,6 @@ model Booking {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
-  incidents     Incident[]
-
   @@index([compartmentId, startAt, endAt])
   @@index([status])
   @@index([startAt, endAt])

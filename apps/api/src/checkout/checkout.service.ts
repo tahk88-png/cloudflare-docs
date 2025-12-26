@@ -20,7 +20,7 @@ export class CheckoutService {
       where: { code },
     });
 
-    if (voucher && voucher.remaining > 0 && (!voucher.expires || voucher.expires > new Date())) {
+    if (voucher && Number(voucher.remaining) > 0 && (!voucher.expires || voucher.expires > new Date())) {
       return { type: 'voucher', code: voucher.code, value: voucher.remaining };
     }
 

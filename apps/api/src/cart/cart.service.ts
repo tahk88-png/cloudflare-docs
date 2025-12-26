@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-interface CartItem {
+export interface CartItem {
   productId: string;
   compartmentId: string;
   startAt: string;
