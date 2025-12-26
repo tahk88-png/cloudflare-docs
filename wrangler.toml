@@ -21,3 +21,9 @@ run_worker_first = true
 [[r2_buckets]]
 binding = "VENDORED_MARKDOWN"
 bucket_name = "vendored-markdown"
+
+# Notification Engine - D1 Database
+[[d1_databases]]
+binding = "NOTIFICATION_DB"
+database_name = "rentbox-notifications"
+database_id = "" # Set this after creating the database with: wrangler d1 create rentbox-notifications

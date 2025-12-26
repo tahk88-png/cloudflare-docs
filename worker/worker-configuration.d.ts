@@ -3,6 +3,26 @@
 interface Env {
 	ASSETS: Fetcher;
 	VENDORED_MARKDOWN: R2Bucket;
+	// Notification Engine Configuration
+	NOTIFICATION_DB: D1Database;
+	// Email Configuration
+	NOTIFICATION_FROM_EMAIL?: string;
+	NOTIFICATION_FROM_NAME?: string;
+	EMAIL_PROVIDER?: "cloudflare" | "sendgrid" | "mailgun";
+	SENDGRID_API_KEY?: string;
+	MAILGUN_API_KEY?: string;
+	EMAIL_WORKER?: Fetcher;
+	// SMS Configuration (Twilio)
+	TWILIO_ACCOUNT_SID?: string;
+	TWILIO_AUTH_TOKEN?: string;
+	TWILIO_FROM_NUMBER?: string;
+	TWILIO_WHATSAPP_FROM?: string;
+	SMS_WORKER?: Fetcher;
+	// Notification Service Configuration
+	NOTIFICATION_MAX_RETRIES?: string;
+	NOTIFICATION_RETRY_DELAY_MS?: string;
+	// Admin API
+	ADMIN_API_KEY?: string;
 }
 declare module "*/__redirects" {
 	const value: string;

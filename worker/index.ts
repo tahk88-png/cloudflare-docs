@@ -3,6 +3,10 @@ import { generateRedirectsEvaluator } from "redirects-in-workers";
 import redirectsFileContents from "../dist/__redirects";
 
 import { htmlToMarkdown } from "../src/util/markdown";
+import {
+	handleSendNotification,
+	handleGetLogs,
+} from "./notifications/api.js";
 
 const redirectsEvaluator = generateRedirectsEvaluator(redirectsFileContents, {
 	maxLineLength: 10_000, // Usually 2_000
@@ -12,6 +16,18 @@ const redirectsEvaluator = generateRedirectsEvaluator(redirectsFileContents, {
 
 export default class extends WorkerEntrypoint<Env> {
 	override async fetch(request: Request) {
+		const url = new URL(request.url);
+		const pathname = url.pathname;
+
+		// Notification API endpoints
+		if (pathname === "/api/notifications/send") {
+			return handleSendNotification(request, this.env);
+		}
+
+		if (pathname === "/api/admin/notifications/logs") {
+			return handleGetLogs(request, this.env);
+		}
+
 		if (request.url.endsWith("/markdown.zip")) {
 			const res = await this.env.VENDORED_MARKDOWN.get("markdown.zip");
 
