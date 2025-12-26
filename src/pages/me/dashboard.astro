@@ -1,0 +1,24 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import UserDashboard from "~/components/rentbox/UserDashboard";
+
+const frontmatter = {
+	title: "Your dashboard",
+	description: "Overview of your rentals, invoices, and agreements.",
+	template: "splash",
+} as const;
+---
+
+<StarlightPage frontmatter={frontmatter}>
+	<div class="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
+		<div class="mb-6">
+			<h1 class="text-2xl font-semibold tracking-tight">Your dashboard</h1>
+			<p class="mt-2 text-sm text-[color:var(--sl-color-gray-3)]">
+				Instant overview: what you have, what’s next, what’s done.
+			</p>
+		</div>
+
+		<UserDashboard client:load />
+	</div>
+</StarlightPage>
+

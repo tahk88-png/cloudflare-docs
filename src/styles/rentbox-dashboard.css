@@ -1,0 +1,164 @@
+@layer components {
+	.rb-grid {
+		display: block;
+	}
+
+	.rb-card {
+		border: 1px solid var(--sl-color-gray-6);
+		background: var(--sl-color-bg);
+		border-radius: 0.75rem;
+		overflow: hidden;
+	}
+
+	.rb-card__header {
+		padding: 1rem 1rem 0 1rem;
+	}
+
+	.rb-card__title {
+		font-size: 1rem;
+		font-weight: 600;
+		letter-spacing: -0.01em;
+	}
+
+	.rb-card__subtitle {
+		margin-top: 0.25rem;
+		font-size: 0.875rem;
+		color: var(--sl-color-gray-3);
+	}
+
+	.rb-card__body {
+		padding: 1rem;
+	}
+
+	.rb-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.rb-row {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 0.75rem;
+		border: 1px solid var(--sl-color-gray-6);
+		border-radius: 0.75rem;
+		background: color-mix(in oklab, var(--sl-color-bg) 92%, var(--sl-color-gray-7));
+	}
+
+	.rb-muted {
+		color: var(--sl-color-gray-3);
+	}
+
+	.rb-link {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--sl-color-accent);
+		text-decoration: none;
+	}
+	.rb-link:hover {
+		text-decoration: underline;
+	}
+
+	.rb-button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.4rem 0.7rem;
+		border-radius: 0.6rem;
+		border: 1px solid var(--sl-color-gray-6);
+		background: var(--sl-color-bg);
+		color: var(--sl-color-text);
+		font-size: 0.875rem;
+		font-weight: 600;
+		white-space: nowrap;
+	}
+
+	.rb-button--primary {
+		border-color: color-mix(in oklab, var(--sl-color-accent) 70%, var(--sl-color-gray-6));
+		background: color-mix(in oklab, var(--sl-color-accent) 15%, var(--sl-color-bg));
+	}
+
+	.rb-button:hover {
+		border-color: var(--sl-color-gray-5);
+	}
+
+	.rb-badge {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.15rem 0.45rem;
+		border-radius: 999px;
+		font-size: 0.75rem;
+		font-weight: 700;
+		border: 1px solid var(--sl-color-gray-6);
+		letter-spacing: 0.01em;
+	}
+
+	.rb-badge--success {
+		background: color-mix(in oklab, var(--color-cl1-green-8) 25%, var(--sl-color-bg));
+		color: color-mix(in oklab, var(--color-cl1-green-6) 80%, var(--sl-color-text));
+		border-color: color-mix(in oklab, var(--color-cl1-green-7) 45%, var(--sl-color-gray-6));
+	}
+
+	.rb-badge--caution {
+		background: color-mix(in oklab, var(--color-cl1-gold-8) 25%, var(--sl-color-bg));
+		color: color-mix(in oklab, var(--color-cl1-gold-6) 85%, var(--sl-color-text));
+		border-color: color-mix(in oklab, var(--color-cl1-gold-7) 50%, var(--sl-color-gray-6));
+	}
+
+	.rb-badge--danger {
+		background: color-mix(in oklab, var(--color-cl1-red-8) 25%, var(--sl-color-bg));
+		color: color-mix(in oklab, var(--color-cl1-red-6) 85%, var(--sl-color-text));
+		border-color: color-mix(in oklab, var(--color-cl1-red-7) 50%, var(--sl-color-gray-6));
+	}
+
+	.rb-badge--note {
+		background: color-mix(in oklab, var(--color-cl1-blue-9) 30%, var(--sl-color-bg));
+		color: color-mix(in oklab, var(--color-cl1-blue-5) 85%, var(--sl-color-text));
+		border-color: color-mix(in oklab, var(--color-cl1-blue-8) 55%, var(--sl-color-gray-6));
+	}
+
+	.rb-metric {
+		border: 1px solid var(--sl-color-gray-6);
+		border-radius: 0.75rem;
+		padding: 0.75rem;
+		background: color-mix(in oklab, var(--sl-color-bg) 92%, var(--sl-color-gray-7));
+	}
+
+	.rb-metric__label {
+		font-size: 0.75rem;
+		color: var(--sl-color-gray-3);
+		font-weight: 600;
+	}
+
+	.rb-metric__value {
+		margin-top: 0.15rem;
+		font-size: 1.25rem;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+	}
+
+	.rb-skeleton {
+		border-radius: 0.75rem;
+		background: linear-gradient(
+			90deg,
+			color-mix(in oklab, var(--sl-color-gray-7) 65%, var(--sl-color-bg)) 25%,
+			color-mix(in oklab, var(--sl-color-gray-7) 35%, var(--sl-color-bg)) 50%,
+			color-mix(in oklab, var(--sl-color-gray-7) 65%, var(--sl-color-bg)) 75%
+		);
+		background-size: 200% 100%;
+		animation: rb-shimmer 1.2s ease-in-out infinite;
+		border: 1px solid var(--sl-color-gray-6);
+	}
+
+	@keyframes rb-shimmer {
+		0% {
+			background-position: 200% 0;
+		}
+		100% {
+			background-position: -200% 0;
+		}
+	}
+}
+
