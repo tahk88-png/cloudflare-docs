@@ -16,7 +16,11 @@ export function getDB(context: APIContext): Database {
 	const db = (context.locals as any)?.runtime?.env?.CONTENT_DB;
 	
 	if (!db) {
-		// Fallback for development - you may need to adjust this
+		// Fallback to local in-memory database for development
+		if (import.meta.env.DEV) {
+			const { getLocalDB } = await import("./db-local");
+			return getLocalDB();
+		}
 		throw new Error("Database not available. Make sure CONTENT_DB binding is configured in wrangler.toml");
 	}
 

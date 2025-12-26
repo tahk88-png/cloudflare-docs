@@ -23,6 +23,26 @@ export async function uploadFile(
 	const storage = (context.locals as any)?.runtime?.env?.CONTENT_MEDIA;
 	
 	if (!storage) {
+		// Fallback for local development - store in memory or use data URL
+		if (import.meta.env.DEV) {
+			const fileKey = key || `${crypto.randomUUID()}.${getFileExtension(file.name)}`;
+			// For local dev, create a data URL (not ideal but works for testing)
+			const arrayBuffer = await file.arrayBuffer();
+			const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+			const dataUrl = `data:${file.type};base64,${base64}`;
+			
+			// Store in a simple in-memory cache
+			if (!(globalThis as any).__localMediaStorage) {
+				(globalThis as any).__localMediaStorage = new Map();
+			}
+			(globalThis as any).__localMediaStorage.set(fileKey, dataUrl);
+			
+			return {
+				url: `/api/media/${fileKey}`,
+				key: fileKey,
+				size: file.size,
+			};
+		}
 		throw new Error("Storage not available. Make sure CONTENT_MEDIA binding is configured in wrangler.toml");
 	}
 
@@ -37,7 +57,7 @@ export async function uploadFile(
 
 	// Generate public URL
 	// In production, use your CDN domain or R2 public URL
-	const url = `/media/${fileKey}`;
+	const url = `/api/media/${fileKey}`;
 
 	return {
 		url,
@@ -56,7 +76,27 @@ export async function getFile(
 	const storage = (context.locals as any)?.runtime?.env?.CONTENT_MEDIA;
 	
 	if (!storage) {
-		throw new Error("Storage not available");
+		// Fallback for local development
+		if (import.meta.env.DEV && (globalThis as any).__localMediaStorage) {
+			const dataUrl = (globalThis as any).__localMediaStorage.get(key);
+			if (dataUrl) {
+				// Extract base64 data from data URL
+				const base64Data = dataUrl.split(",")[1];
+				const binaryString = atob(base64Data);
+				const bytes = new Uint8Array(binaryString.length);
+				for (let i = 0; i < binaryString.length; i++) {
+					bytes[i] = binaryString.charCodeAt(i);
+				}
+				const contentType = dataUrl.match(/data:([^;]+)/)?.[1] || "application/octet-stream";
+				return new Response(bytes, {
+					headers: {
+						"Content-Type": contentType,
+						"Cache-Control": "public, max-age=31536000",
+					},
+				});
+			}
+		}
+		return null;
 	}
 
 	const object = await storage.get(key);
