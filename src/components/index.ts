@@ -65,6 +65,13 @@ export { default as WorkersTemplates } from "./WorkersTemplates.astro";
 export { default as YouTube } from "./YouTube.astro";
 export { default as YouTubeVideos } from "./YouTubeVideos.astro";
 
+// Rentbox calendar (status/badge system)
+export { StatusBadge } from "./rentbox/calendar/StatusBadge";
+export { EventBlock } from "./rentbox/calendar/EventBlock";
+export { Legend } from "./rentbox/calendar/Legend";
+export { CustomerSlotGridExample } from "./rentbox/calendar/examples/CustomerSlotGridExample";
+export { AdminTimelineExample } from "./rentbox/calendar/examples/AdminTimelineExample";
+
 // Taken from Astro
 export { default as ListCard } from "./astro/ListCard.astro";
 export { default as FourCardGrid } from "./FourCardGrid.astro";
