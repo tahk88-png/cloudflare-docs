@@ -1,0 +1,30 @@
+# Example Wrangler configuration for Locker Access Service
+# Copy this to wrangler.toml and update with your values
+
+name = "rentbox-locker-service"
+compatibility_date = "2024-01-01"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "rentbox-lockers"
+database_id = "your-database-id-here"
+
+# Environment variables (use secrets for sensitive values)
+# Set with: wrangler secret put <KEY>
+# Example: wrangler secret put ADMIN_API_KEY
+
+[vars]
+# Hardware API endpoint (optional)
+HARDWARE_ENDPOINT = "https://hardware-api.example.com"
+
+# SMS provider configuration (optional)
+SMS_ENDPOINT = "https://sms-api.example.com/send"
+
+# Booking service configuration (optional)
+BOOKING_API_ENDPOINT = "https://booking-api.example.com"
+
+# Secrets (set via wrangler secret put)
+# SMS_API_KEY
+# BOOKING_API_KEY
+# ADMIN_API_KEY
