@@ -14,22 +14,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-background">
-        <nav className="border-b bg-white">
+    <html lang="et">
+      <body className="min-h-screen bg-background antialiased">
+        <nav className="border-b bg-white sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <Link href="/" className="text-xl font-bold">
               Demo App
             </Link>
             <div className="flex gap-4">
               <Link href="/tools">
-                <Button variant="ghost">Tools</Button>
+                <Button variant="ghost">Tööriistad</Button>
               </Link>
               <Link href="/cart">
-                <Button variant="ghost">Cart</Button>
+                <Button variant="ghost">Ostukorv</Button>
               </Link>
               <Link href="/dashboard">
-                <Button variant="ghost">Dashboard</Button>
+                <Button variant="ghost">Armatuurlaud</Button>
               </Link>
               <Link href="/admin">
                 <Button variant="outline">Admin</Button>
