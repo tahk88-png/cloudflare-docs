@@ -3,13 +3,21 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
+		"first-run": "pnpm db:up && sleep 5 && pnpm db:generate && pnpm db:migrate && pnpm db:seed && pnpm demo:load && pnpm dev",
+		"dev": "concurrently -n api,web -c blue,green \"pnpm --filter api dev\" \"pnpm --filter web dev\"",
+		"db:up": "docker-compose up -d",
+		"db:down": "docker-compose down",
+		"db:migrate": "dotenv -e .env -- prisma migrate deploy",
+		"db:generate": "prisma generate",
+		"db:seed": "dotenv -e .env -- prisma db seed",
+		"demo:load": "dotenv -e .env -- tsx prisma/demo-load.ts",
+		"demo:reset": "dotenv -e .env -- tsx prisma/demo-reset.ts",
 		"astro": "npx astro",
 		"build": "npx astro build",
 		"typegen:worker": "npx wrangler types ./worker/worker-configuration.d.ts",
 		"check": "npm run check:astro && npm run check:worker",
 		"check:astro": "npx astro check",
 		"check:worker": "npx tsc --noEmit -p ./worker/tsconfig.json",
-		"dev": "npx astro dev",
 		"format": "npm run format:core:fix && npm run format:data",
 		"format:core": "npx prettier \"**/*.{js,jsx,ts,tsx,mjs,css}\"",
 		"format:core:check": "npm run format:core -- --check",
@@ -135,6 +143,19 @@
 		"vite-tsconfig-paths": "5.1.4",
 		"vitest": "2.1.6",
 		"wrangler": "4.26.1"
+	},
+	"dependencies": {
+		"@prisma/client": "^5.20.0",
+		"concurrently": "^9.1.0",
+		"date-fns": "^4.1.0",
+		"dotenv-cli": "^7.4.2",
+		"tsx": "^4.20.3"
+	},
+	"devDependencies": {
+		"prisma": "^5.20.0"
+	},
+	"prisma": {
+		"seed": "tsx prisma/seed.ts"
 	},
 	"engines": {
 		"node": ">=22"

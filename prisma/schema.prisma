@@ -1,0 +1,227 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  pricing   Json     // { hourly: number, daily: number, weekly: number }
+  deposit   Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  compartments CompartmentProduct[]
+  bookings     Booking[]
+
+  @@index([slug])
+}
+
+model Locker {
+  id       String   @id @default(cuid())
+  name     String
+  location String
+  timezone String   @default("Europe/Tallinn")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  compartments Compartment[]
+  bookings     Booking[]
+  incidents    Incident[]
+
+  @@index([name])
+}
+
+model Compartment {
+  id        String   @id @default(cuid())
+  lockerId  String
+  code      String   // e.g., "A01", "B12"
+  locker    Locker   @relation(fields: [lockerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products  CompartmentProduct[]
+  bookings  Booking[]
+
+  @@unique([lockerId, code])
+  @@index([lockerId])
+}
+
+model CompartmentProduct {
+  id            String   @id @default(cuid())
+  compartmentId String
+  productId     String
+  compartment   Compartment @relation(fields: [compartmentId], references: [id], onDelete: Cascade)
+  product       Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+
+  @@unique([compartmentId, productId])
+  @@index([compartmentId])
+  @@index([productId])
+}
+
+model Booking {
+  id            String      @id @default(cuid())
+  startAt       DateTime
+  endAt         DateTime
+  status        BookingStatus @default(PENDING)
+  compartmentId String
+  productId     String
+  compartment   Compartment @relation(fields: [compartmentId], references: [id])
+  product       Product     @relation(fields: [productId], references: [id])
+  lockerId      String
+  locker        Locker      @relation(fields: [lockerId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  incidents     Incident[]
+
+  @@index([compartmentId, startAt, endAt])
+  @@index([status])
+  @@index([startAt, endAt])
+}
+
+enum BookingStatus {
+  PENDING
+  PAID
+  ACTIVE
+  OVERDUE
+  COMPLETED
+  CANCELLED
+}
+
+model CalendarEvent {
+  id        String   @id @default(cuid())
+  scope     String   // "locker", "compartment", "global"
+  status    String   @default("active") // "active", "cancelled"
+  startAt   DateTime
+  endAt     DateTime
+  meta      Json     // { lockerId?, compartmentId?, reason?, notes? }
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([scope, startAt, endAt])
+  @@index([startAt, endAt])
+}
+
+model Incident {
+  id         String          @id @default(cuid())
+  severity   IncidentSeverity @default(MEDIUM)
+  status     IncidentStatus   @default(OPEN)
+  title      String
+  bookingId  String?
+  lockerId   String?
+  locker     Locker?         @relation(fields: [lockerId], references: [id])
+  notes      String?         @db.Text
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  resolvedAt DateTime?
+
+  @@index([status])
+  @@index([severity])
+  @@index([lockerId])
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IncidentStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+model DiscountCode {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  type        String   // "percentage", "fixed"
+  value       Decimal  @db.Decimal(10, 2)
+  limits      Json     // { maxUses?, maxUsesPerUser?, minAmount?, validFrom?, validUntil? }
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  redemptions DiscountRedemption[]
+
+  @@index([code])
+}
+
+model Voucher {
+  id         String   @id @default(cuid())
+  code       String   @unique
+  initial    Decimal  @db.Decimal(10, 2)
+  remaining  Decimal  @db.Decimal(10, 2)
+  expires    DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  redemptions VoucherRedemption[]
+
+  @@index([code])
+}
+
+model VoucherRedemption {
+  id        String   @id @default(cuid())
+  voucherId String
+  voucher   Voucher  @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+  amount    Decimal  @db.Decimal(10, 2)
+  bookingId String?
+  createdAt DateTime @default(now())
+
+  @@index([voucherId])
+}
+
+model DiscountRedemption {
+  id           String       @id @default(cuid())
+  discountCodeId String
+  discountCode DiscountCode @relation(fields: [discountCodeId], references: [id], onDelete: Cascade)
+  bookingId   String?
+  userId       String?
+  createdAt    DateTime     @default(now())
+
+  @@index([discountCodeId])
+  @@index([userId])
+}
+
+model Campaign {
+  id        String   @id @default(cuid())
+  name      String
+  rules     Json     // { conditions: [...], actions: [...] }
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active])
+}
+
+model SystemFlag {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  enabled   Boolean  @default(false)
+  meta      Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     String?  // user ID or system
+  action    String
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([actor])
+  @@index([action])
+  @@index([createdAt])
+}
