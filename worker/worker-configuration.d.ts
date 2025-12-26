@@ -3,6 +3,9 @@
 interface Env {
 	ASSETS: Fetcher;
 	VENDORED_MARKDOWN: R2Bucket;
+	DB: D1Database;
+	RETURN_PHOTOS_BUCKET: R2Bucket;
+	EMAIL_SERVICE?: Fetcher;
 }
 declare module "*/__redirects" {
 	const value: string;

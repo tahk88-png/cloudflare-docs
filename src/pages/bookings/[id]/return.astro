@@ -1,0 +1,20 @@
+---
+import ReturnFlow from "../../../components/ReturnFlow";
+import Layout from "../../../layouts/Layout.astro";
+
+const { id } = Astro.params;
+
+// In a real app, fetch booking data from API
+// For now, we'll pass the booking ID to the component
+// You would fetch: const booking = await fetchBooking(id);
+---
+
+<Layout title="Return Tool - Rentbox.ee">
+	<main class="container mx-auto px-4 py-8 max-w-4xl">
+		<ReturnFlow 
+			client:load
+			bookingId={id || ""}
+			endAt={new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()} 
+		/>
+	</main>
+</Layout>

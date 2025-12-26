@@ -1,0 +1,16 @@
+---
+import AdminReturnsView from "../../components/AdminReturnsView";
+import Layout from "../../layouts/Layout.astro";
+
+// In a real app, get auth token from session/cookies
+// const authToken = Astro.cookies.get("auth_token")?.value;
+---
+
+<Layout title="Admin Returns - Rentbox.ee">
+	<main class="container mx-auto px-4 py-8">
+		<AdminReturnsView 
+			client:load
+			authToken={""} 
+		/>
+	</main>
+</Layout>

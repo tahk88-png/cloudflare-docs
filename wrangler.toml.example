@@ -1,0 +1,32 @@
+# Example Wrangler configuration for Rentbox.ee Return Flow
+# Copy this to wrangler.toml and configure with your values
+
+name = "rentbox-ee"
+main = "worker/index.ts"
+compatibility_date = "2024-01-01"
+
+[env.production]
+routes = [
+  { pattern = "rentbox.ee", zone_name = "rentbox.ee" }
+]
+
+# D1 Database for bookings and returns
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "rentbox-db"
+database_id = "your-database-id-here"
+
+# R2 Bucket for return photos
+[[env.production.r2_buckets]]
+binding = "RETURN_PHOTOS_BUCKET"
+bucket_name = "rentbox-return-photos"
+
+# Email service (optional - configure your email service worker)
+# [[env.production.workers]]
+# binding = "EMAIL_SERVICE"
+# service = "email-service"
+
+# Cron Trigger for return reminders (runs every hour)
+[[triggers.crons]]
+cron = "0 * * * *" # Every hour
+route = "/api/cron/return-reminders"

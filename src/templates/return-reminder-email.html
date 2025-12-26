@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Return Reminder - Rentbox.ee</title>
+	<style>
+		body {
+			font-family: system-ui, -apple-system, sans-serif;
+			line-height: 1.6;
+			color: #333;
+			max-width: 600px;
+			margin: 0 auto;
+			padding: 20px;
+		}
+		.header {
+			background-color: #2563eb;
+			color: white;
+			padding: 20px;
+			border-radius: 8px 8px 0 0;
+		}
+		.content {
+			background-color: #f9fafb;
+			padding: 30px;
+			border-radius: 0 0 8px 8px;
+		}
+		.button {
+			display: inline-block;
+			background-color: #2563eb;
+			color: white;
+			padding: 12px 24px;
+			text-decoration: none;
+			border-radius: 6px;
+			margin-top: 20px;
+		}
+		.footer {
+			margin-top: 30px;
+			padding-top: 20px;
+			border-top: 1px solid #e5e7eb;
+			font-size: 14px;
+			color: #6b7280;
+		}
+	</style>
+</head>
+<body>
+	<div class="header">
+		<h1>🔧 Return Reminder</h1>
+	</div>
+	<div class="content">
+		<p>Hello,</p>
+		
+		<p>This is a reminder that your rental period for <strong>{{tool_name}}</strong> has ended.</p>
+		
+		<p><strong>End Date:</strong> {{end_at}}</p>
+		
+		<p>Please return the tool and confirm your return using the button below:</p>
+		
+		<a href="{{return_url}}" class="button">I Returned the Tool</a>
+		
+		<p>You can upload photos of the returned tool to document its condition (optional, max 3 photos).</p>
+		
+		<p>If you have any questions or concerns, please contact our support team.</p>
+		
+		<div class="footer">
+			<p>Thank you for using Rentbox.ee!</p>
+			<p>This is an automated message. Please do not reply to this email.</p>
+		</div>
+	</div>
+</body>
+</html>
