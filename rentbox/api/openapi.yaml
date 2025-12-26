@@ -1,0 +1,480 @@
+openapi: 3.1.0
+info:
+  title: Rentbox Booking + Calendar API
+  version: 0.1.0
+  description: >
+    Time-based booking with server-enforced conflict prevention and calendar views/APIs.
+
+servers:
+  - url: https://api.rentbox.ee
+
+tags:
+  - name: availability
+  - name: bookings
+  - name: calendar
+  - name: admin
+
+paths:
+  /api/products/{id}/availability:
+    get:
+      tags: [availability]
+      summary: Check availability for a time range
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+        - name: start_at
+          in: query
+          required: true
+          schema: { type: string, format: date-time }
+          description: ISO timestamp (UTC or with offset)
+        - name: end_at
+          in: query
+          required: true
+          schema: { type: string, format: date-time }
+        - name: tz
+          in: query
+          required: false
+          schema: { type: string, default: Europe/Tallinn }
+      responses:
+        "200":
+          description: Availability result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvailabilityResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/products/{id}/slots:
+    get:
+      tags: [availability]
+      summary: Generate availability slots for a local date
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+        - name: date
+          in: query
+          required: true
+          schema: { type: string, format: date }
+          description: Local date in tz (YYYY-MM-DD)
+        - name: step_minutes
+          in: query
+          required: false
+          schema: { type: integer, default: 30, minimum: 1, maximum: 240 }
+        - name: duration_minutes
+          in: query
+          required: true
+          schema: { type: integer, minimum: 1, maximum: 10080 }
+        - name: tz
+          in: query
+          required: false
+          schema: { type: string, default: Europe/Tallinn }
+      responses:
+        "200":
+          description: Slots list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Slot"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/bookings/quote:
+    post:
+      tags: [bookings]
+      summary: Quote price/deposit for a requested range (server-side)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuoteRequest"
+      responses:
+        "200":
+          description: Quote result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuoteResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/bookings:
+    post:
+      tags: [bookings]
+      summary: Create a pending booking (auto-assign a free compartment)
+      description: >
+        Uses DB transaction + exclusion constraint to be race-safe. Supply idempotency_key to retry safely.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBookingRequest"
+      responses:
+        "201":
+          description: Created booking
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "409":
+          description: No availability / conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/bookings/{id}/confirm-payment:
+    post:
+      tags: [bookings]
+      summary: Confirm payment (idempotent)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfirmPaymentRequest"
+      responses:
+        "200":
+          description: Updated booking
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Booking" }
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/bookings/{id}/start:
+    post:
+      tags: [bookings]
+      summary: Start rental (paid -> active)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        "200":
+          description: Updated booking
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Booking" }
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/bookings/{id}/complete:
+    post:
+      tags: [bookings]
+      summary: Complete rental (active/overdue -> completed)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        "200":
+          description: Updated booking
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Booking" }
+
+  /api/bookings/{id}/cancel:
+    post:
+      tags: [bookings]
+      summary: Cancel (policy-based; typically paid -> cancelled)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string }
+      responses:
+        "200":
+          description: Updated booking
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Booking" }
+
+  /api/bookings/{id}/extend:
+    post:
+      tags: [bookings]
+      summary: Extend rental (same compartment; availability checked)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [new_end_at]
+              properties:
+                new_end_at: { type: string, format: date-time }
+      responses:
+        "200":
+          description: Updated booking
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Booking" }
+        "409":
+          description: Extension conflict / blocked
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /api/calendar/events:
+    get:
+      tags: [calendar]
+      summary: Query calendar events
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema: { type: string, format: date-time }
+        - name: to
+          in: query
+          required: true
+          schema: { type: string, format: date-time }
+        - name: scope
+          in: query
+          required: false
+          schema: { type: string, enum: [booking, maintenance, block] }
+        - name: locker_id
+          in: query
+          required: false
+          schema: { type: integer, format: int64 }
+        - name: compartment_id
+          in: query
+          required: false
+          schema: { type: integer, format: int64 }
+        - name: product_id
+          in: query
+          required: false
+          schema: { type: integer, format: int64 }
+      responses:
+        "200":
+          description: Events list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CalendarEvent" }
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/admin/calendar/blocks:
+    post:
+      tags: [admin]
+      summary: Create a maintenance/block event (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBlockRequest"
+      responses:
+        "201":
+          description: Created block event
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CalendarEvent" }
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/admin/calendar/blocks/{id}:
+    delete:
+      tags: [admin]
+      summary: Delete a block event (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /api/calendar/{scope}/{id}.ics:
+    get:
+      tags: [calendar]
+      summary: ICS export feed (read-only)
+      parameters:
+        - name: scope
+          in: path
+          required: true
+          schema: { type: string, enum: [locker, compartment, product] }
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+        - name: token
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: iCalendar feed
+          content:
+            text/calendar:
+              schema: { type: string }
+        "401":
+          description: Invalid token
+
+components:
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+
+    AvailabilityResponse:
+      type: object
+      required: [available]
+      properties:
+        available: { type: boolean }
+        next_available_at:
+          type: [string, "null"]
+          format: date-time
+
+    Slot:
+      type: object
+      required: [start_at, end_at, is_available]
+      properties:
+        start_at: { type: string, format: date-time }
+        end_at: { type: string, format: date-time }
+        is_available: { type: boolean }
+
+    QuoteRequest:
+      type: object
+      required: [product_id, start_at, end_at]
+      properties:
+        product_id: { type: integer, format: int64 }
+        start_at: { type: string, format: date-time }
+        end_at: { type: string, format: date-time }
+
+    QuoteResponse:
+      type: object
+      required: [total_price, deposit]
+      properties:
+        total_price: { type: integer, description: "Minor units (e.g. cents)" }
+        deposit: { type: integer, description: "Minor units (e.g. cents)" }
+
+    CreateBookingRequest:
+      type: object
+      required: [product_id, start_at, end_at]
+      properties:
+        product_id: { type: integer, format: int64 }
+        start_at: { type: string, format: date-time }
+        end_at: { type: string, format: date-time }
+        user_id:
+          type: [string, "null"]
+          format: uuid
+        idempotency_key:
+          type: [string, "null"]
+          description: "Client-generated key for retry safety"
+
+    ConfirmPaymentRequest:
+      type: object
+      required: [payment_id]
+      properties:
+        payment_id:
+          type: string
+          description: "Payment provider reference (used for idempotency)"
+
+    Booking:
+      type: object
+      required:
+        - id
+        - product_id
+        - compartment_id
+        - start_at
+        - end_at
+        - status
+        - total_price
+        - deposit
+        - created_at
+        - updated_at
+      properties:
+        id: { type: integer, format: int64 }
+        product_id: { type: integer, format: int64 }
+        compartment_id: { type: integer, format: int64 }
+        user_id: { type: [string, "null"], format: uuid }
+        start_at: { type: string, format: date-time }
+        end_at: { type: string, format: date-time }
+        status:
+          type: string
+          enum: [pending, paid, active, completed, overdue, cancelled, expired]
+        total_price: { type: integer }
+        deposit: { type: integer }
+        pending_expires_at: { type: [string, "null"], format: date-time }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    CalendarEvent:
+      type: object
+      required: [id, title, start_at, end_at, scope, status, meta]
+      properties:
+        id: { type: integer, format: int64 }
+        title: { type: string }
+        start_at: { type: string, format: date-time }
+        end_at: { type: string, format: date-time }
+        scope: { type: string, enum: [booking, maintenance, block] }
+        status: { type: string }
+        meta:
+          type: object
+          additionalProperties: true
+
+    CreateBlockRequest:
+      type: object
+      required: [scope, start_at, end_at, reason]
+      properties:
+        scope:
+          type: string
+          enum: [locker, compartment]
+          description: "Block target scope"
+        locker_id:
+          type: [integer, "null"]
+          format: int64
+        compartment_id:
+          type: [integer, "null"]
+          format: int64
+        start_at: { type: string, format: date-time }
+        end_at: { type: string, format: date-time }
+        reason: { type: string }
