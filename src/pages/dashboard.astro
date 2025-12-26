@@ -1,0 +1,13 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import UserDashboard from "../components/UserDashboard";
+
+const frontmatter = {
+	title: "User Dashboard",
+	template: "splash",
+};
+---
+
+<StarlightPage frontmatter={frontmatter}>
+	<UserDashboard client:load />
+</StarlightPage>
