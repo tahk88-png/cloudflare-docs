@@ -1,0 +1,25 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import Dashboard from "~/components/dashboard/Dashboard";
+
+const frontmatter = {
+	title: "My Dashboard",
+	description: "View your rentals, invoices, and agreements",
+	template: "doc",
+} as const;
+---
+
+<StarlightPage frontmatter={frontmatter}>
+	<div class="sl-content">
+		<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+			<h1 class="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">My Dashboard</h1>
+			<Dashboard client:load />
+		</div>
+	</div>
+</StarlightPage>
+
+<style>
+	.sl-content {
+		min-height: calc(100vh - 200px);
+	}
+</style>

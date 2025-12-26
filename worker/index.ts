@@ -3,6 +3,7 @@ import { generateRedirectsEvaluator } from "redirects-in-workers";
 import redirectsFileContents from "../dist/__redirects";
 
 import { htmlToMarkdown } from "../src/util/markdown";
+import type { DashboardData, Booking, Invoice } from "../src/types/dashboard";
 
 const redirectsEvaluator = generateRedirectsEvaluator(redirectsFileContents, {
 	maxLineLength: 10_000, // Usually 2_000
@@ -11,7 +12,156 @@ const redirectsEvaluator = generateRedirectsEvaluator(redirectsFileContents, {
 });
 
 export default class extends WorkerEntrypoint<Env> {
+	// API route handlers for Rentbox.ee dashboard
+	async handleApiRequest(request: Request): Promise<Response | null> {
+		const url = new URL(request.url);
+		const pathname = url.pathname;
+
+		// Handle /api/me/* routes
+		if (pathname.startsWith("/api/me/")) {
+			// Get auth token from header (in production, validate this properly)
+			const authHeader = request.headers.get("Authorization");
+			if (!authHeader) {
+				return new Response(JSON.stringify({ error: "Unauthorized" }), {
+					status: 401,
+					headers: { "Content-Type": "application/json" },
+				});
+			}
+
+			// Dashboard endpoint - aggregates all user data
+			if (pathname === "/api/me/dashboard" && request.method === "GET") {
+				return this.getDashboard(authHeader);
+			}
+
+			// Bookings endpoint
+			if (pathname === "/api/me/bookings" && request.method === "GET") {
+				return this.getBookings(authHeader);
+			}
+
+			// Invoices endpoint
+			if (pathname === "/api/me/invoices" && request.method === "GET") {
+				return this.getInvoices(authHeader);
+			}
+		}
+
+		return null;
+	}
+
+	async getDashboard(authToken: string): Promise<Response> {
+		// In production, fetch from your database/API
+		// For now, return mock data
+		const now = new Date();
+		const dashboardData: DashboardData = {
+			activeRentals: [
+				{
+					id: "rental-1",
+					status: "active",
+					startDate: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+					endDate: new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+					lockerLocation: "Tallinn, Vabaduse väljak",
+					lockerNumber: "A-12",
+					itemName: "Electric Scooter",
+					timeLeft: "5 days",
+				},
+			],
+			upcomingRentals: [
+				{
+					id: "rental-2",
+					status: "upcoming",
+					startDate: new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+					endDate: new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+					lockerLocation: "Tallinn, Telliskivi",
+					lockerNumber: "B-05",
+					itemName: "Bicycle",
+					countdown: 3 * 24 * 60 * 60 * 1000,
+				},
+			],
+			pastRentals: [
+				{
+					id: "rental-3",
+					status: "completed",
+					startDate: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+					endDate: new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+					lockerLocation: "Tallinn, Old Town",
+					lockerNumber: "C-22",
+					itemName: "Camera Equipment",
+				},
+			],
+			invoices: [
+				{
+					id: "inv-1",
+					number: "INV-2024-001",
+					date: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+					amount: 45.00,
+					currency: "EUR",
+					status: "paid",
+					downloadUrl: "/api/me/invoices/inv-1/download",
+					rentalId: "rental-1",
+				},
+			],
+			agreements: [
+				{
+					id: "agr-1",
+					type: "rental",
+					signedDate: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+					downloadUrl: "/api/me/agreements/agr-1/download",
+					rentalId: "rental-1",
+				},
+			],
+		};
+
+		return new Response(JSON.stringify(dashboardData), {
+			headers: { "Content-Type": "application/json" },
+		});
+	}
+
+	async getBookings(authToken: string): Promise<Response> {
+		// In production, fetch from your database/API
+		const bookings: Booking[] = [
+			{
+				id: "booking-1",
+				rental: {
+					id: "rental-1",
+					status: "active",
+					startDate: new Date().toISOString(),
+					endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+					lockerLocation: "Tallinn, Vabaduse väljak",
+					lockerNumber: "A-12",
+					itemName: "Electric Scooter",
+				},
+			},
+		];
+
+		return new Response(JSON.stringify(bookings), {
+			headers: { "Content-Type": "application/json" },
+		});
+	}
+
+	async getInvoices(authToken: string): Promise<Response> {
+		// In production, fetch from your database/API
+		const invoices: Invoice[] = [
+			{
+				id: "inv-1",
+				number: "INV-2024-001",
+				date: new Date().toISOString(),
+				amount: 45.00,
+				currency: "EUR",
+				status: "paid",
+				downloadUrl: "/api/me/invoices/inv-1/download",
+			},
+		];
+
+		return new Response(JSON.stringify(invoices), {
+			headers: { "Content-Type": "application/json" },
+		});
+	}
+
 	override async fetch(request: Request) {
+		// Handle API routes first
+		const apiResponse = await this.handleApiRequest(request);
+		if (apiResponse) {
+			return apiResponse;
+		}
 		if (request.url.endsWith("/markdown.zip")) {
 			const res = await this.env.VENDORED_MARKDOWN.get("markdown.zip");
 
