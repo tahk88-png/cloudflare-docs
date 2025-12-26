@@ -4,6 +4,7 @@
 	"type": "module",
 	"scripts": {
 		"first-run": "pnpm db:up && sleep 5 && pnpm db:generate && pnpm db:migrate && pnpm db:seed && pnpm demo:load && pnpm dev",
+		"postinstall": "prisma generate",
 		"dev": "concurrently -n api,web -c blue,green \"pnpm --filter api dev\" \"pnpm --filter web dev\"",
 		"db:up": "docker-compose up -d",
 		"db:down": "docker-compose down",
@@ -24,7 +25,7 @@
 		"format:core:fix": "npm run format:core -- --write",
 		"format:content": "npx prettier --write \"**/*.{md,mdx,astro}\"",
 		"format:data": "npx prettier --write \"**/*.{json,yaml,yml}\"",
-		"postinstall": "npx patch-package && npm run sync",
+		"postinstall": "prisma generate && npx patch-package && npm run sync",
 		"preview": "npx astro preview",
 		"script:optimize-svgs": "npx tsx scripts/optimize-svgs.ts",
 		"start": "npx astro dev",
@@ -155,7 +156,8 @@
 		"prisma": "^5.20.0"
 	},
 	"prisma": {
-		"seed": "tsx prisma/seed.ts"
+		"seed": "tsx prisma/seed.ts",
+		"schema": "./prisma/schema.prisma"
 	},
 	"engines": {
 		"node": ">=22"
