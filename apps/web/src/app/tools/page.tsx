@@ -1,19 +1,36 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@shared/api";
 import { Product } from "@shared/types";
 
-async function getProducts(): Promise<Product[]> {
-  try {
-    return await api.getProducts();
-  } catch {
-    return [];
-  }
-}
+export default function ToolsPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function ToolsPage() {
-  const products = await getProducts();
+  useEffect(() => {
+    api.getProducts()
+      .then(setProducts)
+      .catch(() => setProducts([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div>
+        <Skeleton className="h-8 w-64 mb-6" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Skeleton className="h-48" />
+          <Skeleton className="h-48" />
+          <Skeleton className="h-48" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -43,6 +60,13 @@ export default async function ToolsPage() {
           </Card>
         ))}
       </div>
+      {products.length === 0 && (
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">No products available</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

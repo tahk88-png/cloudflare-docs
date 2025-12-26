@@ -42,17 +42,31 @@ export class ProductsService {
       },
     });
 
-    const events = await this.prisma.calendarEvent.findMany({
+    // Get all events that might affect these compartments
+    // Simplified: get all active events in the time range, filter in code
+    const allEvents = await this.prisma.calendarEvent.findMany({
       where: {
-        OR: [
-          { scope: 'global' },
-          { scope: 'locker', meta: { path: ['lockerId'], in: compartments.map(c => c.compartment.lockerId) } },
-          { scope: 'compartment', meta: { path: ['compartmentId'], in: compartments.map(c => c.compartmentId) } },
-        ],
         startAt: { lt: dayEnd },
         endAt: { gt: dayStart },
         status: 'active',
       },
+    });
+
+    const lockerIds = compartments.map(c => c.compartment.lockerId);
+    const compartmentIds = compartments.map(c => c.compartmentId);
+    
+    // Filter events that affect our compartments
+    const events = allEvents.filter(e => {
+      if (e.scope === 'global') return true;
+      if (e.scope === 'locker') {
+        const meta = e.meta as any;
+        return meta?.lockerId && lockerIds.includes(meta.lockerId);
+      }
+      if (e.scope === 'compartment') {
+        const meta = e.meta as any;
+        return meta?.compartmentId && compartmentIds.includes(meta.compartmentId);
+      }
+      return false;
     });
 
     // Generate slots

@@ -1,6 +1,11 @@
-const API_URL = typeof window !== 'undefined' 
-  ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001')
-  : 'http://localhost:3001';
+const getApiUrl = () => {
+  if (typeof window !== 'undefined') {
+    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  }
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+};
+
+const API_URL = getApiUrl();
 
 async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}${endpoint}`, {

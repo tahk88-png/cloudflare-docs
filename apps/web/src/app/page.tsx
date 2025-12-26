@@ -1,19 +1,36 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@shared/api";
 import { Product } from "@shared/types";
 
-async function getProducts(): Promise<Product[]> {
-  try {
-    return await api.getProducts();
-  } catch {
-    return [];
-  }
-}
+export default function HomePage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function HomePage() {
-  const products = await getProducts();
+  useEffect(() => {
+    api.getProducts()
+      .then(setProducts)
+      .catch(() => setProducts([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div>
+        <h1 className="text-4xl font-bold mb-8">Welcome to Demo App</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Skeleton className="h-64" />
+          <Skeleton className="h-64" />
+          <Skeleton className="h-64" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

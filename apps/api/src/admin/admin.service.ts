@@ -38,8 +38,10 @@ export class AdminService {
   async loadDemo() {
     // Trigger demo load script
     const { exec } = require('child_process');
+    const path = require('path');
     return new Promise((resolve, reject) => {
-      exec('pnpm demo:load', (error: any, stdout: string, stderr: string) => {
+      const rootDir = path.resolve(__dirname, '../../../../');
+      exec('pnpm demo:load', { cwd: rootDir }, (error: any, stdout: string, stderr: string) => {
         if (error) {
           reject({ error: error.message, stderr });
         } else {
@@ -51,8 +53,10 @@ export class AdminService {
 
   async resetDemo() {
     const { exec } = require('child_process');
+    const path = require('path');
     return new Promise((resolve, reject) => {
-      exec('pnpm demo:reset', (error: any, stdout: string, stderr: string) => {
+      const rootDir = path.resolve(__dirname, '../../../../');
+      exec('pnpm demo:reset', { cwd: rootDir }, (error: any, stdout: string, stderr: string) => {
         if (error) {
           reject({ error: error.message, stderr });
         } else {
