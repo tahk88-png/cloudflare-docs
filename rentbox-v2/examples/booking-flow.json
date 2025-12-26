@@ -1,0 +1,308 @@
+{
+  "description": "Complete booking flow from availability check to payment",
+  "steps": [
+    {
+      "step": 1,
+      "name": "Check Availability",
+      "endpoint": "POST /api/v2/availability/check",
+      "request": {
+        "product_id": "550e8400-e29b-41d4-a716-446655440001",
+        "location_id": "550e8400-e29b-41d4-a716-446655440002",
+        "start_at": "2024-12-27T10:00:00Z",
+        "end_at": "2024-12-27T14:00:00Z"
+      },
+      "response": {
+        "data": {
+          "available": true,
+          "compartments": [
+            {
+              "compartment_id": "550e8400-e29b-41d4-a716-446655440003",
+              "compartment_number": "C-05",
+              "locker_code": "L-001",
+              "product_instance_id": "550e8400-e29b-41d4-a716-446655440004"
+            }
+          ],
+          "pricing": {
+            "duration_hours": 4,
+            "price_per_hour": 500,
+            "total_rental_cost": 2000,
+            "deposit_amount": 10000,
+            "total_due": 12000,
+            "currency": "EUR"
+          }
+        }
+      }
+    },
+    {
+      "step": 2,
+      "name": "Create Booking",
+      "endpoint": "POST /api/v2/bookings",
+      "headers": {
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        "X-Idempotency-Key": "booking-user123-1703592000-abc123"
+      },
+      "request": {
+        "product_id": "550e8400-e29b-41d4-a716-446655440001",
+        "location_id": "550e8400-e29b-41d4-a716-446655440002",
+        "compartment_id": "550e8400-e29b-41d4-a716-446655440003",
+        "start_at": "2024-12-27T10:00:00Z",
+        "end_at": "2024-12-27T14:00:00Z"
+      },
+      "response": {
+        "data": {
+          "id": "550e8400-e29b-41d4-a716-446655440100",
+          "booking_number": "BK-2024-001234",
+          "status": "pending",
+          "user_id": "550e8400-e29b-41d4-a716-446655440010",
+          "product": {
+            "id": "550e8400-e29b-41d4-a716-446655440001",
+            "name": "Bosch Hammer Drill GBH 2-28 F",
+            "images": [
+              "https://cdn.rentbox.ee/products/tool-001-1.jpg"
+            ]
+          },
+          "location": {
+            "id": "550e8400-e29b-41d4-a716-446655440002",
+            "name": "Tallinn Central",
+            "address": "Viru väljak 4, Tallinn"
+          },
+          "compartment": {
+            "id": "550e8400-e29b-41d4-a716-446655440003",
+            "number": "C-05",
+            "locker_code": "L-001"
+          },
+          "start_at": "2024-12-27T10:00:00Z",
+          "end_at": "2024-12-27T14:00:00Z",
+          "pricing": {
+            "price_per_hour": 500,
+            "total_rental_cost": 2000,
+            "deposit_amount": 10000,
+            "total_due": 12000,
+            "currency": "EUR"
+          },
+          "expires_at": "2024-12-26T10:45:00Z",
+          "created_at": "2024-12-26T10:30:00Z"
+        }
+      }
+    },
+    {
+      "step": 3,
+      "name": "Sign Rental Agreement (Typed Signature)",
+      "endpoint": "POST /api/v2/agreements/sign",
+      "request": {
+        "booking_id": "550e8400-e29b-41d4-a716-446655440100",
+        "signature_type": "typed",
+        "signature_value": "John Doe",
+        "terms_accepted": true,
+        "terms_version": "v2.1"
+      },
+      "response": {
+        "data": {
+          "id": "550e8400-e29b-41d4-a716-446655440200",
+          "booking_id": "550e8400-e29b-41d4-a716-446655440100",
+          "signature_type": "typed",
+          "signed_at": "2024-12-26T10:31:45Z",
+          "is_valid": true,
+          "content_hash": "abc123def456789..."
+        }
+      }
+    },
+    {
+      "step": 4,
+      "name": "Create Payment",
+      "endpoint": "POST /api/v2/payments/create",
+      "headers": {
+        "X-Idempotency-Key": "payment-booking100-abc123"
+      },
+      "request": {
+        "booking_id": "550e8400-e29b-41d4-a716-446655440100",
+        "amount": 12000,
+        "method": "card",
+        "return_url": "https://rentbox.ee/booking/BK-2024-001234"
+      },
+      "response": {
+        "data": {
+          "payment_id": "550e8400-e29b-41d4-a716-446655440300",
+          "provider": "stripe",
+          "client_secret": "pi_xxx_secret_yyy",
+          "payment_url": "https://checkout.stripe.com/pay/xyz",
+          "amount": 12000,
+          "currency": "EUR",
+          "expires_at": "2024-12-26T10:45:00Z"
+        }
+      }
+    },
+    {
+      "step": 5,
+      "name": "Payment Webhook (Provider → Server)",
+      "endpoint": "POST /api/v2/payments/webhook",
+      "note": "This is called by the payment provider, not the client",
+      "request": {
+        "event_type": "payment.succeeded",
+        "payment_id": "550e8400-e29b-41d4-a716-446655440300",
+        "provider_transaction_id": "ch_abc123xyz",
+        "amount": 12000,
+        "timestamp": "2024-12-26T10:32:15Z"
+      },
+      "response": {
+        "data": {
+          "received": true
+        }
+      },
+      "side_effects": [
+        "Booking status updated: pending → paid",
+        "Access PINs generated",
+        "Confirmation email sent",
+        "Notification scheduled for start time"
+      ]
+    },
+    {
+      "step": 6,
+      "name": "Get Updated Booking",
+      "endpoint": "GET /api/v2/bookings/550e8400-e29b-41d4-a716-446655440100",
+      "response": {
+        "data": {
+          "id": "550e8400-e29b-41d4-a716-446655440100",
+          "booking_number": "BK-2024-001234",
+          "status": "paid",
+          "user": {
+            "id": "550e8400-e29b-41d4-a716-446655440010",
+            "first_name": "John",
+            "last_name": "Doe",
+            "email": "john@example.com",
+            "phone": "+37255512345"
+          },
+          "product": {
+            "id": "550e8400-e29b-41d4-a716-446655440001",
+            "name": "Bosch Hammer Drill GBH 2-28 F",
+            "sku": "TOOL-001",
+            "images": [
+              "https://cdn.rentbox.ee/products/tool-001-1.jpg"
+            ]
+          },
+          "location": {
+            "id": "550e8400-e29b-41d4-a716-446655440002",
+            "name": "Tallinn Central",
+            "address_line1": "Viru väljak 4",
+            "city": "Tallinn",
+            "postal_code": "10111"
+          },
+          "compartment": {
+            "id": "550e8400-e29b-41d4-a716-446655440003",
+            "number": "C-05",
+            "locker_code": "L-001"
+          },
+          "start_at": "2024-12-27T10:00:00Z",
+          "end_at": "2024-12-27T14:00:00Z",
+          "actual_start_at": null,
+          "actual_end_at": null,
+          "pricing": {
+            "price_per_hour": 500,
+            "price_per_day": 2500,
+            "total_rental_cost": 2000,
+            "deposit_amount": 10000,
+            "total_due": 12000,
+            "overdue_fees": 0,
+            "damage_fees": 0
+          },
+          "payment": {
+            "id": "550e8400-e29b-41d4-a716-446655440300",
+            "status": "completed",
+            "amount": 12000,
+            "paid_at": "2024-12-26T10:32:15Z"
+          },
+          "agreement": {
+            "id": "550e8400-e29b-41d4-a716-446655440200",
+            "signed_at": "2024-12-26T10:31:45Z",
+            "signature_type": "typed"
+          },
+          "access": {
+            "pickup_pin": "1234",
+            "return_pin": "5678",
+            "pin_expires_at": "2024-12-27T14:15:00Z"
+          },
+          "created_at": "2024-12-26T10:30:00Z",
+          "updated_at": "2024-12-26T10:32:15Z"
+        }
+      }
+    },
+    {
+      "step": 7,
+      "name": "Open Compartment (At start_at)",
+      "endpoint": "POST /api/v2/access/open",
+      "note": "Available once start_at is reached",
+      "request": {
+        "booking_id": "550e8400-e29b-41d4-a716-446655440100",
+        "compartment_id": "550e8400-e29b-41d4-a716-446655440003",
+        "pin": "1234"
+      },
+      "response": {
+        "data": {
+          "success": true,
+          "compartment": {
+            "id": "550e8400-e29b-41d4-a716-446655440003",
+            "number": "C-05",
+            "locker_code": "L-001"
+          },
+          "message": "Compartment opened successfully. Please retrieve your tool.",
+          "action": "Close the door securely after removing the tool.",
+          "timestamp": "2024-12-27T10:05:23Z"
+        }
+      },
+      "side_effects": [
+        "Booking status updated: paid → active",
+        "actual_start_at recorded",
+        "Access log created",
+        "Return reminders scheduled"
+      ]
+    }
+  ],
+  "error_scenarios": [
+    {
+      "scenario": "Time slot no longer available",
+      "step": 2,
+      "response": {
+        "error": {
+          "code": "BOOKING_CONFLICT",
+          "message": "This time slot is no longer available.",
+          "details": {
+            "compartment_id": "550e8400-e29b-41d4-a716-446655440003",
+            "conflicting_booking": "BK-2024-001233"
+          },
+          "action": "Please select a different time or compartment.",
+          "next_available": "2024-12-27T15:00:00Z"
+        }
+      }
+    },
+    {
+      "scenario": "Payment failed",
+      "step": 4,
+      "response": {
+        "error": {
+          "code": "PAYMENT_FAILED",
+          "message": "Payment was declined by your bank.",
+          "details": {
+            "provider_error": "insufficient_funds"
+          },
+          "action": "Please try a different payment method or contact your bank."
+        }
+      }
+    },
+    {
+      "scenario": "Access before start time",
+      "step": 7,
+      "response": {
+        "error": {
+          "code": "ACCESS_DENIED",
+          "message": "Cannot open compartment: booking not active",
+          "details": {
+            "booking_status": "paid",
+            "start_at": "2024-12-27T10:00:00Z",
+            "current_time": "2024-12-27T09:55:00Z"
+          },
+          "action": "Access will be available at 10:00 AM"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,251 @@
+{
+  "description": "Complete return flow from initiation to deposit refund",
+  "steps": [
+    {
+      "step": 1,
+      "name": "Initiate Return",
+      "endpoint": "POST /api/v2/bookings/{id}/return",
+      "request": {
+        "condition_notes": "Tool in good condition, no visible damage",
+        "photos": [
+          "https://cdn.rentbox.ee/returns/uuid-1.jpg",
+          "https://cdn.rentbox.ee/returns/uuid-2.jpg"
+        ]
+      },
+      "response": {
+        "data": {
+          "booking_id": "550e8400-e29b-41d4-a716-446655440100",
+          "status": "return_initiated",
+          "return": {
+            "initiated_at": "2024-12-27T13:50:00Z",
+            "condition_notes": "Tool in good condition, no visible damage",
+            "photos": [
+              "https://cdn.rentbox.ee/returns/uuid-1.jpg",
+              "https://cdn.rentbox.ee/returns/uuid-2.jpg"
+            ]
+          },
+          "instructions": {
+            "step_1": "Place the tool back in compartment C-05",
+            "step_2": "Close the door firmly",
+            "step_3": "Wait for confirmation (you'll receive a notification)"
+          },
+          "return_pin": "5678"
+        }
+      }
+    },
+    {
+      "step": 2,
+      "name": "Place Tool in Compartment",
+      "description": "Customer physically places tool in compartment and closes door",
+      "action": "Hardware sensor detects door closed and locked"
+    },
+    {
+      "step": 3,
+      "name": "Automatic Status Update",
+      "description": "System automatically updates booking status",
+      "side_effects": [
+        "actual_end_at recorded",
+        "Booking status: active → completed (if auto-verify)",
+        "Booking status: active → awaiting_verify (if manual review)",
+        "Access log created",
+        "Compartment marked as available",
+        "Customer notification sent"
+      ]
+    },
+    {
+      "step": 4,
+      "name": "Get Updated Booking (Auto-Verified)",
+      "endpoint": "GET /api/v2/bookings/{id}",
+      "response": {
+        "data": {
+          "id": "550e8400-e29b-41d4-a716-446655440100",
+          "booking_number": "BK-2024-001234",
+          "status": "completed",
+          "start_at": "2024-12-27T10:00:00Z",
+          "end_at": "2024-12-27T14:00:00Z",
+          "actual_start_at": "2024-12-27T10:05:23Z",
+          "actual_end_at": "2024-12-27T13:55:17Z",
+          "return": {
+            "returned_at": "2024-12-27T13:55:17Z",
+            "condition_notes": "Tool in good condition",
+            "photos": [
+              "https://cdn.rentbox.ee/returns/uuid-1.jpg",
+              "https://cdn.rentbox.ee/returns/uuid-2.jpg"
+            ],
+            "requires_verification": false,
+            "auto_approved": true,
+            "verified_at": "2024-12-27T13:55:17Z",
+            "verified_by": "system"
+          },
+          "costs": {
+            "rental_cost": 2000,
+            "overdue_fees": 0,
+            "damage_fees": 0,
+            "total_charged": 2000
+          },
+          "refund": {
+            "deposit_amount": 10000,
+            "status": "processing",
+            "estimated_arrival": "2024-12-29T13:55:17Z",
+            "estimated_days": 2
+          },
+          "invoice_id": "550e8400-e29b-41d4-a716-446655440400"
+        }
+      }
+    },
+    {
+      "step": 5,
+      "name": "Refund Processed",
+      "description": "Payment provider processes deposit refund",
+      "timeline": "1-3 business days",
+      "notification": {
+        "channel": "email",
+        "subject": "Deposit Refund Processed",
+        "body": "Your deposit of €100.00 has been refunded and should appear in your account within 1-3 business days."
+      }
+    }
+  ],
+  "alternative_scenarios": [
+    {
+      "scenario": "Late Return (Overdue)",
+      "description": "Customer returns tool 3 hours after end_at",
+      "step_3_side_effects": [
+        "Booking status: overdue → completed",
+        "Overdue fees calculated: 3 hours × (500 × 2) = 3000 cents",
+        "Additional charge processed",
+        "Deposit minus overdue fees refunded"
+      ],
+      "response": {
+        "data": {
+          "status": "completed",
+          "actual_end_at": "2024-12-27T17:05:00Z",
+          "costs": {
+            "rental_cost": 2000,
+            "overdue_fees": 3000,
+            "damage_fees": 0,
+            "total_charged": 5000
+          },
+          "refund": {
+            "deposit_amount": 10000,
+            "fees_deducted": 3000,
+            "refund_amount": 7000,
+            "status": "processing"
+          }
+        }
+      }
+    },
+    {
+      "scenario": "Manual Verification Required",
+      "description": "First-time user or high-value rental requires admin review",
+      "step_4_response": {
+        "data": {
+          "status": "awaiting_verify",
+          "return": {
+            "returned_at": "2024-12-27T13:55:17Z",
+            "requires_verification": true,
+            "auto_approved": false,
+            "sla_verify_by": "2024-12-28T13:55:17Z"
+          },
+          "refund": {
+            "deposit_amount": 10000,
+            "status": "on_hold",
+            "reason": "Awaiting admin verification",
+            "estimated_completion": "2024-12-28T13:55:17Z"
+          }
+        }
+      },
+      "admin_action": {
+        "endpoint": "POST /api/v2/bookings/{id}/verify-return",
+        "request": {
+          "approved": true,
+          "admin_notes": "Tool condition confirmed, no damage",
+          "damage_fee": 0
+        },
+        "response": {
+          "data": {
+            "booking_id": "550e8400-e29b-41d4-a716-446655440100",
+            "verified_at": "2024-12-27T14:05:00Z",
+            "verified_by": "550e8400-e29b-41d4-a716-446655440020",
+            "approved": true,
+            "refund_released": true
+          }
+        }
+      }
+    },
+    {
+      "scenario": "Tool Damage Detected",
+      "description": "Admin finds damage during verification",
+      "admin_action": {
+        "endpoint": "POST /api/v2/bookings/{id}/verify-return",
+        "request": {
+          "approved": false,
+          "admin_notes": "Drill chuck damaged, needs replacement",
+          "damage_fee": 8000,
+          "evidence_photos": [
+            "https://cdn.rentbox.ee/disputes/damage-1.jpg",
+            "https://cdn.rentbox.ee/disputes/damage-2.jpg"
+          ]
+        },
+        "response": {
+          "data": {
+            "booking_id": "550e8400-e29b-41d4-a716-446655440100",
+            "status": "disputed",
+            "verified_at": "2024-12-27T14:05:00Z",
+            "verified_by": "550e8400-e29b-41d4-a716-446655440020",
+            "approved": false,
+            "dispute": {
+              "type": "tool_damaged",
+              "description": "Drill chuck damaged, needs replacement",
+              "estimated_cost": 8000,
+              "evidence": [
+                "https://cdn.rentbox.ee/disputes/damage-1.jpg",
+                "https://cdn.rentbox.ee/disputes/damage-2.jpg"
+              ],
+              "customer_can_respond": true,
+              "response_deadline": "2024-12-29T14:05:00Z"
+            },
+            "refund": {
+              "deposit_amount": 10000,
+              "proposed_deduction": 8000,
+              "status": "on_hold"
+            }
+          }
+        }
+      },
+      "customer_response": {
+        "endpoint": "POST /api/v2/disputes/{dispute_id}/respond",
+        "request": {
+          "accepted": false,
+          "comment": "Damage was pre-existing, visible in pickup photos",
+          "evidence": [
+            "https://cdn.rentbox.ee/pickup/uuid-3.jpg"
+          ]
+        },
+        "next_steps": "Escalated to senior admin for review"
+      }
+    },
+    {
+      "scenario": "Tool Missing from Compartment",
+      "description": "Next customer reports tool not in compartment",
+      "incident_created": {
+        "incident_number": "INC-2024-001234",
+        "severity": "p0",
+        "type": "tool_missing",
+        "description": "Tool reported missing after BK-2024-001234",
+        "assigned_to": "ops_team",
+        "actions": [
+          "Contact previous customer (BK-2024-001234)",
+          "Review access logs",
+          "Check internal photos",
+          "Block compartment",
+          "Offer alternative to current customer"
+        ]
+      },
+      "potential_outcomes": [
+        "Tool found in wrong compartment (human error)",
+        "Customer admits taking tool home (charged for theft)",
+        "Genuine mystery (insurance claim, police report)"
+      ]
+    }
+  ]
+}
