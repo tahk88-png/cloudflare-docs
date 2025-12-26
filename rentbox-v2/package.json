@@ -1,0 +1,36 @@
+{
+  "name": "rentbox-v2",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Production-grade, 24/7 self-service tool rental platform",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rentbox/rentbox-v2"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "db:migrate": "pnpm --filter @rentbox/api db:migrate",
+    "db:seed": "pnpm --filter @rentbox/api db:seed",
+    "db:reset": "pnpm --filter @rentbox/api db:reset",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.0",
+    "turbo": "^1.11.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.14.0"
+}
