@@ -1,0 +1,464 @@
+// Rentbox v2 Database Schema
+// PostgreSQL with timestamptz everywhere
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USERS & AUTHENTICATION
+// ============================================
+
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique @db.VarChar(255)
+  name              String    @db.VarChar(255)
+  phone             String?   @db.VarChar(50)
+  role              String    @default("customer") @db.VarChar(50)
+  emailVerifiedAt   DateTime? @map("email_verified_at") @db.Timestamptz
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  bookings          Booking[]
+  contracts         Contract[]
+  notifications     Notification[]
+  incidentsResolved Incident[] @relation("IncidentResolver")
+  maintenanceBlocks MaintenanceBlock[]
+  roleChanges       RoleChange[]
+  auditLogs         AuditLog[]
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model RoleChange {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  oldRole   String   @map("old_role") @db.VarChar(50)
+  newRole   String   @map("new_role") @db.VarChar(50)
+  changedBy String   @map("changed_by")
+  changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz
+  reason    String?
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  changer   User     @relation("RoleChanger", fields: [changedBy], references: [id])
+
+  @@map("role_changes")
+}
+
+// ============================================
+// PRODUCTS & CATALOG
+// ============================================
+
+model ProductCategory {
+  id       String   @id @default(uuid())
+  name     String   @db.VarChar(255)
+  slug     String   @unique @db.VarChar(255)
+  parentId String?  @map("parent_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  parent   ProductCategory? @relation("CategoryParent", fields: [parentId], references: [id])
+  children ProductCategory[] @relation("CategoryParent")
+  products Product[]
+
+  @@map("product_categories")
+}
+
+model Product {
+  id            String   @id @default(uuid())
+  name          String   @db.VarChar(255)
+  slug          String   @unique @db.VarChar(255)
+  description   String?  @db.Text
+  categoryId    String?  @map("category_id")
+  images        Json     @default("[]")
+  seoTitle      String?  @map("seo_title") @db.VarChar(255)
+  seoDescription String? @map("seo_description") @db.Text
+  seoKeywords   String[] @map("seo_keywords")
+  status        String   @default("active") @db.VarChar(50)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  category      ProductCategory? @relation(fields: [categoryId], references: [id])
+  pricing       ProductPricing[]
+  locations     ProductLocation[]
+  bookings      Booking[]
+
+  @@index([slug])
+  @@index([status])
+  @@map("products")
+}
+
+model ProductPricing {
+  id          String   @id @default(uuid())
+  productId   String   @map("product_id")
+  durationType String  @map("duration_type") @db.VarChar(20) // 'hour', 'day', 'week'
+  price       Decimal  @db.Decimal(10, 2)
+  deposit     Decimal  @default(0) @db.Decimal(10, 2)
+  currency    String   @default("EUR") @db.VarChar(3)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_pricing")
+}
+
+// ============================================
+// LOCKERS & COMPARTMENTS
+// ============================================
+
+model Locker {
+  id          String   @id @default(uuid())
+  name        String   @db.VarChar(255)
+  locationAddress String @map("location_address") @db.Text
+  locationLat Decimal? @map("location_lat") @db.Decimal(10, 8)
+  locationLng Decimal? @map("location_lng") @db.Decimal(11, 8)
+  mqttTopic   String?  @map("mqtt_topic") @db.VarChar(255)
+  status      String   @default("active") @db.VarChar(50)
+  lastSeenAt  DateTime? @map("last_seen_at") @db.Timestamptz
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  compartments Compartment[]
+  incidents     Incident[]
+
+  @@map("lockers")
+}
+
+model Compartment {
+  id          String   @id @default(uuid())
+  lockerId    String   @map("locker_id")
+  number      String   @db.VarChar(50)
+  size        String?  @db.VarChar(50) // 'small', 'medium', 'large', 'xlarge'
+  status      String   @default("available") @db.VarChar(50)
+  pinCodeHash String?  @map("pin_code_hash") @db.VarChar(255)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  locker      Locker   @relation(fields: [lockerId], references: [id], onDelete: Cascade)
+  productLocations ProductLocation[]
+  bookings    Booking[]
+  accessEvents AccessEvent[]
+  maintenanceBlocks MaintenanceBlock[]
+  incidents   Incident[]
+
+  @@unique([lockerId, number])
+  @@index([lockerId])
+  @@index([status])
+  @@map("compartments")
+}
+
+model ProductLocation {
+  id           String   @id @default(uuid())
+  productId    String   @map("product_id")
+  compartmentId String  @map("compartment_id")
+  quantity     Int      @default(1)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  compartment  Compartment @relation(fields: [compartmentId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, compartmentId])
+  @@index([productId])
+  @@index([compartmentId])
+  @@map("product_locations")
+}
+
+// ============================================
+// BOOKINGS (CORE)
+// ============================================
+
+model Booking {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  productId    String   @map("product_id")
+  compartmentId String  @map("compartment_id")
+  startAt      DateTime @map("start_at") @db.Timestamptz
+  endAt        DateTime @map("end_at") @db.Timestamptz
+  status       String   @default("pending") @db.VarChar(50)
+  totalPrice   Decimal  @map("total_price") @db.Decimal(10, 2)
+  depositAmount Decimal @map("deposit_amount") @db.Decimal(10, 2)
+  currency     String   @default("EUR") @db.VarChar(3)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  user         User     @relation(fields: [userId], references: [id])
+  product      Product  @relation(fields: [productId], references: [id])
+  compartment  Compartment @relation(fields: [compartmentId], references: [id])
+  payments     BookingPayment[]
+  contract     Contract?
+  extensions   BookingExtension[]
+  overdueFees  BookingOverdueFee[]
+  accessEvents AccessEvent[]
+  return       Return?
+  incidents    Incident[]
+
+  @@index([userId])
+  @@index([productId])
+  @@index([compartmentId])
+  @@index([status])
+  @@index([startAt, endAt])
+  @@map("bookings")
+}
+
+model BookingPayment {
+  id            String   @id @default(uuid())
+  bookingId     String   @map("booking_id")
+  amount        Decimal  @db.Decimal(10, 2)
+  currency      String   @default("EUR") @db.VarChar(3)
+  status        String   @default("pending") @db.VarChar(50)
+  paymentIntentId String? @map("payment_intent_id") @db.VarChar(255)
+  paymentMethod String?  @map("payment_method") @db.VarChar(50)
+  paidAt        DateTime? @map("paid_at") @db.Timestamptz
+  refundedAt    DateTime? @map("refunded_at") @db.Timestamptz
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  booking       Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@index([status])
+  @@map("booking_payments")
+}
+
+model BookingExtension {
+  id          String   @id @default(uuid())
+  bookingId   String   @map("booking_id")
+  originalEndAt DateTime @map("original_end_at") @db.Timestamptz
+  newEndAt    DateTime @map("new_end_at") @db.Timestamptz
+  fee         Decimal  @db.Decimal(10, 2)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@map("booking_extensions")
+}
+
+model BookingOverdueFee {
+  id           String   @id @default(uuid())
+  bookingId    String   @map("booking_id")
+  amount       Decimal  @db.Decimal(10, 2)
+  calculatedAt DateTime @default(now()) @map("calculated_at") @db.Timestamptz
+  paidAt       DateTime? @map("paid_at") @db.Timestamptz
+
+  booking      Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@map("booking_overdue_fees")
+}
+
+// ============================================
+// CONTRACTS & SIGNING
+// ============================================
+
+model ContractTerms {
+  id           String   @id @default(uuid())
+  version      Int      @unique
+  content      String   @db.Text
+  effectiveFrom DateTime @map("effective_from") @db.Timestamptz
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  contracts    Contract[]
+
+  @@map("contract_terms")
+}
+
+model Contract {
+  id           String   @id @default(uuid())
+  bookingId    String   @unique @map("booking_id")
+  termsVersion Int      @map("terms_version")
+  signatureType String  @map("signature_type") @db.VarChar(50)
+  signatureData Json?
+  contractHash String   @map("contract_hash") @db.VarChar(64)
+  signedAt     DateTime @map("signed_at") @db.Timestamptz
+  ipAddress    String?  @map("ip_address") @db.VarChar(45)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  booking      Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  terms        ContractTerms @relation(fields: [termsVersion], references: [version])
+  user         User     @relation(fields: [bookingId], references: [id])
+
+  @@index([contractHash])
+  @@map("contracts")
+}
+
+// ============================================
+// ACCESS EVENTS (AUDIT TRAIL)
+// ============================================
+
+model AccessEvent {
+  id           String   @id @default(uuid())
+  bookingId    String?  @map("booking_id")
+  compartmentId String  @map("compartment_id")
+  action       String   @db.VarChar(50) // 'open', 'close', 'attempt'
+  result       String   @db.VarChar(50) // 'success', 'failure', 'timeout'
+  method       String?  @db.VarChar(50) // 'mqtt', 'http', 'pin', 'sms'
+  timestamp    DateTime @default(now()) @db.Timestamptz
+  ipAddress    String?  @map("ip_address") @db.VarChar(45)
+  metadata     Json     @default("{}")
+
+  booking      Booking? @relation(fields: [bookingId], references: [id])
+  compartment  Compartment @relation(fields: [compartmentId], references: [id])
+
+  @@index([bookingId])
+  @@index([compartmentId])
+  @@index([timestamp(sort: Desc)])
+  @@map("access_events")
+}
+
+// ============================================
+// RETURNS
+// ============================================
+
+model Return {
+  id                  String   @id @default(uuid())
+  bookingId           String   @unique @map("booking_id")
+  returnedAt          DateTime @map("returned_at") @db.Timestamptz
+  confirmedByUserAt  DateTime? @map("confirmed_by_user_at") @db.Timestamptz
+  confirmedByAdminAt DateTime? @map("confirmed_by_admin_at") @db.Timestamptz
+  status              String   @default("pending") @db.VarChar(50)
+  notes               String?  @db.Text
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  booking             Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  photos              ReturnPhoto[]
+  dispute             ReturnDispute?
+
+  @@index([status])
+  @@map("returns")
+}
+
+model ReturnPhoto {
+  id        String   @id @default(uuid())
+  returnId  String   @map("return_id")
+  url       String   @db.Text
+  uploadedAt DateTime @default(now()) @map("uploaded_at") @db.Timestamptz
+
+  return    Return   @relation(fields: [returnId], references: [id], onDelete: Cascade)
+
+  @@index([returnId])
+  @@map("return_photos")
+}
+
+model ReturnDispute {
+  id              String   @id @default(uuid())
+  returnId        String   @unique @map("return_id")
+  reason          String   @db.Text
+  status          String   @default("open") @db.VarChar(50)
+  resolvedAt      DateTime? @map("resolved_at") @db.Timestamptz
+  resolutionNotes String?  @map("resolution_notes") @db.Text
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  return          Return   @relation(fields: [returnId], references: [id], onDelete: Cascade)
+
+  @@map("return_disputes")
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  type        String   @db.VarChar(100)
+  channel     String   @db.VarChar(20) // 'email', 'sms'
+  status      String   @default("pending") @db.VarChar(50)
+  subject     String?  @db.VarChar(255)
+  body        String?  @db.Text
+  sentAt      DateTime? @map("sent_at") @db.Timestamptz
+  deliveredAt DateTime? @map("delivered_at") @db.Timestamptz
+  error       String?  @db.Text
+  retryCount  Int      @default(0) @map("retry_count")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@map("notifications")
+}
+
+// ============================================
+// INCIDENTS
+// ============================================
+
+model Incident {
+  id              String   @id @default(uuid())
+  type            String   @db.VarChar(50)
+  severity        String   @default("medium") @db.VarChar(20)
+  bookingId       String?  @map("booking_id")
+  lockerId        String?  @map("locker_id")
+  compartmentId   String?  @map("compartment_id")
+  description     String   @db.Text
+  status          String   @default("open") @db.VarChar(50)
+  resolvedAt      DateTime? @map("resolved_at") @db.Timestamptz
+  resolvedById    String?  @map("resolved_by")
+  resolutionNotes String?  @map("resolution_notes") @db.Text
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  booking         Booking? @relation(fields: [bookingId], references: [id])
+  locker          Locker?  @relation(fields: [lockerId], references: [id])
+  compartment     Compartment? @relation(fields: [compartmentId], references: [id])
+  resolvedBy      User?    @relation("IncidentResolver", fields: [resolvedById], references: [id])
+
+  @@index([status])
+  @@index([severity])
+  @@index([bookingId])
+  @@map("incidents")
+}
+
+// ============================================
+// MAINTENANCE BLOCKS
+// ============================================
+
+model MaintenanceBlock {
+  id          String   @id @default(uuid())
+  compartmentId String @map("compartment_id")
+  startAt     DateTime @map("start_at") @db.Timestamptz
+  endAt       DateTime @map("end_at") @db.Timestamptz
+  reason      String?  @db.Text
+  createdBy   String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  compartment Compartment @relation(fields: [compartmentId], references: [id], onDelete: Cascade)
+  creator     User     @relation(fields: [createdBy], references: [id])
+
+  @@index([compartmentId])
+  @@index([startAt, endAt])
+  @@map("maintenance_blocks")
+}
+
+// ============================================
+// AUDIT LOGS
+// ============================================
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?  @map("user_id")
+  action      String   @db.VarChar(100)
+  resourceType String  @map("resource_type") @db.VarChar(50)
+  resourceId  String?  @map("resource_id")
+  changes     Json?
+  ipAddress   String?  @map("ip_address") @db.VarChar(45)
+  userAgent   String?  @map("user_agent") @db.Text
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user        User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([resourceType, resourceId])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
