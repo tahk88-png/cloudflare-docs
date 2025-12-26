@@ -1,0 +1,923 @@
+// Rentbox v2 - PostgreSQL Schema
+// All times are TIMESTAMPTZ, rendered in Europe/Tallinn
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [btree_gist, pgcrypto]
+}
+
+// ============================================================================
+// USERS & AUTHENTICATION
+// ============================================================================
+
+model User {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email               String    @unique
+  email_verified_at   DateTime? @db.Timestamptz
+  phone               String?   @unique
+  phone_verified_at   DateTime? @db.Timestamptz
+  password_hash       String?
+  first_name          String
+  last_name           String
+  personal_code       String?   // Estonian ID code for digital signing
+  company_name        String?
+  company_reg_code    String?
+  role                UserRole  @default(CUSTOMER)
+  status              UserStatus @default(ACTIVE)
+  preferred_language  String    @default("et")
+  timezone            String    @default("Europe/Tallinn")
+  created_at          DateTime  @default(now()) @db.Timestamptz
+  updated_at          DateTime  @updatedAt @db.Timestamptz
+  last_login_at       DateTime? @db.Timestamptz
+  
+  // Relations
+  bookings            Booking[]
+  notifications       Notification[]
+  audit_logs          AuditLog[]
+  incidents_created   Incident[] @relation("IncidentCreator")
+  incidents_assigned  Incident[] @relation("IncidentAssignee")
+  permission_overrides PermissionOverride[]
+  saved_payment_methods PaymentMethod[]
+  
+  @@index([email])
+  @@index([phone])
+  @@index([role])
+  @@index([created_at])
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  OPERATOR
+  TECHNICIAN
+  CUSTOMER
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+  DELETED
+}
+
+model Permission {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code        String   @unique // e.g., "bookings:read", "lockers:control"
+  name        String
+  description String?
+  category    String   // e.g., "bookings", "lockers", "users"
+  created_at  DateTime @default(now()) @db.Timestamptz
+  
+  role_permissions RolePermission[]
+  permission_overrides PermissionOverride[]
+  
+  @@index([category])
+  @@map("permissions")
+}
+
+model RolePermission {
+  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  role          UserRole
+  permission_id String     @db.Uuid
+  permission    Permission @relation(fields: [permission_id], references: [id])
+  created_at    DateTime   @default(now()) @db.Timestamptz
+  
+  @@unique([role, permission_id])
+  @@map("role_permissions")
+}
+
+model PermissionOverride {
+  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id       String     @db.Uuid
+  user          User       @relation(fields: [user_id], references: [id])
+  permission_id String     @db.Uuid
+  permission    Permission @relation(fields: [permission_id], references: [id])
+  granted       Boolean    // true = grant, false = revoke
+  reason        String?
+  granted_by    String     @db.Uuid
+  expires_at    DateTime?  @db.Timestamptz
+  created_at    DateTime   @default(now()) @db.Timestamptz
+  
+  @@unique([user_id, permission_id])
+  @@map("permission_overrides")
+}
+
+// ============================================================================
+// LOCATIONS & LOCKERS
+// ============================================================================
+
+model Location {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String
+  slug            String    @unique
+  address         String
+  city            String
+  postal_code     String
+  country         String    @default("EE")
+  latitude        Decimal   @db.Decimal(10, 8)
+  longitude       Decimal   @db.Decimal(11, 8)
+  timezone        String    @default("Europe/Tallinn")
+  operating_hours Json      // { "mon": { "open": "08:00", "close": "22:00" }, ... }
+  is_active       Boolean   @default(true)
+  created_at      DateTime  @default(now()) @db.Timestamptz
+  updated_at      DateTime  @updatedAt @db.Timestamptz
+  
+  lockers         Locker[]
+  
+  @@index([city])
+  @@index([is_active])
+  @@index([slug])
+  @@map("locations")
+}
+
+model Locker {
+  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  external_id     String       @unique // Hardware identifier
+  location_id     String       @db.Uuid
+  location        Location     @relation(fields: [location_id], references: [id])
+  name            String       // e.g., "Main Entrance Locker"
+  model           String       // Hardware model
+  firmware_version String?
+  status          LockerStatus @default(ONLINE)
+  last_ping_at    DateTime?    @db.Timestamptz
+  last_error      String?
+  config          Json?        // Hardware-specific configuration
+  created_at      DateTime     @default(now()) @db.Timestamptz
+  updated_at      DateTime     @updatedAt @db.Timestamptz
+  
+  compartments    Compartment[]
+  locker_events   LockerEvent[]
+  
+  @@index([location_id])
+  @@index([status])
+  @@index([external_id])
+  @@map("lockers")
+}
+
+enum LockerStatus {
+  ONLINE
+  OFFLINE
+  MAINTENANCE
+  ERROR
+}
+
+model Compartment {
+  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  locker_id       String            @db.Uuid
+  locker          Locker            @relation(fields: [locker_id], references: [id])
+  external_id     String            // Hardware identifier for compartment
+  number          Int               // Display number (1, 2, 3...)
+  size            CompartmentSize
+  status          CompartmentStatus @default(AVAILABLE)
+  is_open         Boolean           @default(false)
+  last_opened_at  DateTime?         @db.Timestamptz
+  last_closed_at  DateTime?         @db.Timestamptz
+  created_at      DateTime          @default(now()) @db.Timestamptz
+  updated_at      DateTime          @updatedAt @db.Timestamptz
+  
+  bookings        Booking[]
+  locker_events   LockerEvent[]
+  product_assignments CompartmentProductAssignment[]
+  maintenance_blocks MaintenanceBlock[]
+  
+  @@unique([locker_id, number])
+  @@unique([locker_id, external_id])
+  @@index([status])
+  @@map("compartments")
+}
+
+enum CompartmentSize {
+  SMALL    // Hand tools
+  MEDIUM   // Power drills, small equipment
+  LARGE    // Larger power tools
+  XLARGE   // Heavy equipment
+}
+
+enum CompartmentStatus {
+  AVAILABLE
+  OCCUPIED
+  MAINTENANCE
+  OUT_OF_SERVICE
+}
+
+model LockerEvent {
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  locker_id       String          @db.Uuid
+  locker          Locker          @relation(fields: [locker_id], references: [id])
+  compartment_id  String?         @db.Uuid
+  compartment     Compartment?    @relation(fields: [compartment_id], references: [id])
+  booking_id      String?         @db.Uuid
+  booking         Booking?        @relation(fields: [booking_id], references: [id])
+  event_type      LockerEventType
+  success         Boolean
+  method          AccessMethod?
+  error_code      String?
+  error_message   String?
+  hardware_response_ms Int?
+  metadata        Json?
+  created_at      DateTime        @default(now()) @db.Timestamptz
+  
+  @@index([locker_id])
+  @@index([compartment_id])
+  @@index([booking_id])
+  @@index([created_at])
+  @@index([event_type])
+  @@map("locker_events")
+}
+
+enum LockerEventType {
+  OPEN_REQUEST
+  OPEN_SUCCESS
+  OPEN_FAILURE
+  CLOSE_DETECTED
+  PING
+  PING_FAILURE
+  MAINTENANCE_START
+  MAINTENANCE_END
+  ERROR
+  RECOVERY
+}
+
+enum AccessMethod {
+  APP
+  PIN
+  SMS_PIN
+  ADMIN_OVERRIDE
+  HARDWARE_BUTTON
+}
+
+// ============================================================================
+// PRODUCTS & CATALOG
+// ============================================================================
+
+model Category {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  parent_id       String?   @db.Uuid
+  parent          Category? @relation("CategoryHierarchy", fields: [parent_id], references: [id])
+  children        Category[] @relation("CategoryHierarchy")
+  name            String
+  slug            String    @unique
+  description     String?
+  icon            String?   // Icon identifier
+  display_order   Int       @default(0)
+  is_active       Boolean   @default(true)
+  seo_title       String?
+  seo_description String?
+  created_at      DateTime  @default(now()) @db.Timestamptz
+  updated_at      DateTime  @updatedAt @db.Timestamptz
+  
+  products        Product[]
+  
+  @@index([parent_id])
+  @@index([slug])
+  @@index([is_active])
+  @@map("categories")
+}
+
+model Product {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  category_id         String    @db.Uuid
+  category            Category  @relation(fields: [category_id], references: [id])
+  name                String
+  slug                String    @unique
+  brand               String?
+  model               String?
+  description         String    @db.Text
+  short_description   String?
+  specifications      Json?     // { "power": "1500W", "weight": "3.2kg", ... }
+  required_compartment_size CompartmentSize
+  price_per_hour      Decimal   @db.Decimal(10, 2)
+  price_per_day       Decimal   @db.Decimal(10, 2)
+  price_per_week      Decimal?  @db.Decimal(10, 2)
+  deposit_amount      Decimal   @db.Decimal(10, 2)
+  replacement_value   Decimal   @db.Decimal(10, 2) // For insurance/damage
+  min_rental_hours    Int       @default(1)
+  max_rental_days     Int       @default(30)
+  is_active           Boolean   @default(true)
+  requires_training   Boolean   @default(false)
+  seo_title           String?
+  seo_description     String?
+  created_at          DateTime  @default(now()) @db.Timestamptz
+  updated_at          DateTime  @updatedAt @db.Timestamptz
+  
+  images              ProductImage[]
+  compartment_assignments CompartmentProductAssignment[]
+  bookings            Booking[]
+  content_blocks      ContentBlock[]
+  
+  @@index([category_id])
+  @@index([slug])
+  @@index([is_active])
+  @@index([name])
+  @@map("products")
+}
+
+model ProductImage {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  product_id    String    @db.Uuid
+  product       Product   @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  url           String
+  alt_text      String?
+  display_order Int       @default(0)
+  is_primary    Boolean   @default(false)
+  created_at    DateTime  @default(now()) @db.Timestamptz
+  
+  @@index([product_id])
+  @@map("product_images")
+}
+
+model CompartmentProductAssignment {
+  id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  compartment_id  String      @db.Uuid
+  compartment     Compartment @relation(fields: [compartment_id], references: [id])
+  product_id      String      @db.Uuid
+  product         Product     @relation(fields: [product_id], references: [id])
+  is_active       Boolean     @default(true)
+  assigned_at     DateTime    @default(now()) @db.Timestamptz
+  
+  @@unique([compartment_id, product_id])
+  @@index([product_id])
+  @@index([is_active])
+  @@map("compartment_product_assignments")
+}
+
+// ============================================================================
+// BOOKINGS
+// ============================================================================
+
+model Booking {
+  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  booking_number    String        @unique @default(dbgenerated("'RB-' || to_char(now(), 'YYYYMMDD') || '-' || substr(gen_random_uuid()::text, 1, 8)"))
+  user_id           String        @db.Uuid
+  user              User          @relation(fields: [user_id], references: [id])
+  product_id        String        @db.Uuid
+  product           Product       @relation(fields: [product_id], references: [id])
+  compartment_id    String        @db.Uuid
+  compartment       Compartment   @relation(fields: [compartment_id], references: [id])
+  
+  // Time range (CRITICAL: no overlaps per compartment)
+  start_at          DateTime      @db.Timestamptz
+  end_at            DateTime      @db.Timestamptz
+  original_end_at   DateTime?     @db.Timestamptz // If extended
+  actual_return_at  DateTime?     @db.Timestamptz
+  
+  // Pricing at time of booking (immutable snapshot)
+  hourly_rate       Decimal       @db.Decimal(10, 2)
+  daily_rate        Decimal       @db.Decimal(10, 2)
+  deposit_amount    Decimal       @db.Decimal(10, 2)
+  subtotal          Decimal       @db.Decimal(10, 2)
+  tax_amount        Decimal       @db.Decimal(10, 2)
+  total_amount      Decimal       @db.Decimal(10, 2)
+  late_fee_amount   Decimal       @default(0) @db.Decimal(10, 2)
+  
+  // Status
+  status            BookingStatus @default(PENDING)
+  status_reason     String?       // Why cancelled/expired
+  
+  // Pending booking TTL
+  expires_at        DateTime?     @db.Timestamptz // For PENDING status
+  
+  // Access
+  access_pin        String?       // Fallback PIN code
+  access_attempts   Int           @default(0)
+  first_accessed_at DateTime?     @db.Timestamptz
+  
+  // Contract
+  contract_id       String?       @db.Uuid
+  contract          Contract?     @relation(fields: [contract_id], references: [id])
+  
+  // Metadata
+  timezone          String        @default("Europe/Tallinn")
+  notes             String?       @db.Text
+  created_at        DateTime      @default(now()) @db.Timestamptz
+  updated_at        DateTime      @updatedAt @db.Timestamptz
+  
+  // Relations
+  payments          Payment[]
+  locker_events     LockerEvent[]
+  incidents         Incident[]
+  return_record     ReturnRecord?
+  extensions        BookingExtension[]
+  notifications     Notification[]
+  
+  @@index([user_id])
+  @@index([product_id])
+  @@index([compartment_id])
+  @@index([status])
+  @@index([start_at])
+  @@index([end_at])
+  @@index([booking_number])
+  @@index([created_at])
+  @@map("bookings")
+}
+
+enum BookingStatus {
+  PENDING     // Awaiting payment, slot held temporarily
+  PAID        // Payment received, not yet started
+  ACTIVE      // Rental in progress
+  COMPLETED   // Successfully returned
+  OVERDUE     // Past end_at, not returned
+  CANCELLED   // User or system cancelled
+  EXPIRED     // PENDING TTL expired without payment
+}
+
+model BookingExtension {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  booking_id      String    @db.Uuid
+  booking         Booking   @relation(fields: [booking_id], references: [id])
+  previous_end_at DateTime  @db.Timestamptz
+  new_end_at      DateTime  @db.Timestamptz
+  additional_amount Decimal @db.Decimal(10, 2)
+  payment_id      String?   @db.Uuid
+  payment         Payment?  @relation(fields: [payment_id], references: [id])
+  status          ExtensionStatus @default(PENDING)
+  requested_at    DateTime  @default(now()) @db.Timestamptz
+  processed_at    DateTime? @db.Timestamptz
+  
+  @@index([booking_id])
+  @@index([status])
+  @@map("booking_extensions")
+}
+
+enum ExtensionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+model MaintenanceBlock {
+  id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  compartment_id  String      @db.Uuid
+  compartment     Compartment @relation(fields: [compartment_id], references: [id])
+  start_at        DateTime    @db.Timestamptz
+  end_at          DateTime    @db.Timestamptz
+  reason          String
+  created_by      String      @db.Uuid
+  created_at      DateTime    @default(now()) @db.Timestamptz
+  
+  @@index([compartment_id])
+  @@index([start_at])
+  @@index([end_at])
+  @@map("maintenance_blocks")
+}
+
+// ============================================================================
+// PAYMENTS
+// ============================================================================
+
+model Payment {
+  id                    String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  booking_id            String        @db.Uuid
+  booking               Booking       @relation(fields: [booking_id], references: [id])
+  amount                Decimal       @db.Decimal(10, 2)
+  currency              String        @default("EUR")
+  type                  PaymentType
+  status                PaymentStatus @default(PENDING)
+  
+  // Payment gateway details
+  provider              String        // stripe, montonio, etc.
+  provider_payment_id   String?       @unique
+  provider_customer_id  String?
+  
+  // Idempotency
+  idempotency_key       String?       @unique
+  
+  // Metadata
+  metadata              Json?
+  failure_reason        String?
+  
+  created_at            DateTime      @default(now()) @db.Timestamptz
+  updated_at            DateTime      @updatedAt @db.Timestamptz
+  completed_at          DateTime?     @db.Timestamptz
+  
+  extensions            BookingExtension[]
+  
+  @@index([booking_id])
+  @@index([status])
+  @@index([provider_payment_id])
+  @@index([created_at])
+  @@map("payments")
+}
+
+enum PaymentType {
+  RENTAL       // Main rental payment
+  DEPOSIT      // Security deposit (may be auth-only)
+  EXTENSION    // Extension fee
+  LATE_FEE     // Overdue charges
+  DAMAGE       // Damage charges
+  REFUND       // Refund to customer
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+model PaymentMethod {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id           String    @db.Uuid
+  user              User      @relation(fields: [user_id], references: [id])
+  provider          String    // stripe, etc.
+  provider_method_id String
+  type              String    // card, bank_transfer, etc.
+  last_four         String?
+  brand             String?   // visa, mastercard, etc.
+  exp_month         Int?
+  exp_year          Int?
+  is_default        Boolean   @default(false)
+  created_at        DateTime  @default(now()) @db.Timestamptz
+  
+  @@unique([provider, provider_method_id])
+  @@index([user_id])
+  @@map("payment_methods")
+}
+
+// ============================================================================
+// CONTRACTS & SIGNING
+// ============================================================================
+
+model Contract {
+  id                  String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  template_id         String          @db.Uuid
+  template            ContractTemplate @relation(fields: [template_id], references: [id])
+  
+  // Rendered contract content
+  content             String          @db.Text
+  content_hash        String          // SHA-256 hash for integrity
+  
+  // Signer details (snapshot at signing time)
+  signer_name         String
+  signer_email        String
+  signer_personal_code String?
+  signer_ip_address   String?
+  signer_user_agent   String?
+  
+  // Signature
+  signature_method    SignatureMethod
+  signature_data      String?         // Typed name or signature reference
+  signature_timestamp DateTime?       @db.Timestamptz
+  signature_provider_ref String?      // Smart-ID/Mobiil-ID transaction ID
+  
+  status              ContractStatus  @default(PENDING)
+  created_at          DateTime        @default(now()) @db.Timestamptz
+  signed_at           DateTime?       @db.Timestamptz
+  
+  bookings            Booking[]
+  
+  @@index([status])
+  @@index([signer_email])
+  @@map("contracts")
+}
+
+model ContractTemplate {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String
+  version         String
+  content         String    @db.Text // Template with placeholders
+  is_active       Boolean   @default(true)
+  requires_strong_auth_above Decimal? @db.Decimal(10, 2) // Amount threshold
+  requires_strong_auth_days  Int?     // Duration threshold
+  created_at      DateTime  @default(now()) @db.Timestamptz
+  
+  contracts       Contract[]
+  
+  @@unique([name, version])
+  @@index([is_active])
+  @@map("contract_templates")
+}
+
+enum SignatureMethod {
+  TYPED           // Name typed by user
+  SMART_ID        // Estonian Smart-ID
+  MOBILE_ID       // Estonian Mobiil-ID
+  ID_CARD         // Estonian ID-card
+}
+
+enum ContractStatus {
+  PENDING
+  SIGNED
+  EXPIRED
+  VOIDED
+}
+
+// ============================================================================
+// RETURNS
+// ============================================================================
+
+model ReturnRecord {
+  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  booking_id        String        @unique @db.Uuid
+  booking           Booking       @relation(fields: [booking_id], references: [id])
+  
+  returned_at       DateTime      @db.Timestamptz
+  condition         ReturnCondition
+  condition_notes   String?       @db.Text
+  
+  // Photos
+  photos            ReturnPhoto[]
+  
+  // Verification
+  verified_by       String?       @db.Uuid
+  verified_at       DateTime?     @db.Timestamptz
+  verification_notes String?      @db.Text
+  
+  // Damage assessment
+  damage_amount     Decimal?      @db.Decimal(10, 2)
+  damage_description String?      @db.Text
+  
+  status            ReturnStatus  @default(PENDING_VERIFICATION)
+  created_at        DateTime      @default(now()) @db.Timestamptz
+  updated_at        DateTime      @updatedAt @db.Timestamptz
+  
+  @@index([status])
+  @@index([returned_at])
+  @@map("return_records")
+}
+
+model ReturnPhoto {
+  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  return_record_id String      @db.Uuid
+  return_record   ReturnRecord @relation(fields: [return_record_id], references: [id], onDelete: Cascade)
+  url             String
+  uploaded_by     String       @db.Uuid // User or admin
+  type            String       // before_return, after_return, damage
+  created_at      DateTime     @default(now()) @db.Timestamptz
+  
+  @@index([return_record_id])
+  @@map("return_photos")
+}
+
+enum ReturnCondition {
+  EXCELLENT
+  GOOD
+  ACCEPTABLE
+  DAMAGED
+  MISSING_PARTS
+  NOT_RETURNED
+}
+
+enum ReturnStatus {
+  PENDING_VERIFICATION
+  VERIFIED_OK
+  VERIFIED_DAMAGED
+  DISPUTE_OPENED
+  RESOLVED
+}
+
+// ============================================================================
+// INCIDENTS
+// ============================================================================
+
+model Incident {
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  incident_number String          @unique @default(dbgenerated("'INC-' || to_char(now(), 'YYYYMMDD') || '-' || substr(gen_random_uuid()::text, 1, 6)"))
+  
+  type            IncidentType
+  severity        IncidentSeverity
+  status          IncidentStatus  @default(OPEN)
+  
+  title           String
+  description     String          @db.Text
+  
+  // Relations (all optional based on incident type)
+  booking_id      String?         @db.Uuid
+  booking         Booking?        @relation(fields: [booking_id], references: [id])
+  locker_id       String?
+  compartment_id  String?
+  user_id         String?         @db.Uuid
+  
+  // Assignment
+  created_by      String          @db.Uuid
+  creator         User            @relation("IncidentCreator", fields: [created_by], references: [id])
+  assigned_to     String?         @db.Uuid
+  assignee        User?           @relation("IncidentAssignee", fields: [assigned_to], references: [id])
+  
+  // Resolution
+  resolution_notes String?        @db.Text
+  resolved_at     DateTime?       @db.Timestamptz
+  
+  // NEVER deleted, only archived
+  archived_at     DateTime?       @db.Timestamptz
+  
+  created_at      DateTime        @default(now()) @db.Timestamptz
+  updated_at      DateTime        @updatedAt @db.Timestamptz
+  
+  comments        IncidentComment[]
+  
+  @@index([type])
+  @@index([severity])
+  @@index([status])
+  @@index([booking_id])
+  @@index([assigned_to])
+  @@index([created_at])
+  @@map("incidents")
+}
+
+model IncidentComment {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  incident_id     String    @db.Uuid
+  incident        Incident  @relation(fields: [incident_id], references: [id])
+  author_id       String    @db.Uuid
+  content         String    @db.Text
+  is_internal     Boolean   @default(false) // Not visible to customer
+  created_at      DateTime  @default(now()) @db.Timestamptz
+  
+  @@index([incident_id])
+  @@map("incident_comments")
+}
+
+enum IncidentType {
+  LOCKER_MALFUNCTION
+  PAYMENT_ACCESS_MISMATCH
+  TOOL_DAMAGED
+  TOOL_MISSING
+  USER_DISPUTE
+  SYSTEM_ERROR
+  OVERDUE_CRITICAL
+  SECURITY_CONCERN
+}
+
+enum IncidentSeverity {
+  P1  // Critical - immediate response
+  P2  // High - 1 hour response
+  P3  // Medium - 24 hour response
+  P4  // Low - tracking only
+}
+
+enum IncidentStatus {
+  OPEN
+  INVESTIGATING
+  PENDING_ACTION
+  ESCALATED
+  RESOLVED
+  ARCHIVED
+}
+
+// ============================================================================
+// NOTIFICATIONS
+// ============================================================================
+
+model Notification {
+  id              String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id         String             @db.Uuid
+  user            User               @relation(fields: [user_id], references: [id])
+  booking_id      String?            @db.Uuid
+  booking         Booking?           @relation(fields: [booking_id], references: [id])
+  
+  channel         NotificationChannel
+  type            NotificationType
+  
+  // Content
+  subject         String?
+  content         String             @db.Text
+  
+  // Delivery
+  status          NotificationStatus @default(PENDING)
+  provider        String?            // sendgrid, twilio, etc.
+  provider_id     String?            // External message ID
+  
+  scheduled_at    DateTime?          @db.Timestamptz
+  sent_at         DateTime?          @db.Timestamptz
+  delivered_at    DateTime?          @db.Timestamptz
+  opened_at       DateTime?          @db.Timestamptz
+  clicked_at      DateTime?          @db.Timestamptz
+  
+  failure_reason  String?
+  retry_count     Int                @default(0)
+  
+  created_at      DateTime           @default(now()) @db.Timestamptz
+  
+  @@index([user_id])
+  @@index([booking_id])
+  @@index([status])
+  @@index([type])
+  @@index([scheduled_at])
+  @@map("notifications")
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  PUSH
+}
+
+enum NotificationType {
+  BOOKING_CONFIRMED
+  PAYMENT_RECEIVED
+  RENTAL_STARTING
+  RETURN_REMINDER
+  OVERDUE_WARNING
+  RETURN_CONFIRMED
+  LATE_FEE_CHARGED
+  EXTENSION_APPROVED
+  EXTENSION_REJECTED
+  INCIDENT_UPDATE
+  ACCOUNT_VERIFICATION
+  PASSWORD_RESET
+}
+
+enum NotificationStatus {
+  PENDING
+  SCHEDULED
+  SENT
+  DELIVERED
+  FAILED
+  BOUNCED
+}
+
+// ============================================================================
+// CONTENT MANAGEMENT
+// ============================================================================
+
+model ContentBlock {
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  product_id      String?         @db.Uuid
+  product         Product?        @relation(fields: [product_id], references: [id])
+  page_slug       String?         // For standalone pages
+  
+  type            ContentBlockType
+  content         Json            // Block-specific content
+  display_order   Int             @default(0)
+  
+  // Versioning
+  version         Int             @default(1)
+  published_at    DateTime?       @db.Timestamptz
+  
+  created_by      String          @db.Uuid
+  created_at      DateTime        @default(now()) @db.Timestamptz
+  updated_at      DateTime        @updatedAt @db.Timestamptz
+  
+  versions        ContentBlockVersion[]
+  
+  @@index([product_id])
+  @@index([page_slug])
+  @@index([display_order])
+  @@map("content_blocks")
+}
+
+model ContentBlockVersion {
+  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  block_id        String       @db.Uuid
+  block           ContentBlock @relation(fields: [block_id], references: [id], onDelete: Cascade)
+  version         Int
+  content         Json
+  created_by      String       @db.Uuid
+  created_at      DateTime     @default(now()) @db.Timestamptz
+  
+  @@unique([block_id, version])
+  @@map("content_block_versions")
+}
+
+enum ContentBlockType {
+  TEXT
+  IMAGE
+  VIDEO
+  CTA_BUTTON
+  FAQ
+  SPECIFICATIONS
+  GALLERY
+  TESTIMONIAL
+}
+
+// ============================================================================
+// AUDIT LOG
+// ============================================================================
+
+model AuditLog {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id         String?   @db.Uuid
+  user            User?     @relation(fields: [user_id], references: [id])
+  
+  action          String    // e.g., "booking.create", "locker.open"
+  entity_type     String    // e.g., "Booking", "User"
+  entity_id       String?   @db.Uuid
+  
+  // Change details
+  old_values      Json?
+  new_values      Json?
+  
+  // Request context
+  ip_address      String?
+  user_agent      String?
+  request_id      String?   // Correlation ID
+  
+  // Never deleted
+  created_at      DateTime  @default(now()) @db.Timestamptz
+  
+  @@index([user_id])
+  @@index([entity_type, entity_id])
+  @@index([action])
+  @@index([created_at])
+  @@map("audit_logs")
+}
