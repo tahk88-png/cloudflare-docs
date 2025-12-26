@@ -1,0 +1,20 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import UserDashboard from "~/components/rentbox/UserDashboard";
+---
+
+<StarlightPage
+	frontmatter={{
+		title: "Dashboard",
+		template: "splash",
+		description:
+			"Active rentals, what’s next, past history, invoices, and signed agreements.",
+	}}
+	hideTitle={true}
+	hideBreadcrumbs={true}
+	hasSidebar={false}
+	tableOfContents={false}
+>
+	<UserDashboard client:load />
+</StarlightPage>
+
