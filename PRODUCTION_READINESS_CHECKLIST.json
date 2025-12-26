@@ -1,0 +1,281 @@
+{
+  "version": "1.0",
+  "release": "",
+  "date": "",
+  "checklist": {
+    "pre_launch": {
+      "category": "PRE-LAUNCH (BLOCKERS)",
+      "items": [
+        {
+          "id": 1,
+          "title": "Critical Endpoints Idempotency",
+          "description": "Payment, voucher, and locker open endpoints must be idempotent",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": true
+        },
+        {
+          "id": 2,
+          "title": "Database Migrations Applied and Verified",
+          "description": "All pending migrations applied, schema version matches expected",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": true
+        },
+        {
+          "id": 3,
+          "title": "Exclusion Constraints Active for Bookings",
+          "description": "Database exclusion constraints prevent overlapping bookings",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": true
+        },
+        {
+          "id": 4,
+          "title": "Pending Booking TTL Enabled",
+          "description": "Time-to-live mechanism configured for pending bookings",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": true
+        },
+        {
+          "id": 5,
+          "title": "Timezone Handling Verified (Europe/Tallinn, DST)",
+          "description": "Timezone handling correct for Europe/Tallinn including DST transitions",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": true
+        },
+        {
+          "id": 6,
+          "title": "Secrets Stored Securely (No Env Leaks)",
+          "description": "No secrets in code, config files, or logs; all in secret manager",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": true
+        },
+        {
+          "id": 7,
+          "title": "Feature Flags Defaulted Correctly",
+          "description": "Production feature flags set to safe defaults",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": true
+        },
+        {
+          "id": 8,
+          "title": "Backup & Restore Tested (DB + Object Storage)",
+          "description": "Backup and restore procedures tested and verified",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": true
+        }
+      ]
+    },
+    "security": {
+      "category": "SECURITY",
+      "items": [
+        {
+          "id": 9,
+          "title": "RBAC Verified Per Role",
+          "description": "Role-based access control verified for customer, admin, support roles",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": false
+        },
+        {
+          "id": 10,
+          "title": "Admin Actions Logged",
+          "description": "All admin actions logged to audit log system",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": false
+        },
+        {
+          "id": 11,
+          "title": "Rate Limits Enabled",
+          "description": "Rate limits configured for apply-code, login, locker open endpoints",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": false
+        },
+        {
+          "id": 12,
+          "title": "Webhooks Signature-Verified",
+          "description": "All webhook endpoints verify HMAC signature",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": false
+        },
+        {
+          "id": 13,
+          "title": "GDPR: Data Retention Rules Configured",
+          "description": "Data retention policy configured and automated deletion tested",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": false
+        }
+      ]
+    },
+    "operations": {
+      "category": "OPERATIONS",
+      "items": [
+        {
+          "id": 14,
+          "title": "Locker Access Service Reachable",
+          "description": "Locker service health check passes, connectivity verified",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": false
+        },
+        {
+          "id": 15,
+          "title": "SMS + Email Providers Healthy",
+          "description": "SMS and email providers tested and healthy",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": false
+        },
+        {
+          "id": 16,
+          "title": "Fallback Access Tested",
+          "description": "Fallback mechanism for locker access tested",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": false
+        },
+        {
+          "id": 17,
+          "title": "Incident Logging Enabled",
+          "description": "Log aggregation system configured and collecting logs",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": false
+        },
+        {
+          "id": 18,
+          "title": "Admin Override Tested",
+          "description": "Admin override functionality tested and logged",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": false
+        }
+      ]
+    },
+    "performance": {
+      "category": "PERFORMANCE",
+      "items": [
+        {
+          "id": 19,
+          "title": "Availability Queries Indexed",
+          "description": "Database indexes exist for availability queries",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": false
+        },
+        {
+          "id": 20,
+          "title": "Calendar Queries Paginated/Limited",
+          "description": "Calendar endpoints implement pagination with limits",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": false
+        },
+        {
+          "id": 21,
+          "title": "Cache Warmup Executed",
+          "description": "Cache warmup script executed pre-launch",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": false
+        },
+        {
+          "id": 22,
+          "title": "P95 Latency Targets Met",
+          "description": "Load testing completed, P95 latency targets met",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": false
+        }
+      ]
+    },
+    "go_no_go": {
+      "category": "GO/NO-GO",
+      "items": [
+        {
+          "id": 23,
+          "title": "Final Sign-Off Checklist",
+          "description": "All categories reviewed, sign-offs obtained",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": true
+        },
+        {
+          "id": 24,
+          "title": "Rollback Plan Documented",
+          "description": "Rollback procedure documented and tested",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": true
+        },
+        {
+          "id": 25,
+          "title": "On-Call Owner Assigned",
+          "description": "Primary and secondary on-call assigned for launch window",
+          "status": "pending",
+          "verified_by": "",
+          "evidence": "",
+          "blocker": true
+        }
+      ]
+    }
+  },
+  "sign_offs": {
+    "engineering_lead": {
+      "name": "",
+      "date": ""
+    },
+    "security_lead": {
+      "name": "",
+      "date": ""
+    },
+    "sre_lead": {
+      "name": "",
+      "date": ""
+    },
+    "product_manager": {
+      "name": "",
+      "date": ""
+    }
+  },
+  "final_decision": {
+    "status": "pending",
+    "decision_maker": "",
+    "date_time": "",
+    "notes": ""
+  }
+}
