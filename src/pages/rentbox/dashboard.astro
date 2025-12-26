@@ -1,0 +1,75 @@
+---
+/**
+ * Rentbox.ee User Dashboard Page
+ * 
+ * A clean, mobile-first dashboard for users to manage their rentals,
+ * view invoices, and access signed agreements.
+ */
+import "../../styles/rentbox-dashboard.css";
+import UserDashboard from "../../components/rentbox/UserDashboard";
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Manage your Rentbox.ee locker rentals, view invoices, and access your rental history." />
+  <title>My Dashboard | Rentbox.ee</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  
+  <!-- Prevent indexing of user dashboard -->
+  <meta name="robots" content="noindex, nofollow" />
+  
+  <!-- Theme color for mobile browsers -->
+  <meta name="theme-color" content="#2563eb" />
+  
+  <!-- Preconnect to API -->
+  <link rel="preconnect" href="/api" />
+  
+  <style is:global>
+    /* Reset and base styles */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background-color: #f9fafb;
+    }
+    
+    :root[data-theme="dark"] body {
+      background-color: #0f172a;
+    }
+    
+    /* Ensure dashboard container fills viewport */
+    #dashboard-root {
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="dashboard-root">
+    <UserDashboard client:load useMockData={true} />
+  </div>
+  
+  <script>
+    // Detect system dark mode preference and apply theme
+    function applyTheme() {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    }
+    
+    // Apply theme on load
+    applyTheme();
+    
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
+  </script>
+</body>
+</html>
