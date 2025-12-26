@@ -13,6 +13,7 @@ import { TimelineGrid } from "./TimelineGrid";
 import { EventDrawer } from "./EventDrawer";
 import { BlockCreateDialog } from "./BlockCreateDialog";
 import { SkeletonTimeline } from "./SkeletonTimeline";
+import { CalendarLegend } from "../components/CalendarLegend";
 
 export interface AdminCalendarPageProps {
 	lockers: LockerOption[];
@@ -124,6 +125,7 @@ export function AdminCalendarPage({ lockers, compartments, products, baseUrl, us
 						<div className="space-y-3">
 							<LockerSelect lockers={lockers} value={lockerId} onChange={setLockerId} />
 							<FiltersPanel filters={filters} onChange={setFilters} products={products} />
+							<CalendarLegend />
 							<div className="text-xs text-gray-600">
 								- Lohista ajajoonel, et luua hooldusblokk (15-min samm).
 								<br />- Overdue on esile tõstetud.

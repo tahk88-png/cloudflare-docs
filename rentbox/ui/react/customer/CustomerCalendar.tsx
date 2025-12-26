@@ -11,6 +11,7 @@ import { NextAvailableBanner } from "./NextAvailableBanner";
 import { useProductSlots } from "../hooks/useProductSlots";
 import { useAvailability } from "../hooks/useAvailability";
 import { createRentboxApiClient } from "../api";
+import { CalendarLegend } from "../components/CalendarLegend";
 
 export interface CustomerCalendarProps {
 	productId: number;
@@ -154,6 +155,13 @@ export function CustomerCalendar({
 						}}
 						tz={tz}
 					/>
+
+					<details className="rounded-lg border border-gray-200 bg-white p-3">
+						<summary className="cursor-pointer text-sm font-medium text-gray-900">Selgitused</summary>
+						<div className="mt-2">
+							<CalendarLegend variant="customer" />
+						</div>
+					</details>
 
 					{error ? (
 						<Alert variant="destructive">

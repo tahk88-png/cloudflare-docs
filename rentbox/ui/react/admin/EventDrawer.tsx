@@ -1,10 +1,11 @@
 import * as React from "react";
 import type { CalendarEvent, TimeZone } from "../types";
 import { Sheet } from "../components/ui/sheet";
-import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { formatISOToFull } from "../time";
+import { StatusBadge } from "../components/StatusBadge";
+import { labelForScope, statusForEvent } from "../design/calendarStatus";
 
 export function EventDrawer({
 	open,
@@ -32,6 +33,7 @@ export function EventDrawer({
 	if (!event) return <Sheet open={open} onOpenChange={onOpenChange} title="Sündmus" />;
 
 	const isBlock = event.scope === "maintenance" || event.scope === "block";
+	const status = statusForEvent(event);
 
 	return (
 		<Sheet
@@ -82,10 +84,18 @@ export function EventDrawer({
 
 			<div className="space-y-3">
 				<div className="flex flex-wrap items-center gap-2">
-					<Badge variant="outline">scope: {event.scope}</Badge>
-					<Badge variant="outline">status: {event.status}</Badge>
-					{event.locker_id ? <Badge variant="outline">locker: {event.locker_id}</Badge> : null}
-					{event.compartment_id ? <Badge variant="outline">compartment: {event.compartment_id}</Badge> : null}
+					<StatusBadge status={status} withIcon={true} />
+					<span className="rounded-full border border-gray-300 px-2.5 py-0.5 text-xs text-gray-900">
+						{labelForScope(event.scope)}
+					</span>
+					{event.locker_id ? (
+						<span className="rounded-full border border-gray-300 px-2.5 py-0.5 text-xs text-gray-900">locker: {event.locker_id}</span>
+					) : null}
+					{event.compartment_id ? (
+						<span className="rounded-full border border-gray-300 px-2.5 py-0.5 text-xs text-gray-900">
+							compartment: {event.compartment_id}
+						</span>
+					) : null}
 				</div>
 
 				{event.scope === "booking" ? (

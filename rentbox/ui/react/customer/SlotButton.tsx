@@ -1,7 +1,8 @@
 import type { Slot, TimeZone } from "../types";
 import { cn } from "../components/ui/cn";
-import { Badge } from "../components/ui/badge";
+import { StatusBadge } from "../components/StatusBadge";
 import { formatISOToTime } from "../time";
+import { statusForSlot } from "../design/calendarStatus";
 
 export function SlotButton({
 	slot,
@@ -15,6 +16,7 @@ export function SlotButton({
 	tz: TimeZone;
 }) {
 	const disabled = !slot.is_available;
+	const status = statusForSlot(slot);
 
 	return (
 		<button
@@ -35,12 +37,7 @@ export function SlotButton({
 				</div>
 				<div className="mt-0.5 text-xs text-gray-600">Eesti aeg</div>
 			</div>
-			<Badge
-				variant={slot.is_available ? "success" : "muted"}
-				className={cn(slot.is_available ? "" : "text-gray-500")}
-			>
-				{slot.is_available ? "Vaba" : "Pole vaba"}
-			</Badge>
+			<StatusBadge status={status} />
 		</button>
 	);
 }

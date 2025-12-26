@@ -7,8 +7,8 @@ export interface Slot {
 	start_at: ISODateTime;
 	end_at: ISODateTime;
 	is_available: boolean;
-	// Optional future extension:
-	// availability_level?: "available" | "limited" | "unavailable";
+	// Optional hint from server when availability is low (customer only).
+	availability_level?: "available" | "limited" | "unavailable";
 }
 
 export interface AvailabilityResponse {
