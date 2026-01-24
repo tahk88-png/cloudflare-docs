@@ -2,6 +2,7 @@
 import { z } from "astro:schema";
 import { marked } from "marked";
 import { indexPlans } from "~/util/plans";
+import type { PlanCategory, Feature, FeatureProperty } from "~/util/planTypes";
 
 type Props = z.infer<typeof props>;
 
@@ -14,14 +15,13 @@ const props = z
 
 const { id, additional_descriptions } = props.parse(Astro.props);
 
-const plan = await indexPlans(id);
+const plan = (await indexPlans(id)) as PlanCategory;
 
 const entries = Object.entries(plan);
 ---
 
 {
-	// TODO: improve product features types
-	entries.map(([key, value]: [string, any]) => {
+	entries.map(([key, value]: [string, Feature | string | Record<string, FeatureProperty> | undefined]) => {
 		if (key === "title" || key === "link") return;
 
 		return (
@@ -33,90 +33,90 @@ const entries = Object.entries(plan);
 						<strong>Link:</strong>{" "}<a href={value.link}>{value.title}</a>
 					</p>
 				)}
-				{Object.values(value.properties).map((value: any) => (
+				{Object.values(value.properties).map((featureProp: FeatureProperty) => (
 					<div>
 						<strong
 							set:html={marked.parseInline(
-								value.title === "Availability"
+								featureProp.title === "Availability"
 									? "Feature availability"
-									: value.title,
+									: featureProp.title,
 							)}
 						/>
-						{value.title !== "Availability" && value.summary && (
-							<Fragment set:html={marked.parse(value.summary)} />
+						{featureProp.title !== "Availability" && featureProp.summary && (
+							<Fragment set:html={marked.parse(featureProp.summary)} />
 						)}
 						<ul>
-							{value.free !== undefined && (
+							{featureProp.free !== undefined && (
 								<li>
 									<strong>Free:</strong>{" "}
 									<Fragment
-										set:html={marked.parseInline(value.free.toString())}
+										set:html={marked.parseInline(featureProp.free.toString())}
 									/>
 								</li>
 							)}
 							{additional_descriptions && (
 								<>
-									{value.lite !== undefined ? (
+									{featureProp.lite !== undefined ? (
 										<li>
 											<strong>Lite:</strong>{" "}
 											<Fragment
-												set:html={marked.parseInline(value.lite.toString())}
+												set:html={marked.parseInline(featureProp.lite.toString())}
 											/>
 										</li>
 									) : (
-										value.free !== undefined && (
+										featureProp.free !== undefined && (
 											<li>
 												<strong>Lite:</strong>{" "}
 												<Fragment
-													set:html={marked.parseInline(value.free.toString())}
+													set:html={marked.parseInline(featureProp.free.toString())}
 												/>
 											</li>
 										)
 									)}
 								</>
 							)}
-							{value.pro !== undefined && (
+							{featureProp.pro !== undefined && (
 								<li>
 									<strong>Pro:</strong>{" "}
 									<Fragment
-										set:html={marked.parseInline(value.pro.toString())}
+										set:html={marked.parseInline(featureProp.pro.toString())}
 									/>
 								</li>
 							)}
 							{additional_descriptions && (
 								<>
-									{value.pro_plus !== undefined ? (
+									{featureProp.pro_plus !== undefined ? (
 										<li>
 											<strong>Pro Plus:</strong>{" "}
 											<Fragment
-												set:html={marked.parseInline(value.pro_plus.toString())}
+												set:html={marked.parseInline(featureProp.pro_plus.toString())}
 											/>
 										</li>
 									) : (
-										value.pro !== undefined && (
+										featureProp.pro !== undefined && (
 											<li>
 												<strong>Pro Plus:</strong>{" "}
 												<Fragment
-													set:html={marked.parseInline(value.pro.toString())}
+													set:html={marked.parseInline(featureProp.pro.toString())}
 												/>
 											</li>
 										)
 									)}
 								</>
 							)}
-							{value.biz !== undefined && (
+							{featureProp.biz !== undefined && (
 								<li>
 									<strong>Business:</strong>{" "}
 									<Fragment
-										set:html={marked.parseInline(value.biz.toString())}
+										set:html={marked.parseInline(featureProp.biz.toString())}
 									/>
 								</li>
 							)}
-							{value.ent !== undefined && (
+							{featureProp.ent !== undefined && (
 								<li>
 									<strong>Enterprise:</strong>{" "}
 									<Fragment
-										set:html={marked.parseInline(value.ent.toString())}
+										set:html={marked.parseInline(featureProp.ent.toString())}
 									/>
 								</li>
 							)}

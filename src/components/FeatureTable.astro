@@ -2,6 +2,7 @@
 import { z } from "astro:schema";
 import { indexPlans } from "~/util/plans";
 import { marked } from "marked";
+import type { PlanCategory, FeatureProperty } from "~/util/planTypes";
 
 type Props = z.infer<typeof props>;
 
@@ -13,10 +14,9 @@ const props = z
 
 const { id } = props.parse(Astro.props);
 
-// TODO: improve product features types
-const plan = (await indexPlans(id)) as any;
+const plan = (await indexPlans(id)) as PlanCategory;
 
-const features: any[] = Object.values(plan.properties);
+const features: FeatureProperty[] = Object.values(plan.properties ?? {});
 
 const hasFree = features.some((x) => x.free);
 const hasPro = features.some((x) => x.pro);
@@ -24,7 +24,7 @@ const hasBiz = features.some((x) => x.biz);
 const hasEnt = features.some((x) => x.ent);
 const hasEntPlus = features.some((x) => x.ent_plus);
 
-const markdown = (content: any) => {
+const markdown = (content: string | number | boolean | undefined) => {
 	if (typeof content !== "string") return content;
 
 	return marked.parse(content);
